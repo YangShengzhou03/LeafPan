@@ -32,7 +32,7 @@
           </div>
           <div class="hero-image">
             <h2>广告位展示</h2>
-            <p>展示您的产品或服务，增加流量和客户联系</p>
+            <p>您能看到，您的潜在用户也能看到</p>
             <!-- <video src="https://www.bilibili.com/video/BV1KdkeYQEKg/" alt="枫叶网盘" controls></video> -->
           </div>
         </div>
@@ -40,28 +40,28 @@
 
       <section id="features" class="features-section">
         <div class="container">
-          <h2>枫叶网盘的竞争力在哪？</h2>
+          <h2>枫叶的竞争力在哪？</h2>
           <div class="features-grid">
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-cloudy"></i>
               </div>
-              <h3>银行级安全</h3>
-              <p>多重加密技术保护，让您的文件像存在保险柜里一样安全</p>
+              <h3>十分安全</h3>
+              <p>三重加密保护，数据安全是我们的生命。</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-share"></i>
               </div>
               <h3>轻松分享</h3>
-              <p>一键分享文件给朋友，自由设置查看和编辑权限</p>
+              <p>一键分享文件给朋友，自由查看和编辑。</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-mobile-phone"></i>
               </div>
               <h3>多设备同步</h3>
-              <p>电脑、手机、平板随时随地访问，文件始终最新</p>
+              <p>电脑、手机、平板随时随地访问，文件始终最新。</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
@@ -89,8 +89,8 @@
             </div>
             <div class="pricing-card popular">
               <div class="badge">热门选择</div>
-              <h3>标准套餐</h3>
-              <div class="price">¥19<span>/月</span></div>
+              <h3>会员套餐</h3>
+              <div class="price">¥1.99<span>/月</span></div>
               <ul class="features-list">
                 <li>100GB 存储空间</li>
                 <li>高级文件管理工具</li>
@@ -99,8 +99,8 @@
               </ul>
             </div>
             <div class="pricing-card">
-              <h3>专业套餐</h3>
-              <div class="price">¥49<span>/月</span></div>
+              <h3>至尊套餐</h3>
+              <div class="price">¥39<span>/月</span></div>
               <ul class="features-list">
                 <li>1TB 存储空间</li>
                 <li>专业文件管理工具</li>
