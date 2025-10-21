@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import IndexLayout from '@/components/IndexLayout.vue';
 import IndexPage from '@/views/IndexPage.vue';
+import LoginPage from '@/views/LoginPage.vue';
 
 const routes = [
   // 未登录布局（首页 + 登录/注册）
@@ -11,6 +12,9 @@ const routes = [
       { path: '', name: 'IndexPage', component: IndexPage, meta: { title: '枫叶网盘' } },
     ]
   },
+  
+  // 登录页面
+  { path: '/login', name: 'LoginPage', component: LoginPage, meta: { title: '登录 - 枫叶网盘' } },
 
   // 错误路径重定向（仅保留这一条）
   { path: '/:pathMatch(.*)*', redirect: '/' }

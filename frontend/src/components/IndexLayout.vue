@@ -6,9 +6,13 @@
         <div class="logo-area">
           <h1>枫叶网盘</h1>
         </div>
-        <div class="auth-buttons">
-          <ElButton type="default" class="register-btn">注册</ElButton>
-          <ElButton type="primary" class="login-btn">登录</ElButton>
+        <div class="auth-buttons" v-if="!isAuthenticated">
+          <ElButton type="default" class="register-btn" @click="handleRegister">注册</ElButton>
+          <ElButton type="primary" class="login-btn" @click="handleLogin">登录</ElButton>
+        </div>
+        <div class="user-info" v-else>
+          <span class="welcome-text">欢迎，{{ currentUser?.username || '用户' }}</span>
+          <ElButton type="text" class="logout-btn" @click="handleLogout">退出</ElButton>
         </div>
       </div>
     </header>
@@ -20,7 +24,9 @@
             <h1>安全可靠的云存储解决方案</h1>
             <p>枫叶网盘为您提供高速、安全、便捷的文件存储与分享服务，随时随地访问您的重要数据</p>
             <div class="cta-buttons">
-              <ElButton type="primary" size="large" class="start-btn">立即开始</ElButton>
+              <ElButton type="primary" size="large" class="start-btn" @click="handleStart">
+                {{ isAuthenticated ? '进入网盘' : '立即开始' }}
+              </ElButton>
               <ElButton type="default" size="large" class="demo-btn">功能演示</ElButton>
             </div>
           </div>
@@ -150,7 +156,8 @@
 </template>
 
 <script>
-import { ElButton } from 'element-plus';
+import { ElButton, ElMessage } from 'element-plus';
+import store from '@/utils/store.js';
 
 export default {
   name: 'IndexLayout',
@@ -159,12 +166,34 @@ export default {
       isLogin: false
     }
   },
+  computed: {
+    isAuthenticated() {
+      return store.state.isAuthenticated;
+    },
+    currentUser() {
+      return store.state.user;
+    }
+  },
   methods: {
     handleLogin() {
-      // 处理登录逻辑
+      this.$router.push('/login');
     },
     handleRegister() {
-      // 处理注册逻辑
+      this.$router.push('/login');
+    },
+    handleLogout() {
+      store.logout();
+      ElMessage.success('已退出登录');
+      this.$router.push('/');
+    },
+    handleStart() {
+      if (this.isAuthenticated) {
+        // 已登录，跳转到文件管理页面
+        this.$router.push('/dashboard');
+      } else {
+        // 未登录，跳转到登录页面
+        this.$router.push('/login');
+      }
     }
   }
 }
@@ -231,6 +260,26 @@ export default {
 .register-btn {
   border-color: #409EFF;
   color: #409EFF;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.welcome-text {
+  color: #606266;
+  font-size: 14px;
+}
+
+.logout-btn {
+  color: #F56C6C;
+}
+
+.logout-btn:hover {
+  color: #F56C6C;
+  background-color: rgba(245, 108, 108, 0.1);
 }
 
 /* Main Content */
