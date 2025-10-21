@@ -434,9 +434,9 @@ const beforeAvatarUpload = (file) => {
 .personal-center-content {
   width: 100%;
   margin: 0 auto;
-  padding: 0px 15px;
+  padding: 0px 0px;
   display: grid;
-  gap: 24px;
+  gap: 25px;
 
   @media (min-width: 992px) {
     grid-template-columns: 1fr 1fr;
