@@ -31,14 +31,16 @@
             </div>
           </div>
           <div class="hero-image">
-            <video src="https://www.bilibili.com/video/BV1KdkeYQEKg/" alt="枫叶网盘" controls></video>
+            <h2>广告位展示</h2>
+            <p>展示您的产品或服务，增加流量和客户联系</p>
+            <!-- <video src="https://www.bilibili.com/video/BV1KdkeYQEKg/" alt="枫叶网盘" controls></video> -->
           </div>
         </div>
       </section>
 
       <section id="features" class="features-section">
         <div class="container">
-          <h2>为什么选择枫叶网盘</h2>
+          <h2>枫叶网盘的竞争力在哪？</h2>
           <div class="features-grid">
             <div class="feature-card">
               <div class="feature-icon">
@@ -176,7 +178,7 @@ export default {
       this.$router.push('/login');
     },
     handleRegister() {
-      this.$router.push('/login');
+      this.$router.push('/login?mode=register');
     },
     handleLogout() {
       store.logout();
@@ -327,6 +329,7 @@ export default {
 
 .hero-image {
   flex: 1;
+  color: #606266;
   text-align: center;
 }
 

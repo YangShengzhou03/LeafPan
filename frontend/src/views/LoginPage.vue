@@ -110,13 +110,14 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { authAPI } from '@/utils/api.js'
 import store from '@/utils/store.js'
 
 const router = useRouter()
+const route = useRoute()
 
 // 激活的标签页
 const activeTab = ref('login')
@@ -140,6 +141,14 @@ const registerForm = reactive({
 // 加载状态
 const loginLoading = ref(false)
 const registerLoading = ref(false)
+
+// 组件挂载时检查路由参数
+onMounted(() => {
+  // 检查路由中是否有 mode 参数，且值为 register
+  if (route.query.mode === 'register') {
+    activeTab.value = 'register'
+  }
+})
 
 // 登录表单验证规则
 const loginRules = {
