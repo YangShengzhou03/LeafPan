@@ -85,116 +85,11 @@
           </div>
         </div>
 
-        <!-- 存储设置 -->
-        <div v-if="activeTab === 'storage'" class="settings-section">
-          <h2>存储设置</h2>
 
-          <!-- 存储空间 -->
-          <div class="storage-item">
-            <h3>存储空间</h3>
-            <div class="storage-info">
-              <div class="storage-chart">
-                <div class="circular-progress">
-                  <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e9ecef" stroke-width="10"></circle>
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#409EFF" stroke-width="10" stroke-dasharray="283"
-                      :stroke-dashoffset="dashOffset" stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
-                    <text x="50" y="50" text-anchor="middle" dy="0.3em" font-size="20" font-weight="bold"
-                      fill="#303133">
-                      {{ storagePercentage }}%
-                    </text>
-                  </svg>
-                </div>
-                <div class="storage-details">
-                  <div class="storage-item">
-                    <span class="label">已使用</span>
-                    <span class="value">{{ formatFileSize(usedStorageBytes) }}</span>
-                  </div>
-                  <div class="storage-item">
-                    <span class="label">总容量</span>
-                    <span class="value">{{ formatFileSize(totalStorageBytes) }}</span>
-                  </div>
-                  <div class="storage-item">
-                    <span class="label">可用空间</span>
-                    <span class="value">{{ formatFileSize(availableStorageBytes) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="storage-actions">
-              <el-button type="primary" @click="showUpgradeDialog">升级存储</el-button>
-              <el-button @click="cleanStorage">清理存储</el-button>
-            </div>
-          </div>
 
-          <!-- 存储分析 -->
-          <div class="storage-item">
-            <h3>存储分析</h3>
-            <div class="storage-breakdown">
-              <div class="breakdown-item" v-for="item in storageBreakdown" :key="item.type">
-                <div class="breakdown-color" :style="{ backgroundColor: item.color }"></div>
-                <div class="breakdown-info">
-                  <span class="breakdown-label">{{ item.label }}</span>
-                  <span class="breakdown-value">{{ formatFileSize(item.size) }} ({{ item.percentage }}%)</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- 通知设置 -->
-        <div v-if="activeTab === 'notifications'" class="settings-section">
-          <h2>通知设置</h2>
-          <div class="notification-item" v-for="item in notificationSettings" :key="item.id">
-            <div class="notification-info">
-              <div class="notification-title">{{ item.title }}</div>
-              <div class="notification-description">{{ item.description }}</div>
-            </div>
-            <el-switch v-model="item.enabled" @change="updateNotificationSetting(item)" />
-          </div>
-        </div>
 
-        <!-- 主题设置 -->
-        <div v-if="activeTab === 'appearance'" class="settings-section">
-          <h2>主题设置</h2>
 
-          <!-- 主题模式 -->
-          <div class="appearance-item">
-            <h3>主题模式</h3>
-            <div class="theme-options">
-              <div class="theme-option" :class="{ active: themeMode === 'light' }" @click="themeMode = 'light'">
-                <div class="theme-preview light-theme"></div>
-                <span>浅色模式</span>
-              </div>
-              <div class="theme-option" :class="{ active: themeMode === 'dark' }" @click="themeMode = 'dark'">
-                <div class="theme-preview dark-theme"></div>
-                <span>深色模式</span>
-              </div>
-              <div class="theme-option" :class="{ active: themeMode === 'auto' }" @click="themeMode = 'auto'">
-                <div class="theme-preview auto-theme"></div>
-                <span>跟随系统</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 主题颜色 -->
-          <div class="appearance-item">
-            <h3>主题颜色</h3>
-            <div class="color-options">
-              <div class="color-option" v-for="color in themeColors" :key="color.value"
-                :class="{ active: primaryColor === color.value }" @click="primaryColor = color.value">
-                <div class="color-circle" :style="{ backgroundColor: color.value }"></div>
-                <span>{{ color.name }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 字体大小 -->
-          <div class="appearance-item">
-            <h3>字体大小</h3>
-            <el-slider v-model="fontSize" :min="12" :max="20" :step="1" show-input />
-          </div>
-        </div>
       </div>
     </div>
 
@@ -243,10 +138,7 @@ const activeTab = ref('account')
 // 设置标签页
 const settingsTabs = [
   { id: 'account', label: '账户', icon: 'el-icon-user' },
-  { id: 'security', label: '安全', icon: 'el-icon-lock' },
-  { id: 'storage', label: '存储', icon: 'el-icon-folder-opened' },
-  { id: 'notifications', label: '通知', icon: 'el-icon-bell' },
-  { id: 'appearance', label: '外观', icon: 'el-icon-brush' }
+  { id: 'security', label: '安全', icon: 'el-icon-lock' }
 ]
 
 // 账户设置
@@ -310,90 +202,11 @@ const loginDevices = ref([
   { id: 2, name: 'Safari on iPhone', location: '上海', lastLogin: new Date(Date.now() - 86400000), current: false }
 ])
 
-// 存储设置
-const totalStorageGB = ref(5)
-const usedStorageGB = ref(1.2)
 
-const storagePercentage = computed(() => {
-  return Math.min(100, Math.round((usedStorageGB.value / totalStorageGB.value) * 100))
-})
 
-const dashOffset = computed(() => {
-  const circumference = 2 * Math.PI * 45
-  return circumference - (storagePercentage.value / 100) * circumference
-})
 
-const totalStorageBytes = computed(() => {
-  return totalStorageGB.value * 1024 * 1024 * 1024
-})
 
-const usedStorageBytes = computed(() => {
-  return usedStorageGB.value * 1024 * 1024 * 1024
-})
 
-const availableStorageBytes = computed(() => {
-  return totalStorageBytes.value - usedStorageBytes.value
-})
-
-const storageBreakdown = ref([
-  { type: 'documents', label: '文档', size: 450 * 1024 * 1024, percentage: 37, color: '#409EFF' },
-  { type: 'images', label: '图片', size: 320 * 1024 * 1024, percentage: 26, color: '#67C23A' },
-  { type: 'videos', label: '视频', size: 280 * 1024 * 1024, percentage: 23, color: '#E6A23C' },
-  { type: 'others', label: '其他', size: 150 * 1024 * 1024, percentage: 14, color: '#909399' }
-])
-
-// 升级存储对话框
-const upgradeDialog = ref({
-  visible: false
-})
-
-const upgradingStorage = ref(false)
-const selectedPlan = ref('basic')
-
-const storagePlans = ref([
-  {
-    id: 'basic',
-    name: '基础版',
-    price: '¥9.9',
-    storage: 10,
-    features: ['10GB 存储空间', '基础文件管理', '邮件支持']
-  },
-  {
-    id: 'pro',
-    name: '专业版',
-    price: '¥19.9',
-    storage: 50,
-    features: ['50GB 存储空间', '高级文件管理', '文件版本历史', '优先支持']
-  },
-  {
-    id: 'enterprise',
-    name: '企业版',
-    price: '¥99.9',
-    storage: 500,
-    features: ['500GB 存储空间', '企业级安全', '团队协作', '专属客服', 'API访问']
-  }
-])
-
-// 通知设置
-const notificationSettings = ref([
-  { id: 'fileShared', title: '文件共享通知', description: '当有文件与您共享时发送通知', enabled: true },
-  { id: 'storageWarning', title: '存储空间警告', description: '当存储空间不足时发送通知', enabled: true },
-  { id: 'securityAlert', title: '安全警报', description: '当检测到异常登录时发送通知', enabled: true },
-  { id: 'productUpdates', title: '产品更新', description: '当有新功能或产品更新时发送通知', enabled: false }
-])
-
-// 外观设置
-const themeMode = ref('light')
-const primaryColor = ref('#409EFF')
-const fontSize = ref(14)
-
-const themeColors = ref([
-  { name: '默认蓝', value: '#409EFF' },
-  { name: '成功绿', value: '#67C23A' },
-  { name: '警告橙', value: '#E6A23C' },
-  { name: '危险红', value: '#F56C6C' },
-  { name: '信息紫', value: '#909399' }
-])
 
 // 保存账户信息
 const saveAccountInfo = async () => {
@@ -473,56 +286,9 @@ const removeDevice = async (device) => {
   }
 }
 
-// 显示升级对话框
-const showUpgradeDialog = () => {
-  upgradeDialog.value.visible = true
-}
 
-// 升级存储
-const upgradeStorage = async () => {
-  try {
-    upgradingStorage.value = true
-    const plan = storagePlans.value.find(p => p.id === selectedPlan.value)
 
-    await mockApiService.upgradeStorage(plan.id)
-    ElMessage.success(`存储已升级至${plan.name}`)
 
-    // 更新存储信息
-    totalStorageGB.value = plan.storage
-    upgradeDialog.value.visible = false
-  } catch (error) {
-    ElMessage.error('升级存储失败')
-    console.error('升级存储失败:', error)
-  } finally {
-    upgradingStorage.value = false
-  }
-}
-
-// 清理存储
-const cleanStorage = async () => {
-  try {
-    await mockApiService.cleanStorage()
-    ElMessage.success('存储清理完成')
-    // 重新获取存储信息
-    await fetchStorageInfo()
-  } catch (error) {
-    ElMessage.error('清理存储失败')
-    console.error('清理存储失败:', error)
-  }
-}
-
-// 更新通知设置
-const updateNotificationSetting = async (setting) => {
-  try {
-    await mockApiService.updateNotificationSetting(setting.id, setting.enabled)
-    ElMessage.success('通知设置已更新')
-  } catch (error) {
-    ElMessage.error('更新通知设置失败')
-    console.error('更新通知设置失败:', error)
-    // 恢复开关状态
-    setting.enabled = !setting.enabled
-  }
-}
 
 // 获取账户信息
 const fetchAccountInfo = async () => {
@@ -540,21 +306,7 @@ const fetchAccountInfo = async () => {
   }
 }
 
-// 获取存储信息
-const fetchStorageInfo = async () => {
-  try {
-    const storageInfo = await mockApiService.getStorageInfo()
-    totalStorageGB.value = storageInfo.total / (1024 * 1024 * 1024)
-    usedStorageGB.value = storageInfo.used / (1024 * 1024 * 1024)
 
-    // 更新存储分类
-    if (storageInfo.breakdown) {
-      storageBreakdown.value = storageInfo.breakdown
-    }
-  } catch (error) {
-    console.error('获取存储信息失败:', error)
-  }
-}
 
 // 获取登录设备
 const fetchLoginDevices = async () => {
@@ -565,14 +317,7 @@ const fetchLoginDevices = async () => {
   }
 }
 
-// 获取通知设置
-const fetchNotificationSettings = async () => {
-  try {
-    notificationSettings.value = await mockApiService.getNotificationSettings()
-  } catch (error) {
-    console.error('获取通知设置失败:', error)
-  }
-}
+
 
 // 获取外观设置
 const fetchAppearanceSettings = async () => {

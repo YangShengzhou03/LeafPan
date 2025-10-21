@@ -36,7 +36,7 @@
 
         <!-- 空状态 -->
         <div class="empty-state" v-else>
-          <el-empty></el-empty>
+          <el-empty description="暂无共享文件"></el-empty>
         </div>
       </el-tab-pane>
 
@@ -72,7 +72,7 @@
 
         <!-- 空状态 -->
         <div class="empty-state" v-else>
-          <el-empty></el-empty>
+          <el-empty description="暂无他人共享的文件"></el-empty>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -355,7 +355,6 @@ const fetchSharedByMe = async () => {
     const response = await mockApiService.getSharedByMe()
     sharedByMe.value = response
   } catch (error) {
-    ElMessage.error('获取共享文件失败')
     console.error('获取共享文件失败:', error)
   }
 }
@@ -366,7 +365,6 @@ const fetchSharedWithMe = async () => {
     const response = await mockApiService.getSharedWithMe()
     sharedWithMe.value = response
   } catch (error) {
-    ElMessage.error('获取共享文件失败')
     console.error('获取共享文件失败:', error)
   }
 }
