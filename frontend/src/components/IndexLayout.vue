@@ -11,8 +11,8 @@
           <ElButton type="primary" class="login-btn" @click="handleLogin">登录</ElButton>
         </div>
         <div class="user-info" v-else>
-          <span class="welcome-text">欢迎，{{ currentUser?.username || '用户' }}</span>
-          <ElButton type="text" class="logout-btn" @click="handleLogout">退出</ElButton>
+          <span class="welcome-text">您好，{{ currentUser?.username || '用户' }}</span>
+          <ElButton type="text" class="logout-btn" @click="handleLogout">退出登录</ElButton>
         </div>
       </div>
     </header>
@@ -21,13 +21,13 @@
       <section class="hero-section">
         <div class="container">
           <div class="hero-content">
-            <h1>安全可靠的云存储解决方案</h1>
-            <p>枫叶网盘为您提供高速、安全、便捷的文件存储与分享服务，随时随地访问您的重要数据</p>
+            <h1>安全可靠的云存储</h1>
+            <p>轻松存储，随时访问，让您的数据安全无忧</p>
             <div class="cta-buttons">
               <ElButton type="primary" size="large" class="start-btn" @click="handleStart">
-                {{ isAuthenticated ? '进入网盘' : '立即开始' }}
+                {{ isAuthenticated ? '进入我的网盘' : '免费开始使用' }}
               </ElButton>
-              <ElButton type="default" size="large" class="demo-btn">功能演示</ElButton>
+              <ElButton type="default" size="large" class="demo-btn">查看演示</ElButton>
             </div>
           </div>
           <div class="hero-image">
@@ -38,35 +38,35 @@
 
       <section id="features" class="features-section">
         <div class="container">
-          <h2>核心功能</h2>
+          <h2>为什么选择枫叶网盘</h2>
           <div class="features-grid">
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-cloudy"></i>
               </div>
-              <h3>安全存储</h3>
-              <p>采用多重加密技术，确保您的文件安全无忧</p>
+              <h3>银行级安全</h3>
+              <p>多重加密技术保护，让您的文件像存在保险柜里一样安全</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-share"></i>
               </div>
-              <h3>便捷分享</h3>
-              <p>一键分享文件，支持多种分享方式和权限设置</p>
+              <h3>轻松分享</h3>
+              <p>一键分享文件给朋友，自由设置查看和编辑权限</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-mobile-phone"></i>
               </div>
-              <h3>多端同步</h3>
-              <p>支持PC、手机、平板等多设备同步访问</p>
+              <h3>多设备同步</h3>
+              <p>电脑、手机、平板随时随地访问，文件始终最新</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-download"></i>
               </div>
-              <h3>高速下载</h3>
-              <p>全球加速节点，确保文件下载速度</p>
+              <h3>闪电速度</h3>
+              <p>全球加速节点，大文件也能秒速下载，不耽误您的时间</p>
             </div>
           </div>
         </div>
@@ -74,41 +74,41 @@
 
       <section class="pricing-section" id="pricing">
         <div class="container">
-          <h2>价格方案</h2>
+          <h2>选择适合您的方案</h2>
           <div class="pricing-cards">
             <div class="pricing-card">
-              <h3>免费版</h3>
-              <div class="price">¥0<span>/月</span></div>
+              <h3>入门体验</h3>
+              <div class="price">免费</div>
               <ul class="features-list">
                 <li>5GB 存储空间</li>
-                <li>基础文件管理</li>
+                <li>基础文件管理功能</li>
                 <li>标准下载速度</li>
               </ul>
-              <ElButton type="default" class="select-btn">选择方案</ElButton>
+              <ElButton type="default" class="select-btn">免费试用</ElButton>
             </div>
             <div class="pricing-card popular">
-              <div class="badge">推荐</div>
-              <h3>标准版</h3>
+              <div class="badge">热门选择</div>
+              <h3>标准套餐</h3>
               <div class="price">¥19<span>/月</span></div>
               <ul class="features-list">
                 <li>100GB 存储空间</li>
-                <li>高级文件管理</li>
+                <li>高级文件管理工具</li>
                 <li>高速下载通道</li>
                 <li>文件分享功能</li>
               </ul>
-              <ElButton type="primary" class="select-btn">选择方案</ElButton>
+              <ElButton type="primary" class="select-btn">立即升级</ElButton>
             </div>
             <div class="pricing-card">
-              <h3>专业版</h3>
+              <h3>专业套餐</h3>
               <div class="price">¥49<span>/月</span></div>
               <ul class="features-list">
                 <li>1TB 存储空间</li>
-                <li>专业文件管理</li>
+                <li>专业文件管理工具</li>
                 <li>极速下载通道</li>
                 <li>高级分享功能</li>
                 <li>团队协作工具</li>
               </ul>
-              <ElButton type="default" class="select-btn">选择方案</ElButton>
+              <ElButton type="default" class="select-btn">选择专业版</ElButton>
             </div>
           </div>
         </div>
@@ -119,36 +119,36 @@
       <div class="container">
         <div class="footer-content">
           <div class="footer-section">
-            <h3>枫叶网盘</h3>
-            <p>安全可靠的云存储解决方案</p>
+            <h3>关于枫叶网盘</h3>
+            <p>让每个人都能轻松享受云存储的便利</p>
           </div>
           <div class="footer-section">
-            <h4>产品</h4>
+            <h4>产品服务</h4>
             <ul>
-              <li><a href="#features">功能特点</a></li>
+              <li><a href="#features">功能特色</a></li>
               <li><a href="#pricing">价格方案</a></li>
-              <li><a href="#">更新日志</a></li>
+              <li><a href="#">更新动态</a></li>
             </ul>
           </div>
           <div class="footer-section">
-            <h4>支持</h4>
+            <h4>帮助支持</h4>
             <ul>
-              <li><a href="#">帮助中心</a></li>
+              <li><a href="#">使用指南</a></li>
               <li><a href="#">联系我们</a></li>
               <li><a href="#">常见问题</a></li>
             </ul>
           </div>
           <div class="footer-section">
-            <h4>关于</h4>
+            <h4>法律信息</h4>
             <ul>
-              <li><a href="#">关于我们</a></li>
-              <li><a href="#">隐私政策</a></li>
+              <li><a href="#">公司介绍</a></li>
+              <li><a href="#">隐私保护</a></li>
               <li><a href="#">服务条款</a></li>
             </ul>
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2023 枫叶网盘. All rights reserved.</p>
+          <p>&copy; 2023 枫叶网盘. 保留所有权利.</p>
         </div>
       </div>
     </footer>
@@ -183,7 +183,7 @@ export default {
     },
     handleLogout() {
       store.logout();
-      ElMessage.success('已退出登录');
+      ElMessage.success('您已成功退出登录');
       this.$router.push('/');
     },
     handleStart() {
@@ -301,6 +301,7 @@ export default {
 
 .hero-content {
   flex: 1;
+  text-align: left;
 }
 
 .hero-content h1 {
