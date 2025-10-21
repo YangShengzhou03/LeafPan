@@ -14,14 +14,8 @@
         </el-button>
       </div>
       <div class="toolbar-right">
-        <el-input
-          v-model="searchQuery"
-          placeholder="搜索回收站中的文件..."
-          prefix-icon="el-icon-search"
-          clearable
-          @input="handleSearch"
-          style="width: 250px"
-        />
+        <el-input v-model="searchQuery" placeholder="搜索回收站中的文件..." prefix-icon="el-icon-search" clearable
+          @input="handleSearch" style="width: 250px" />
         <el-select v-model="sortBy" @change="handleSort" style="width: 150px; margin-left: 10px">
           <el-option label="按删除时间" value="deletedAt" />
           <el-option label="按文件名" value="name" />
@@ -33,12 +27,8 @@
 
     <!-- 文件列表 -->
     <div class="file-list">
-      <el-table
-        :data="filteredTrashFiles"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-        empty-text="回收站为空"
-      >
+      <el-table :data="filteredTrashFiles" style="width: 100%" @selection-change="handleSelectionChange"
+        empty-text="回收站为空">
         <el-table-column type="selection" width="55" />
         <el-table-column label="文件名" min-width="300">
           <template #default="{ row }">
@@ -86,21 +76,13 @@
     </div>
 
     <!-- 批量操作确认对话框 -->
-    <el-dialog
-      v-model="batchActionDialog.visible"
-      :title="batchActionDialog.title"
-      width="400px"
-      :close-on-click-modal="false"
-    >
+    <el-dialog v-model="batchActionDialog.visible" :title="batchActionDialog.title" width="400px"
+      :close-on-click-modal="false">
       <p>{{ batchActionDialog.message }}</p>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="batchActionDialog.visible = false">取消</el-button>
-          <el-button 
-            type="primary" 
-            @click="confirmBatchAction"
-            :loading="batchActionDialog.loading"
-          >
+          <el-button type="primary" @click="confirmBatchAction" :loading="batchActionDialog.loading">
             确定
           </el-button>
         </span>
@@ -108,21 +90,12 @@
     </el-dialog>
 
     <!-- 清空回收站确认对话框 -->
-    <el-dialog
-      v-model="clearTrashDialog.visible"
-      title="清空回收站"
-      width="400px"
-      :close-on-click-modal="false"
-    >
+    <el-dialog v-model="clearTrashDialog.visible" title="清空回收站" width="400px" :close-on-click-modal="false">
       <p>确定要清空回收站吗？此操作将永久删除所有文件，且无法恢复。</p>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="clearTrashDialog.visible = false">取消</el-button>
-          <el-button 
-            type="danger" 
-            @click="confirmClearTrash"
-            :loading="clearTrashDialog.loading"
-          >
+          <el-button type="danger" @click="confirmClearTrash" :loading="clearTrashDialog.loading">
             确认清空
           </el-button>
         </span>
@@ -160,16 +133,16 @@ const clearTrashDialog = ref({
 // 计算属性
 const filteredTrashFiles = computed(() => {
   let result = [...trashFiles.value]
-  
+
   // 搜索过滤
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    result = result.filter(file => 
-      file.name.toLowerCase().includes(query) || 
+    result = result.filter(file =>
+      file.name.toLowerCase().includes(query) ||
       file.originalPath.toLowerCase().includes(query)
     )
   }
-  
+
   // 排序
   result.sort((a, b) => {
     switch (sortBy.value) {
@@ -185,7 +158,7 @@ const filteredTrashFiles = computed(() => {
         return 0
     }
   })
-  
+
   return result
 })
 
@@ -316,7 +289,7 @@ const previewFile = (file) => {
 // 恢复选中文件
 const restoreSelected = () => {
   if (selectedFiles.value.length === 0) return
-  
+
   batchActionDialog.value = {
     visible: true,
     title: '恢复文件',
@@ -329,7 +302,7 @@ const restoreSelected = () => {
 // 删除选中文件
 const deleteSelected = () => {
   if (selectedFiles.value.length === 0) return
-  
+
   batchActionDialog.value = {
     visible: true,
     title: '永久删除',
@@ -342,7 +315,7 @@ const deleteSelected = () => {
 // 清空回收站
 const clearTrash = () => {
   if (trashFiles.value.length === 0) return
-  
+
   clearTrashDialog.value.visible = true
 }
 
@@ -350,20 +323,20 @@ const clearTrash = () => {
 const confirmBatchAction = async () => {
   const { action } = batchActionDialog.value
   batchActionDialog.value.loading = true
-  
+
   try {
     if (action === 'restore') {
-      await Promise.all(selectedFiles.value.map(file => 
+      await Promise.all(selectedFiles.value.map(file =>
         mockApiService.restoreFromTrash(file.id)
       ))
       ElMessage.success(`已恢复 ${selectedFiles.value.length} 个文件`)
     } else if (action === 'delete') {
-      await Promise.all(selectedFiles.value.map(file => 
+      await Promise.all(selectedFiles.value.map(file =>
         mockApiService.deleteFromTrash(file.id)
       ))
       ElMessage.success(`已永久删除 ${selectedFiles.value.length} 个文件`)
     }
-    
+
     batchActionDialog.value.visible = false
     await fetchTrashFiles()
   } catch (error) {
@@ -377,7 +350,7 @@ const confirmBatchAction = async () => {
 // 确认清空回收站
 const confirmClearTrash = async () => {
   clearTrashDialog.value.loading = true
-  
+
   try {
     await mockApiService.clearTrash()
     ElMessage.success('回收站已清空')
@@ -410,8 +383,10 @@ onMounted(() => {
 
 <style scoped>
 .trash-page {
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
 }
 
 .trash-header {
@@ -559,22 +534,22 @@ onMounted(() => {
   .trash-header h1 {
     font-size: 24px;
   }
-  
+
   .toolbar {
     flex-direction: column;
     align-items: stretch;
     gap: 15px;
   }
-  
+
   .toolbar-left {
     justify-content: center;
   }
-  
+
   .toolbar-right {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .toolbar-right .el-input,
   .toolbar-right .el-select {
     width: 100% !important;

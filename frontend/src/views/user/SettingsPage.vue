@@ -3,13 +3,8 @@
     <div class="settings-container">
       <!-- 左侧导航 -->
       <div class="settings-nav">
-        <div 
-          v-for="tab in settingsTabs" 
-          :key="tab.id"
-          class="nav-item"
-          :class="{ active: activeTab === tab.id }"
-          @click="activeTab = tab.id"
-        >
+        <div v-for="tab in settingsTabs" :key="tab.id" class="nav-item" :class="{ active: activeTab === tab.id }"
+          @click="activeTab = tab.id">
           <i :class="tab.icon"></i>
           <span>{{ tab.label }}</span>
         </div>
@@ -39,7 +34,7 @@
         <!-- 安全设置 -->
         <div v-if="activeTab === 'security'" class="settings-section">
           <h2>安全设置</h2>
-          
+
           <!-- 修改密码 -->
           <div class="security-item">
             <h3>修改密码</h3>
@@ -63,12 +58,7 @@
           <div class="security-item">
             <h3>两步验证</h3>
             <div class="security-status">
-              <el-switch
-                v-model="twoFactorEnabled"
-                active-text="已启用"
-                inactive-text="未启用"
-                @change="toggleTwoFactor"
-              />
+              <el-switch v-model="twoFactorEnabled" active-text="已启用" inactive-text="未启用" @change="toggleTwoFactor" />
               <p class="security-description">
                 启用两步验证后，登录时需要输入手机验证码，提高账户安全性。
               </p>
@@ -87,11 +77,7 @@
                     <span>{{ formatDate(device.lastLogin) }}</span>
                   </div>
                 </div>
-                <el-button 
-                  type="text" 
-                  @click="removeDevice(device)"
-                  :disabled="device.current"
-                >
+                <el-button type="text" @click="removeDevice(device)" :disabled="device.current">
                   {{ device.current ? '当前设备' : '移除' }}
                 </el-button>
               </div>
@@ -102,7 +88,7 @@
         <!-- 存储设置 -->
         <div v-if="activeTab === 'storage'" class="settings-section">
           <h2>存储设置</h2>
-          
+
           <!-- 存储空间 -->
           <div class="storage-item">
             <h3>存储空间</h3>
@@ -111,19 +97,10 @@
                 <div class="circular-progress">
                   <svg viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="45" fill="none" stroke="#e9ecef" stroke-width="10"></circle>
-                    <circle 
-                      cx="50" 
-                      cy="50" 
-                      r="45" 
-                      fill="none" 
-                      stroke="#409EFF" 
-                      stroke-width="10" 
-                      stroke-dasharray="283" 
-                      :stroke-dashoffset="dashOffset"
-                      stroke-linecap="round"
-                      transform="rotate(-90 50 50)"
-                    ></circle>
-                    <text x="50" y="50" text-anchor="middle" dy="0.3em" font-size="20" font-weight="bold" fill="#303133">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#409EFF" stroke-width="10" stroke-dasharray="283"
+                      :stroke-dashoffset="dashOffset" stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
+                    <text x="50" y="50" text-anchor="middle" dy="0.3em" font-size="20" font-weight="bold"
+                      fill="#303133">
                       {{ storagePercentage }}%
                     </text>
                   </svg>
@@ -180,32 +157,20 @@
         <!-- 主题设置 -->
         <div v-if="activeTab === 'appearance'" class="settings-section">
           <h2>主题设置</h2>
-          
+
           <!-- 主题模式 -->
           <div class="appearance-item">
             <h3>主题模式</h3>
             <div class="theme-options">
-              <div 
-                class="theme-option" 
-                :class="{ active: themeMode === 'light' }"
-                @click="themeMode = 'light'"
-              >
+              <div class="theme-option" :class="{ active: themeMode === 'light' }" @click="themeMode = 'light'">
                 <div class="theme-preview light-theme"></div>
                 <span>浅色模式</span>
               </div>
-              <div 
-                class="theme-option" 
-                :class="{ active: themeMode === 'dark' }"
-                @click="themeMode = 'dark'"
-              >
+              <div class="theme-option" :class="{ active: themeMode === 'dark' }" @click="themeMode = 'dark'">
                 <div class="theme-preview dark-theme"></div>
                 <span>深色模式</span>
               </div>
-              <div 
-                class="theme-option" 
-                :class="{ active: themeMode === 'auto' }"
-                @click="themeMode = 'auto'"
-              >
+              <div class="theme-option" :class="{ active: themeMode === 'auto' }" @click="themeMode = 'auto'">
                 <div class="theme-preview auto-theme"></div>
                 <span>跟随系统</span>
               </div>
@@ -216,13 +181,8 @@
           <div class="appearance-item">
             <h3>主题颜色</h3>
             <div class="color-options">
-              <div 
-                class="color-option" 
-                v-for="color in themeColors" 
-                :key="color.value"
-                :class="{ active: primaryColor === color.value }"
-                @click="primaryColor = color.value"
-              >
+              <div class="color-option" v-for="color in themeColors" :key="color.value"
+                :class="{ active: primaryColor === color.value }" @click="primaryColor = color.value">
                 <div class="color-circle" :style="{ backgroundColor: color.value }"></div>
                 <span>{{ color.name }}</span>
               </div>
@@ -239,20 +199,10 @@
     </div>
 
     <!-- 升级存储对话框 -->
-    <el-dialog
-      v-model="upgradeDialog.visible"
-      title="升级存储"
-      width="600px"
-      :close-on-click-modal="false"
-    >
+    <el-dialog v-model="upgradeDialog.visible" title="升级存储" width="600px" :close-on-click-modal="false">
       <div class="upgrade-plans">
-        <div 
-          class="plan-item" 
-          v-for="plan in storagePlans" 
-          :key="plan.id"
-          :class="{ active: selectedPlan === plan.id }"
-          @click="selectedPlan = plan.id"
-        >
+        <div class="plan-item" v-for="plan in storagePlans" :key="plan.id" :class="{ active: selectedPlan === plan.id }"
+          @click="selectedPlan = plan.id">
           <div class="plan-header">
             <h3>{{ plan.name }}</h3>
             <div class="plan-price">{{ plan.price }}<span>/月</span></div>
@@ -448,14 +398,14 @@ const themeColors = ref([
 // 保存账户信息
 const saveAccountInfo = async () => {
   if (!accountFormRef.value) return
-  
+
   try {
     await accountFormRef.value.validate()
     savingAccount.value = true
-    
+
     await mockApiService.updateUserInfo(accountForm.value)
     ElMessage.success('账户信息已更新')
-    
+
     // 更新store中的用户信息
     await store.getUserInfo()
   } catch (error) {
@@ -471,16 +421,16 @@ const saveAccountInfo = async () => {
 // 修改密码
 const changePassword = async () => {
   if (!passwordFormRef.value) return
-  
+
   try {
     await passwordFormRef.value.validate()
     changingPassword.value = true
-    
+
     await mockApiService.changePassword({
       currentPassword: passwordForm.value.currentPassword,
       newPassword: passwordForm.value.newPassword
     })
-    
+
     ElMessage.success('密码已修改')
     passwordForm.value = {
       currentPassword: '',
@@ -533,10 +483,10 @@ const upgradeStorage = async () => {
   try {
     upgradingStorage.value = true
     const plan = storagePlans.value.find(p => p.id === selectedPlan.value)
-    
+
     await mockApiService.upgradeStorage(plan.id)
     ElMessage.success(`存储已升级至${plan.name}`)
-    
+
     // 更新存储信息
     totalStorageGB.value = plan.storage
     upgradeDialog.value.visible = false
@@ -596,7 +546,7 @@ const fetchStorageInfo = async () => {
     const storageInfo = await mockApiService.getStorageInfo()
     totalStorageGB.value = storageInfo.total / (1024 * 1024 * 1024)
     usedStorageGB.value = storageInfo.used / (1024 * 1024 * 1024)
-    
+
     // 更新存储分类
     if (storageInfo.breakdown) {
       storageBreakdown.value = storageInfo.breakdown
@@ -644,11 +594,11 @@ watch([themeMode, primaryColor, fontSize], async () => {
       primaryColor: primaryColor.value,
       fontSize: fontSize.value
     })
-    
+
     // 应用主题设置
     document.documentElement.style.setProperty('--el-color-primary', primaryColor.value)
     document.documentElement.style.setProperty('--font-size', fontSize.value + 'px')
-    
+
     // 应用主题模式
     if (themeMode.value === 'dark') {
       document.documentElement.classList.add('dark')
@@ -682,8 +632,10 @@ onMounted(async () => {
 
 <style scoped>
 .settings-page {
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
 }
 
 .settings-header {
@@ -1117,43 +1069,43 @@ onMounted(async () => {
   .settings-header h1 {
     font-size: 24px;
   }
-  
+
   .settings-container {
     flex-direction: column;
   }
-  
+
   .settings-nav {
     width: 100%;
     padding: 10px 0;
     display: flex;
     overflow-x: auto;
   }
-  
+
   .nav-item {
     flex-shrink: 0;
     padding: 10px 15px;
     border-left: none;
     border-bottom: 3px solid transparent;
   }
-  
+
   .nav-item.active {
     border-left: none;
     border-bottom: 3px solid #409EFF;
   }
-  
+
   .settings-content {
     padding: 20px;
   }
-  
+
   .storage-chart {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .upgrade-plans {
     flex-direction: column;
   }
-  
+
   .theme-options {
     flex-wrap: wrap;
   }

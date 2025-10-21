@@ -5,19 +5,14 @@
       <el-tab-pane label="我共享的" name="sharedByMe">
         <div class="tab-header">
           <div class="search-bar">
-            <el-input
-              v-model="searchQuery"
-              placeholder="搜索共享文件..."
-              prefix-icon="el-icon-search"
-              clearable
-              @input="handleSearch"
-            />
+            <el-input v-model="searchQuery" placeholder="搜索共享文件..." prefix-icon="el-icon-search" clearable
+              @input="handleSearch" />
           </div>
           <div class="tab-actions">
             <el-button type="primary" @click="createShare">新建共享</el-button>
           </div>
         </div>
-        
+
         <!-- 共享文件列表 -->
         <div class="shared-files-list" v-if="filteredSharedByMe.length > 0">
           <div class="file-item" v-for="file in filteredSharedByMe" :key="file.id">
@@ -38,28 +33,21 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 空状态 -->
         <div class="empty-state" v-else>
-          <i class="el-icon-share"></i>
-          <p>暂无共享文件</p>
-          <el-button type="primary" @click="createShare">创建第一个共享</el-button>
+          <el-empty></el-empty>
         </div>
       </el-tab-pane>
-      
+
       <el-tab-pane label="与我共享" name="sharedWithMe">
         <div class="tab-header">
           <div class="search-bar">
-            <el-input
-              v-model="searchQueryWithMe"
-              placeholder="搜索共享文件..."
-              prefix-icon="el-icon-search"
-              clearable
-              @input="handleSearchWithMe"
-            />
+            <el-input v-model="searchQueryWithMe" placeholder="搜索共享文件..." prefix-icon="el-icon-search" clearable
+              @input="handleSearchWithMe" />
           </div>
         </div>
-        
+
         <!-- 与我共享的文件列表 -->
         <div class="shared-files-list" v-if="filteredSharedWithMe.length > 0">
           <div class="file-item" v-for="file in filteredSharedWithMe" :key="file.id">
@@ -81,51 +69,25 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 空状态 -->
         <div class="empty-state" v-else>
-          <i class="el-icon-folder-opened"></i>
-          <p>暂无他人共享的文件</p>
+          <el-empty></el-empty>
         </div>
       </el-tab-pane>
     </el-tabs>
 
     <!-- 新建/编辑共享对话框 -->
-    <el-dialog
-      :title="shareDialogTitle"
-      v-model="shareDialogVisible"
-      width="500px"
-      :close-on-click-modal="false"
-    >
+    <el-dialog :title="shareDialogTitle" v-model="shareDialogVisible" width="500px" :close-on-click-modal="false">
       <el-form :model="shareForm" label-width="100px" :rules="shareRules" ref="shareFormRef">
         <el-form-item label="选择文件" prop="fileId">
-          <el-select
-            v-model="shareForm.fileId"
-            placeholder="请选择要共享的文件"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="file in availableFiles"
-              :key="file.id"
-              :label="file.name"
-              :value="file.id"
-            />
+          <el-select v-model="shareForm.fileId" placeholder="请选择要共享的文件" style="width: 100%">
+            <el-option v-for="file in availableFiles" :key="file.id" :label="file.name" :value="file.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="共享给" prop="sharedTo">
-          <el-select
-            v-model="shareForm.sharedTo"
-            placeholder="请选择用户"
-            multiple
-            filterable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="user in availableUsers"
-              :key="user.id"
-              :label="user.username"
-              :value="user.username"
-            />
+          <el-select v-model="shareForm.sharedTo" placeholder="请选择用户" multiple filterable style="width: 100%">
+            <el-option v-for="user in availableUsers" :key="user.id" :label="user.username" :value="user.username" />
           </el-select>
         </el-form-item>
         <el-form-item label="权限" prop="permission">
@@ -135,12 +97,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="过期时间" prop="expiresAt">
-          <el-date-picker
-            v-model="shareForm.expiresAt"
-            type="date"
-            placeholder="选择过期时间"
-            style="width: 100%"
-          />
+          <el-date-picker v-model="shareForm.expiresAt" type="date" placeholder="选择过期时间" style="width: 100%" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -205,8 +162,8 @@ const shareRules = {
 const filteredSharedByMe = computed(() => {
   if (!searchQuery.value) return sharedByMe.value
   const query = searchQuery.value.toLowerCase()
-  return sharedByMe.value.filter(file => 
-    file.name.toLowerCase().includes(query) || 
+  return sharedByMe.value.filter(file =>
+    file.name.toLowerCase().includes(query) ||
     file.sharedTo.some(user => user.toLowerCase().includes(query))
   )
 })
@@ -214,8 +171,8 @@ const filteredSharedByMe = computed(() => {
 const filteredSharedWithMe = computed(() => {
   if (!searchQueryWithMe.value) return sharedWithMe.value
   const query = searchQueryWithMe.value.toLowerCase()
-  return sharedWithMe.value.filter(file => 
-    file.name.toLowerCase().includes(query) || 
+  return sharedWithMe.value.filter(file =>
+    file.name.toLowerCase().includes(query) ||
     file.sharedBy.toLowerCase().includes(query)
   )
 })
@@ -364,11 +321,11 @@ const removeShare = (file) => {
 // 提交共享表单
 const submitShare = async () => {
   if (!shareFormRef.value) return
-  
+
   try {
     await shareFormRef.value.validate()
     submitting.value = true
-    
+
     if (isEditing.value) {
       // 编辑共享
       await mockApiService.updateShare(shareForm.value)
@@ -380,7 +337,7 @@ const submitShare = async () => {
       ElMessage.success('共享已创建')
       await fetchSharedByMe()
     }
-    
+
     shareDialogVisible.value = false
   } catch (error) {
     if (error !== false) { // 不是表单验证错误
@@ -447,8 +404,10 @@ onMounted(async () => {
 
 <style scoped>
 .shared-page {
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
 }
 
 .shared-header {
@@ -617,33 +576,33 @@ onMounted(async () => {
   .shared-header h1 {
     font-size: 24px;
   }
-  
+
   .tab-header {
     flex-direction: column;
     align-items: stretch;
     gap: 15px;
   }
-  
+
   .search-bar {
     width: 100%;
   }
-  
+
   .file-item {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .file-icon {
     margin-right: 0;
     margin-bottom: 10px;
   }
-  
+
   .file-actions {
     width: 100%;
     justify-content: flex-end;
     margin-top: 10px;
   }
-  
+
   .file-meta {
     flex-direction: column;
     gap: 5px;

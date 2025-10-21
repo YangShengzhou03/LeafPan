@@ -10,18 +10,8 @@
           <div class="circular-progress">
             <svg viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="45" fill="none" stroke="#e9ecef" stroke-width="10"></circle>
-              <circle 
-                cx="50" 
-                cy="50" 
-                r="45" 
-                fill="none" 
-                stroke="#409EFF" 
-                stroke-width="10" 
-                stroke-dasharray="283" 
-                :stroke-dashoffset="dashOffset"
-                stroke-linecap="round"
-                transform="rotate(-90 50 50)"
-              ></circle>
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#409EFF" stroke-width="10" stroke-dasharray="283"
+                :stroke-dashoffset="dashOffset" stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
               <text x="50" y="50" text-anchor="middle" dy="0.3em" font-size="20" font-weight="bold" fill="#303133">
                 {{ storagePercentage }}%
               </text>
@@ -102,9 +92,10 @@ const fileStats = ref([
 
 <style scoped>
 .dashboard-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
 }
 
 /* 存储卡片 */
@@ -228,16 +219,16 @@ const fileStats = ref([
   .dashboard-page {
     padding: 15px;
   }
-  
+
   .storage-info {
     flex-direction: column;
     gap: 30px;
   }
-  
+
   .storage-chart {
     justify-content: center;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -247,33 +238,33 @@ const fileStats = ref([
   .storage-card {
     padding: 20px;
   }
-  
+
   .circular-progress {
     width: 120px;
     height: 120px;
   }
-  
+
   .storage-item {
     min-width: 160px;
     padding: 10px 12px;
   }
-  
+
   .storage-item .label {
     font-size: 14px;
   }
-  
+
   .storage-item .value {
     font-size: 16px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-content h3 {
     font-size: 28px;
   }
-  
+
   .stat-content p {
     font-size: 14px;
   }
