@@ -31,7 +31,7 @@
             </div>
           </div>
           <div class="hero-image">
-            <img src="@/assets/hero-image.svg" alt="枫叶网盘" />
+            <video src="https://www.bilibili.com/video/BV1KdkeYQEKg/" alt="枫叶网盘" controls></video>
           </div>
         </div>
       </section>
