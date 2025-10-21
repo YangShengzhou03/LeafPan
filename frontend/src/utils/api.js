@@ -38,7 +38,7 @@ async function request(url, options = {}) {
 // 认证相关的API
 export const authAPI = {
   // 用户登录
-  async login(credentials) {
+  login: async (credentials) => {
     return request('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
@@ -46,7 +46,7 @@ export const authAPI = {
   },
 
   // 用户注册
-  async register(userData) {
+  register: async (userData) => {
     return request('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
@@ -54,7 +54,7 @@ export const authAPI = {
   },
 
   // 发送邮箱验证码
-  async sendVerificationCode(email) {
+  sendVerificationCode: async (email) => {
     return request('/auth/send-verification-code', {
       method: 'POST',
       body: JSON.stringify({ email }),
@@ -62,17 +62,22 @@ export const authAPI = {
   },
 
   // 获取当前用户信息
-  async getCurrentUser() {
+  getCurrentUser: async () => {
     return request('/auth/me')
   },
 
   // 刷新token
-  async refreshToken() {
+  refreshToken: async () => {
     return request('/auth/refresh')
   },
 
+  // 获取存储信息
+  getStorageInfo: async () => {
+    return request('/auth/storage-info')
+  },
+
   // 用户登出
-  async logout() {
+  logout: async () => {
     return request('/auth/logout', {
       method: 'POST',
     })

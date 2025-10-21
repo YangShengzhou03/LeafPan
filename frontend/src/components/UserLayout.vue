@@ -24,24 +24,24 @@
         <div class="user-content">
             <div class="user-content-nav">
                 <div class="nav-items">
-                    <router-link to="/files" class="nav-item" active-class="active">
+                    <router-link to="/user/files" class="nav-item" active-class="active">
                         <i class="icon-files"></i>
                         <span>我的文件</span>
                     </router-link>
-                    <router-link to="/dashboard" class="nav-item" active-class="active">
+                    <router-link to="/user/dashboard" class="nav-item" active-class="active">
                         <i class="icon-dashboard"></i>
                         <span>仪表盘</span>
                     </router-link>
-                    <router-link to="/shared" class="nav-item" active-class="active">
+                    <router-link to="/user/shared" class="nav-item" active-class="active">
                         <i class="icon-share"></i>
                         <span>共享文件</span>
                     </router-link>
-                    <router-link to="/recycle" class="nav-item" active-class="active">
+                    <router-link to="/user/trash" class="nav-item" active-class="active">
                         <i class="icon-recycle"></i>
                         <span>回收站</span>
                     </router-link>
                     <div class="nav-divider"></div>
-                    <router-link to="/settings" class="nav-item" active-class="active">
+                    <router-link to="/user/settings" class="nav-item" active-class="active">
                         <i class="icon-settings"></i>
                         <span>设置</span>
                     </router-link>
@@ -72,22 +72,19 @@
 import { ref, computed, onMounted } from 'vue'
 import store from '@/utils/store.js'
 
-// 存储信息
-const totalStorageGB = ref(5) // 默认5GB
-const usedStorageGB = ref(1.2) // 已使用1.2GB
-
 // 计算存储百分比
 const storagePercentage = computed(() => {
-  return Math.min(100, Math.round((usedStorageGB.value / totalStorageGB.value) * 100))
+  const { totalStorageGB, usedStorageGB } = store.state.storageInfo
+  return Math.min(100, Math.round((usedStorageGB / totalStorageGB) * 100))
 })
 
 // 格式化存储显示
 const totalStorage = computed(() => {
-  return `${totalStorageGB.value} GB`
+  return `${store.state.storageInfo.totalStorageGB} GB`
 })
 
 const usedStorage = computed(() => {
-  return `${usedStorageGB.value.toFixed(1)} GB`
+  return `${store.state.storageInfo.usedStorageGB.toFixed(1)} GB`
 })
 
 // 获取用户信息
@@ -99,6 +96,20 @@ const currentUser = computed(() => {
 const handleLogout = async () => {
   await store.logout()
 }
+
+// 刷新存储信息
+const refreshStorageInfo = async () => {
+  try {
+    await store.fetchStorageInfo()
+  } catch (error) {
+    console.error('刷新存储信息失败:', error)
+  }
+}
+
+// 组件挂载时刷新存储信息
+onMounted(() => {
+  refreshStorageInfo()
+})
 </script>
 
 <style scoped>

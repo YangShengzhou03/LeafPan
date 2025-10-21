@@ -6,6 +6,10 @@ const state = reactive({
   user: null,
   isAuthenticated: utils.isLoggedIn(),
   loading: false,
+  storageInfo: {
+    totalStorageGB: 5,
+    usedStorageGB: 1.2
+  }
 })
 
 // 状态管理方法
@@ -16,6 +20,10 @@ const store = {
   setUser(user) {
     state.user = user
     state.isAuthenticated = true
+    // 更新存储信息
+    if (user.storageInfo) {
+      state.storageInfo = user.storageInfo
+    }
   },
 
   // 清除用户信息
@@ -23,6 +31,18 @@ const store = {
     state.user = null
     state.isAuthenticated = false
     utils.removeToken()
+    // 重置存储信息
+    state.storageInfo = {
+      totalStorageGB: 5,
+      usedStorageGB: 1.2
+    }
+  },
+
+  // 更新存储信息
+  updateStorageInfo(storageInfo) {
+    if (storageInfo) {
+      state.storageInfo = storageInfo
+    }
   },
 
   // 登录
@@ -88,6 +108,20 @@ const store = {
     }
   },
 
+  // 获取存储信息
+  async fetchStorageInfo() {
+    if (!utils.isLoggedIn()) {
+      return
+    }
+
+    try {
+      const storageInfo = await authAPI.getStorageInfo()
+      this.updateStorageInfo(storageInfo)
+    } catch (error) {
+      console.error('获取存储信息失败:', error)
+    }
+  },
+
   // 登出
   async logout() {
     try {
@@ -103,6 +137,7 @@ const store = {
   async init() {
     if (utils.isLoggedIn()) {
       await this.fetchCurrentUser()
+      await this.fetchStorageInfo()
     }
   }
 }

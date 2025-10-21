@@ -191,7 +191,7 @@ export default {
     handleStart() {
       if (this.isAuthenticated) {
         // 已登录，跳转到文件管理页面
-        this.$router.push('/dashboard');
+        this.$router.push('/user');
       } else {
         // 未登录，跳转到登录页面
         this.$router.push('/login');

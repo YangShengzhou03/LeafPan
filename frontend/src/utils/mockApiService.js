@@ -109,6 +109,11 @@ export const mockApiService = {
     return simulateApiDelay(mockApiResponses.getDashboardStats)
   },
 
+  // 获取存储信息
+  async getStorageInfo() {
+    return simulateApiDelay(mockApiResponses.storageInfo)
+  },
+
   // 更新用户信息
   async updateProfile(userData) {
     // 模拟更新用户信息
