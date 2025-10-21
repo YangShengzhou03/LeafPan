@@ -8,19 +8,19 @@
             </div>
             <div class="header-actions">
                 <div class="user-dropdown" :class="{ 'active': isDropdownOpen }">
-                    <div class="user-info" @click="toggleDropdown">
+                    <div class="user-info" @click="toggleDropdown" aria-haspopup="true" :aria-expanded="isDropdownOpen">
                         <div class="user-avatar">
-                            <i class="icon-user"></i>
+                            <i class="icon-user" aria-hidden="true"></i>
                         </div>
                         <div class="user-details">
                             <span class="username">{{ currentUser?.username || '用户名' }}</span>
                         </div>
-                        <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }"></i>
+                        <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" aria-hidden="true"></i>
                     </div>
                     <transition name="dropdown">
-                        <div class="dropdown-menu" v-show="isDropdownOpen">
-                            <div class="dropdown-item" @click="handleLogout">
-                                <i class="icon-logout"></i>
+                        <div class="dropdown-menu" v-show="isDropdownOpen" role="menu">
+                            <div class="dropdown-item" @click="handleLogout" role="menuitem">
+                                <i class="icon-logout" aria-hidden="true"></i>
                                 <span>退出登录</span>
                             </div>
                         </div>
@@ -29,33 +29,33 @@
             </div>
         </div>
         <div class="user-content">
-            <div class="user-content-nav">
+            <nav class="user-content-nav" aria-label="主导航">
                 <div class="nav-items">
-                    <router-link to="/user" class="nav-item" active-class="active" exact-active-class="active">
-                        <i class="icon-files"></i>
+                    <router-link to="/user" class="nav-item" active-class="active" exact-active-class="active" aria-label="我的文件">
+                        <i class="icon-files" aria-hidden="true"></i>
                         <span>我的文件</span>
                     </router-link>
-                    <router-link to="/user/dashboard" class="nav-item" active-class="active">
-                        <i class="icon-dashboard"></i>
+                    <router-link to="/user/dashboard" class="nav-item" active-class="active" aria-label="仪表盘">
+                        <i class="icon-dashboard" aria-hidden="true"></i>
                         <span>仪表盘</span>
                     </router-link>
-                    <router-link to="/user/shared" class="nav-item" active-class="active">
-                        <i class="icon-share"></i>
+                    <router-link to="/user/shared" class="nav-item" active-class="active" aria-label="共享文件">
+                        <i class="icon-share" aria-hidden="true"></i>
                         <span>共享文件</span>
                     </router-link>
-                    <router-link to="/user/trash" class="nav-item" active-class="active">
-                        <i class="icon-recycle"></i>
+                    <router-link to="/user/trash" class="nav-item" active-class="active" aria-label="回收站">
+                        <i class="icon-recycle" aria-hidden="true"></i>
                         <span>回收站</span>
                     </router-link>
-                    <div class="nav-divider"></div>
-                    <router-link to="/user/settings" class="nav-item" active-class="active">
-                        <i class="icon-settings"></i>
+                    <div class="nav-divider" role="separator"></div>
+                    <router-link to="/user/settings" class="nav-item" active-class="active" aria-label="设置">
+                        <i class="icon-settings" aria-hidden="true"></i>
                         <span>设置</span>
                     </router-link>
                 </div>
                 <div class="nav-footer">
-                    <div class="storage-info">
-                        <div class="storage-bar">
+                    <div class="storage-info" aria-label="存储空间使用情况">
+                        <div class="storage-bar" role="progressbar" :aria-valuenow="storagePercentage" aria-valuemin="0" aria-valuemax="100">
                             <div class="storage-used" :style="{ width: storagePercentage + '%' }"></div>
                         </div>
                         <div class="storage-text">
@@ -63,20 +63,20 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="user-content-container">
+            </nav>
+            <main class="user-content-container">
                 <router-view v-slot="{ Component }">
                     <transition name="fade" mode="out-in">
                         <component :is="Component" />
                     </transition>
                 </router-view>
-            </div>
+            </main>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import store from '@/utils/store.js'
 
 // 控制下拉菜单的显示状态
@@ -94,19 +94,23 @@ const closeDropdown = (event) => {
   }
 }
 
+// 获取存储信息，避免重复访问
+const storageInfo = computed(() => store.state.storageInfo)
+
 // 计算存储百分比
 const storagePercentage = computed(() => {
-  const { totalStorageGB, usedStorageGB } = store.state.storageInfo
+  const { totalStorageGB, usedStorageGB } = storageInfo.value
+  if (!totalStorageGB || totalStorageGB <= 0) return 0
   return Math.min(100, Math.round((usedStorageGB / totalStorageGB) * 100))
 })
 
 // 格式化存储显示
 const totalStorage = computed(() => {
-  return `${store.state.storageInfo.totalStorageGB} GB`
+  return `${storageInfo.value.totalStorageGB || 0} GB`
 })
 
 const usedStorage = computed(() => {
-  return `${store.state.storageInfo.usedStorageGB.toFixed(1)} GB`
+  return `${(storageInfo.value.usedStorageGB || 0).toFixed(1)} GB`
 })
 
 // 获取用户信息
@@ -116,8 +120,13 @@ const currentUser = computed(() => {
 
 // 退出登录
 const handleLogout = async () => {
-  isDropdownOpen.value = false
-  await store.logout()
+  try {
+    isDropdownOpen.value = false
+    await store.logout()
+  } catch (error) {
+    console.error('退出登录失败:', error)
+    // 可以在这里添加用户提示，比如使用 toast 或 alert
+  }
 }
 
 // 刷新存储信息
@@ -126,6 +135,7 @@ const refreshStorageInfo = async () => {
     await store.fetchStorageInfo()
   } catch (error) {
     console.error('刷新存储信息失败:', error)
+    // 可以在这里添加用户提示，比如使用 toast 或 alert
   }
 }
 
@@ -134,6 +144,11 @@ onMounted(() => {
   refreshStorageInfo()
   // 添加全局点击事件监听器，用于关闭下拉菜单
   document.addEventListener('click', closeDropdown)
+})
+
+// 组件卸载时移除事件监听器
+onUnmounted(() => {
+  document.removeEventListener('click', closeDropdown)
 })
 </script>
 
@@ -147,7 +162,7 @@ onMounted(() => {
 }
 
 .user-header {
-    padding: 15px 25px;
+    padding: 12px 25px;
     background-color: #fff;
     color: #333;
     display: flex;
