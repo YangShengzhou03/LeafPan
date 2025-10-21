@@ -126,7 +126,6 @@
             <ul>
               <li><a href="#features">功能特色</a></li>
               <li><a href="#pricing">价格方案</a></li>
-              <li><a href="#">更新动态</a></li>
             </ul>
           </div>
           <div class="footer-section">
@@ -140,7 +139,7 @@
           <div class="footer-section">
             <h4>法律信息</h4>
             <ul>
-              <li><a href="#">公司介绍</a></li>
+              <li><a href="#">作者介绍</a></li>
               <li><a href="#">隐私保护</a></li>
               <li><a href="#">服务条款</a></li>
             </ul>
