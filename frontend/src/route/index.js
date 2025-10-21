@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import IndexLayout from '@/components/IndexLayout.vue';
-import IndexPage from '@/views/IndexPage.vue';
 import LoginPage from '@/views/LoginPage.vue';
 
 const routes = [
@@ -8,9 +7,6 @@ const routes = [
   {
     path: '/',
     component: IndexLayout,
-    children: [
-      { path: '', name: 'IndexPage', component: IndexPage, meta: { title: '枫叶网盘' } },
-    ]
   },
   
   // 登录页面
