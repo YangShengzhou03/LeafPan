@@ -84,7 +84,6 @@
                 <li>基础文件管理功能</li>
                 <li>标准下载速度</li>
               </ul>
-              <ElButton type="default" class="select-btn">免费试用</ElButton>
             </div>
             <div class="pricing-card popular">
               <div class="badge">热门选择</div>
@@ -96,7 +95,6 @@
                 <li>高速下载通道</li>
                 <li>文件分享功能</li>
               </ul>
-              <ElButton type="primary" class="select-btn">立即升级</ElButton>
             </div>
             <div class="pricing-card">
               <h3>专业套餐</h3>
@@ -108,7 +106,6 @@
                 <li>高级分享功能</li>
                 <li>团队协作工具</li>
               </ul>
-              <ElButton type="default" class="select-btn">选择专业版</ElButton>
             </div>
           </div>
         </div>
@@ -148,7 +145,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2023 枫叶网盘. 保留所有权利.</p>
+          <p>&copy; 2025 枫叶网盘. 保留所有权利.</p>
         </div>
       </div>
     </footer>
