@@ -1,10 +1,5 @@
 <template>
   <div class="shared-page">
-    <div class="shared-header">
-      <h1>共享文件</h1>
-      <p>管理您与他人共享的文件，以及他人与您共享的文件。</p>
-    </div>
-
     <!-- 标签页 -->
     <el-tabs v-model="activeTab" class="shared-tabs" @tab-click="handleTabClick">
       <el-tab-pane label="我共享的" name="sharedByMe">

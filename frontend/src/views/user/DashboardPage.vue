@@ -1,15 +1,9 @@
 <template>
   <div class="dashboard-page">
-    <div class="dashboard-header">
-      <h1>仪表盘</h1>
-      <p>欢迎回来，{{ currentUser?.username || '用户' }}！这里是您的存储使用情况概览。</p>
-    </div>
-
     <!-- 存储空间卡片 -->
     <div class="storage-card">
       <div class="storage-card-header">
         <h2>存储空间</h2>
-        <el-button type="primary" size="small" @click="upgradeStorage">升级存储</el-button>
       </div>
       <div class="storage-info">
         <div class="storage-chart">
@@ -24,7 +18,7 @@
                 stroke="#409EFF" 
                 stroke-width="10" 
                 stroke-dasharray="283" 
-                stroke-dashoffset="283"
+                :stroke-dashoffset="dashOffset"
                 stroke-linecap="round"
                 transform="rotate(-90 50 50)"
               ></circle>
@@ -48,46 +42,15 @@
             </div>
           </div>
         </div>
-        <div class="storage-breakdown">
-          <div class="breakdown-item" v-for="item in storageBreakdown" :key="item.type">
-            <div class="breakdown-color" :style="{ backgroundColor: item.color }"></div>
-            <div class="breakdown-info">
-              <span class="breakdown-label">{{ item.label }}</span>
-              <span class="breakdown-value">{{ formatFileSize(item.size) }}</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
     <!-- 文件统计卡片 -->
     <div class="stats-grid">
       <div class="stat-card" v-for="stat in fileStats" :key="stat.type">
-        <div class="stat-icon" :style="{ backgroundColor: stat.color }">
-          <i :class="stat.icon"></i>
-        </div>
         <div class="stat-content">
           <h3>{{ stat.count }}</h3>
           <p>{{ stat.label }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 最近活动 -->
-    <div class="recent-activity">
-      <div class="activity-header">
-        <h2>最近活动</h2>
-        <el-button type="text" @click="viewAllActivity">查看全部</el-button>
-      </div>
-      <div class="activity-list">
-        <div class="activity-item" v-for="activity in recentActivities" :key="activity.id">
-          <div class="activity-icon" :style="{ backgroundColor: getActivityColor(activity.type) }">
-            <i :class="getActivityIcon(activity.type)"></i>
-          </div>
-          <div class="activity-content">
-            <p class="activity-text">{{ activity.description }}</p>
-            <p class="activity-time">{{ formatTime(activity.timestamp) }}</p>
-          </div>
         </div>
       </div>
     </div>
@@ -95,18 +58,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import store from '@/utils/store.js'
-import mockApiService from '@/utils/mockApiService.js'
-import { formatFileSize, formatTime } from '@/utils/api.js'
+import { ref, computed } from 'vue'
+import { utils } from '@/utils/api.js'
 
-const router = useRouter()
-
-// 用户信息
-const currentUser = computed(() => {
-  return store.state.user
-})
+const { formatFileSize } = utils
 
 // 存储信息
 const totalStorageGB = ref(5) // 默认5GB
@@ -136,348 +91,147 @@ const availableStorageBytes = computed(() => {
   return totalStorageBytes.value - usedStorageBytes.value
 })
 
-// 存储分类统计
-const storageBreakdown = ref([
-  { type: 'documents', label: '文档', size: 450 * 1024 * 1024, color: '#409EFF' },
-  { type: 'images', label: '图片', size: 320 * 1024 * 1024, color: '#67C23A' },
-  { type: 'videos', label: '视频', size: 280 * 1024 * 1024, color: '#E6A23C' },
-  { type: 'others', label: '其他', size: 150 * 1024 * 1024, color: '#909399' }
-])
-
 // 文件统计
 const fileStats = ref([
-  { type: 'files', label: '文件总数', count: 128, icon: 'icon-files', color: '#409EFF' },
-  { type: 'folders', label: '文件夹', count: 24, icon: 'icon-folder', color: '#67C23A' },
-  { type: 'shared', label: '共享文件', count: 12, icon: 'icon-share', color: '#E6A23C' },
-  { type: 'favorites', label: '收藏文件', count: 8, icon: 'icon-star', color: '#F56C6C' }
+  { type: 'files', label: '文件总数', count: 128 },
+  { type: 'folders', label: '文件夹', count: 24 },
+  { type: 'shared', label: '共享文件', count: 12 },
+  { type: 'favorites', label: '收藏文件', count: 8 }
 ])
-
-// 最近活动
-const recentActivities = ref([
-  { id: 1, type: 'upload', description: '上传了文件 "项目报告.pdf"', timestamp: new Date(Date.now() - 3600000) },
-  { id: 2, type: 'share', description: '分享了文件夹 "设计稿" 给 3 位用户', timestamp: new Date(Date.now() - 7200000) },
-  { id: 3, type: 'delete', description: '删除了文件 "旧版本.docx"', timestamp: new Date(Date.now() - 86400000) },
-  { id: 4, type: 'create', description: '创建了文件夹 "会议记录"', timestamp: new Date(Date.now() - 172800000) },
-  { id: 5, type: 'download', description: '下载了文件 "产品图片.zip"', timestamp: new Date(Date.now() - 259200000) }
-])
-
-// 获取活动图标
-const getActivityIcon = (type) => {
-  const icons = {
-    upload: 'icon-upload',
-    download: 'icon-download',
-    share: 'icon-share',
-    delete: 'icon-delete',
-    create: 'icon-folder-add'
-  }
-  return icons[type] || 'icon-file'
-}
-
-// 获取活动颜色
-const getActivityColor = (type) => {
-  const colors = {
-    upload: '#409EFF',
-    download: '#67C23A',
-    share: '#E6A23C',
-    delete: '#F56C6C',
-    create: '#909399'
-  }
-  return colors[type] || '#909399'
-}
-
-// 升级存储
-const upgradeStorage = () => {
-  router.push('/user/settings')
-}
-
-// 查看所有活动
-const viewAllActivity = () => {
-  // 这里可以跳转到活动日志页面
-  console.log('查看所有活动')
-}
-
-// 获取仪表盘数据
-const fetchDashboardData = async () => {
-  try {
-    const dashboardData = await mockApiService.getDashboardStats()
-    
-    // 更新存储信息
-    if (dashboardData.storage) {
-      totalStorageGB.value = dashboardData.storage.total / (1024 * 1024 * 1024)
-      usedStorageGB.value = dashboardData.storage.used / (1024 * 1024 * 1024)
-    }
-    
-    // 更新文件统计
-    if (dashboardData.fileStats) {
-      fileStats.value = dashboardData.fileStats
-    }
-    
-    // 更新存储分类
-    if (dashboardData.storageBreakdown) {
-      storageBreakdown.value = dashboardData.storageBreakdown
-    }
-    
-    // 更新最近活动
-    if (dashboardData.recentActivities) {
-      recentActivities.value = dashboardData.recentActivities
-    }
-  } catch (error) {
-    console.error('获取仪表盘数据失败:', error)
-  }
-}
-
-// 页面加载时获取数据
-onMounted(() => {
-  fetchDashboardData()
-})
 </script>
 
 <style scoped>
 .dashboard-page {
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.dashboard-header {
-  margin-bottom: 30px;
-}
-
-.dashboard-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0 0 10px 0;
-}
-
-.dashboard-header p {
-  color: #606266;
-  margin: 0;
-  font-size: 16px;
+  padding: 20px;
 }
 
 /* 存储卡片 */
 .storage-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  margin-bottom: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+  margin-bottom: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.storage-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
 .storage-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .storage-card-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #303133;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
   margin: 0;
 }
 
 .storage-info {
   display: flex;
-  gap: 30px;
+  align-items: center;
+  justify-content: center;
 }
 
 .storage-chart {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 50px;
 }
 
 .circular-progress {
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
 }
 
 .storage-details {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
 }
 
 .storage-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 180px;
+  min-width: 200px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.storage-item:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .storage-item .label {
-  color: #606266;
-  font-size: 14px;
+  color: #7f8c8d;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .storage-item .value {
-  color: #303133;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.storage-breakdown {
-  flex: 1;
-}
-
-.breakdown-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.breakdown-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  margin-right: 10px;
-}
-
-.breakdown-info {
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
-}
-
-.breakdown-label {
-  color: #606266;
-  font-size: 14px;
-}
-
-.breakdown-value {
-  color: #303133;
-  font-weight: 500;
-  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 700;
+  font-size: 18px;
 }
 
 /* 统计网格 */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  margin-bottom: 20px;
 }
 
 .stat-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.stat-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
 }
 
-.stat-icon i {
-  color: #fff;
-  font-size: 24px;
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
 .stat-content h3 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0 0 5px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #409EFF;
+  margin: 0 0 10px 0;
 }
 
 .stat-content p {
-  color: #606266;
+  color: #7f8c8d;
   margin: 0;
-  font-size: 14px;
-}
-
-/* 最近活动 */
-.recent-activity {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-}
-
-.activity-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.activity-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0;
-}
-
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.activity-item {
-  display: flex;
-  align-items: flex-start;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.activity-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.activity-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  flex-shrink: 0;
-}
-
-.activity-icon i {
-  color: #fff;
   font-size: 16px;
-}
-
-.activity-content {
-  flex: 1;
-}
-
-.activity-text {
-  color: #303133;
-  margin: 0 0 5px 0;
-  font-size: 14px;
-}
-
-.activity-time {
-  color: #909399;
-  margin: 0;
-  font-size: 12px;
+  font-weight: 500;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .dashboard-header h1 {
-    font-size: 24px;
+  .dashboard-page {
+    padding: 15px;
   }
   
   .storage-info {
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
   }
   
   .storage-chart {
@@ -485,24 +239,43 @@ onMounted(() => {
   }
   
   .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .storage-card {
+    padding: 20px;
+  }
+  
+  .circular-progress {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .storage-item {
+    min-width: 160px;
+    padding: 10px 12px;
+  }
+  
+  .storage-item .label {
+    font-size: 14px;
+  }
+  
+  .storage-item .value {
+    font-size: 16px;
+  }
+  
+  .stats-grid {
     grid-template-columns: 1fr;
   }
   
-  .stat-card {
-    padding: 15px;
-  }
-  
-  .stat-icon {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .stat-icon i {
-    font-size: 20px;
-  }
-  
   .stat-content h3 {
-    font-size: 20px;
+    font-size: 28px;
+  }
+  
+  .stat-content p {
+    font-size: 14px;
   }
 }
 </style>

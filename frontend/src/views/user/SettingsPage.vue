@@ -1,10 +1,5 @@
 <template>
   <div class="settings-page">
-    <div class="settings-header">
-      <h1>设置</h1>
-      <p>管理您的账户和偏好设置。</p>
-    </div>
-
     <div class="settings-container">
       <!-- 左侧导航 -->
       <div class="settings-nav">
@@ -124,7 +119,7 @@
                       stroke="#409EFF" 
                       stroke-width="10" 
                       stroke-dasharray="283" 
-                      stroke-dashoffset="283"
+                      :stroke-dashoffset="dashOffset"
                       stroke-linecap="round"
                       transform="rotate(-90 50 50)"
                     ></circle>
@@ -288,7 +283,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import store from '@/utils/store.js'
 import mockApiService from '@/utils/mockApiService.js'
-import { formatFileSize, formatDate } from '@/utils/api.js'
+import { utils } from '@/utils/api.js'
+
+const { formatFileSize, formatDate } = utils
 
 // 当前标签页
 const activeTab = ref('account')

@@ -183,6 +183,36 @@ export const utils = {
       minute: '2-digit' 
     })
   },
+
+  // 格式化时间（相对时间）
+  formatTime(timestamp) {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diff = now - date
+    
+    // 小于1分钟
+    if (diff < 60000) {
+      return '刚刚'
+    }
+    
+    // 小于1小时
+    if (diff < 3600000) {
+      return Math.floor(diff / 60000) + '分钟前'
+    }
+    
+    // 小于1天
+    if (diff < 86400000) {
+      return Math.floor(diff / 3600000) + '小时前'
+    }
+    
+    // 小于7天
+    if (diff < 604800000) {
+      return Math.floor(diff / 86400000) + '天前'
+    }
+    
+    // 大于7天，显示具体日期
+    return date.toLocaleDateString('zh-CN')
+  },
 }
 
 export default request

@@ -1,10 +1,5 @@
 <template>
   <div class="trash-page">
-    <div class="trash-header">
-      <h1>回收站</h1>
-      <p>已删除的文件将在这里保留30天，之后将被永久删除。</p>
-    </div>
-
     <!-- 工具栏 -->
     <div class="toolbar">
       <div class="toolbar-left">
