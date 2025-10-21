@@ -27,7 +27,7 @@
               <ElButton type="primary" size="large" class="start-btn" @click="handleStart">
                 {{ isAuthenticated ? '进入我的网盘' : '免费开始使用' }}
               </ElButton>
-              <ElButton type="default" size="large" class="demo-btn">查看演示</ElButton>
+              <ElButton type="default" size="large" class="demo-btn" @click="handleDemo">查看演示</ElButton>
             </div>
           </div>
           <div class="hero-image">
@@ -184,6 +184,9 @@ export default {
       store.logout();
       ElMessage.success('您已成功退出登录');
       this.$router.push('/');
+    },
+    handleDemo() {
+      window.open('https://www.bilibili.com/video/BV1qgfmYmEAa/?share_source=copy_web&vd_source=f4167f5d5733b1b3cbdcbb4f2caa2211', '_blank');
     },
     handleStart() {
       if (this.isAuthenticated) {
