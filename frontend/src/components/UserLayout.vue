@@ -7,24 +7,31 @@
                 </div>
             </div>
             <div class="header-actions">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <i class="icon-user"></i>
+                <div class="user-dropdown" :class="{ 'active': isDropdownOpen }">
+                    <div class="user-info" @click="toggleDropdown">
+                        <div class="user-avatar">
+                            <i class="icon-user"></i>
+                        </div>
+                        <div class="user-details">
+                            <span class="username">{{ currentUser?.username || '用户名' }}</span>
+                        </div>
+                        <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }"></i>
                     </div>
-                    <div class="user-details">
-                        <span class="username">{{ currentUser?.username || '用户名' }}</span>
-                    </div>
+                    <transition name="dropdown">
+                        <div class="dropdown-menu" v-show="isDropdownOpen">
+                            <div class="dropdown-item" @click="handleLogout">
+                                <i class="icon-logout"></i>
+                                <span>退出登录</span>
+                            </div>
+                        </div>
+                    </transition>
                 </div>
-                <button class="logout-btn" @click="handleLogout">
-                    <i class="icon-logout"></i>
-                    <span>退出</span>
-                </button>
             </div>
         </div>
         <div class="user-content">
             <div class="user-content-nav">
                 <div class="nav-items">
-                    <router-link to="/user/files" class="nav-item" active-class="active">
+                    <router-link to="/user" class="nav-item" active-class="active" exact-active-class="active">
                         <i class="icon-files"></i>
                         <span>我的文件</span>
                     </router-link>
@@ -72,6 +79,21 @@
 import { ref, computed, onMounted } from 'vue'
 import store from '@/utils/store.js'
 
+// 控制下拉菜单的显示状态
+const isDropdownOpen = ref(false)
+
+// 切换下拉菜单
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value
+}
+
+// 点击页面其他地方关闭下拉菜单
+const closeDropdown = (event) => {
+  if (!event.target.closest('.user-dropdown')) {
+    isDropdownOpen.value = false
+  }
+}
+
 // 计算存储百分比
 const storagePercentage = computed(() => {
   const { totalStorageGB, usedStorageGB } = store.state.storageInfo
@@ -94,6 +116,7 @@ const currentUser = computed(() => {
 
 // 退出登录
 const handleLogout = async () => {
+  isDropdownOpen.value = false
   await store.logout()
 }
 
@@ -109,6 +132,8 @@ const refreshStorageInfo = async () => {
 // 组件挂载时刷新存储信息
 onMounted(() => {
   refreshStorageInfo()
+  // 添加全局点击事件监听器，用于关闭下拉菜单
+  document.addEventListener('click', closeDropdown)
 })
 </script>
 
@@ -169,21 +194,36 @@ onMounted(() => {
     align-items: center;
 }
 
+.user-dropdown {
+    position: relative;
+}
+
 .user-info {
     display: flex;
     align-items: center;
     margin-right: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    background-color: #409EFF;
+    background: linear-gradient(135deg, #409EFF, #79bbff);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 12px;
+    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
 }
 
 .user-avatar i {
@@ -208,24 +248,52 @@ onMounted(() => {
     color: #909399;
 }
 
-.logout-btn {
+.dropdown-arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #909399;
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-arrow.rotate {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 12px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    min-width: 180px;
+    z-index: 1000;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.dropdown-item {
     display: flex;
     align-items: center;
-    background-color: transparent;
-    border: none;
-    color: #F56C6C;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 12px 20px;
     cursor: pointer;
     transition: all 0.3s ease;
+    color: #606266;
 }
 
-.logout-btn:hover {
-    background-color: rgba(245, 108, 108, 0.1);
+.dropdown-item:hover {
+    background-color: #f5f7fa;
+    color: #F56C6C;
 }
 
-.logout-btn i {
-    margin-right: 6px;
+.dropdown-item i {
+    margin-right: 12px;
+    font-size: 16px;
 }
 
 .user-content {
@@ -235,52 +303,58 @@ onMounted(() => {
 }
 
 .user-content-nav {
-    width: 220px;
+    width: 240px;
     background-color: #fff;
-    border-right: 1px solid #e9ecef;
+    border-right: 1px solid #f0f2f5;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
 }
 
 .nav-items {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 10px 0;
+    padding: 16px 0;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
+    padding: 14px 24px;
     cursor: pointer;
     text-decoration: none;
     color: #333;
     transition: all 0.3s ease;
     position: relative;
     font-weight: 500;
+    border-radius: 0 24px 24px 0;
+    margin-right: 12px;
 }
 
 .nav-item:hover {
     color: #409EFF;
-    background-color: rgba(64, 158, 255, 0.05);
+    background-color: rgba(64, 158, 255, 0.08);
 }
 
 .nav-item.active {
     color: #409EFF;
     font-weight: 600;
+    background-color: rgba(64, 158, 255, 0.1);
 }
 
 .nav-item.active::before {
     content: '';
     position: absolute;
     left: 0;
-    top: 0;
-    height: 100%;
+    top: 50%;
+    height: 60%;
     width: 4px;
     background-color: #409EFF;
+    transform: translateY(-50%);
+    border-radius: 0 4px 4px 0;
 }
 
 .nav-item i {
@@ -303,8 +377,9 @@ onMounted(() => {
 }
 
 .nav-footer {
-    padding: 15px;
-    border-top: 1px solid #e9ecef;
+    padding: 20px;
+    border-top: 1px solid #f0f2f5;
+    background-color: rgba(64, 158, 255, 0.02);
 }
 
 .storage-info {
@@ -312,31 +387,35 @@ onMounted(() => {
 }
 
 .storage-bar {
-    height: 6px;
-    background-color: #e9ecef;
-    border-radius: 3px;
+    height: 8px;
+    background-color: #f0f2f5;
+    border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .storage-used {
     height: 100%;
     background: linear-gradient(90deg, #409EFF, #79bbff);
-    border-radius: 3px;
-    transition: width 0.3s ease;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(64, 158, 255, 0.3);
 }
 
 .storage-text {
     font-size: 12px;
-    color: #909399;
+    color: #606266;
     text-align: center;
+    font-weight: 500;
 }
 
 .user-content-container {
     flex: 1;
-    padding: 25px;
+    padding: 10px;
     overflow-y: auto;
-    background-color: #f5f7fa;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
 }
 
 /* 页面切换动画 */
@@ -350,13 +429,31 @@ onMounted(() => {
     opacity: 0;
 }
 
+/* 下拉菜单动画 */
+.dropdown-enter-active,
+.dropdown-leave-active {
+    transition: all 0.3s ease;
+    transform-origin: top right;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+}
+
 /* 添加卡片效果 */
 .user-content-container > div {
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 20px;
-    min-height: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    min-height: 92%;
+    transition: all 0.3s ease;
+}
+
+.user-content-container > div:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* 响应式设计 */
@@ -386,13 +483,13 @@ onMounted(() => {
     }
     
     .user-content-container {
-        padding: 15px;
+        padding: 10px;
     }
     
     /* 添加移动端卡片效果 */
     .user-content-container > div {
-        padding: 15px;
-        border-radius: 6px;
+        padding: 12px;
+        border-radius: 8px;
     }
 }
 </style>

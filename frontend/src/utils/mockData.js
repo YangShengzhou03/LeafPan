@@ -283,6 +283,15 @@ export const mockApiResponses = {
     success: true,
     data: mockUser
   },
+
+  // 获取存储信息
+  getStorageInfo: {
+    success: true,
+    data: {
+      totalStorageGB: 5,
+      usedStorageGB: 1.2
+    }
+  },
   
   // 获取文件列表
   getFiles: {
