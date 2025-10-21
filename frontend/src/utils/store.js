@@ -59,6 +59,19 @@ const store = {
     }
   },
 
+  // 发送邮箱验证码
+  async sendVerificationCode(email) {
+    state.loading = true
+    try {
+      const response = await authAPI.sendVerificationCode(email)
+      return { success: true, message: '验证码发送成功' }
+    } catch (error) {
+      return { success: false, message: error.message }
+    } finally {
+      state.loading = false
+    }
+  },
+
   // 获取当前用户信息
   async fetchCurrentUser() {
     if (!utils.isLoggedIn()) {

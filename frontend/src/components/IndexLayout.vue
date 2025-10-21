@@ -46,14 +46,14 @@
               <div class="feature-icon">
                 <i class="el-icon-cloudy"></i>
               </div>
-              <h3>十分安全</h3>
+              <h3>数据安全</h3>
               <p>三重加密保护，数据安全是我们的生命。</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-share"></i>
               </div>
-              <h3>轻松分享</h3>
+              <h3>便捷分享</h3>
               <p>一键分享文件给朋友，自由查看和编辑。</p>
             </div>
             <div class="feature-card">
@@ -61,14 +61,14 @@
                 <i class="el-icon-mobile-phone"></i>
               </div>
               <h3>多设备同步</h3>
-              <p>电脑、手机、平板随时随地访问，文件始终最新。</p>
+              <p>电脑、手机、平板随时随地访问，文件最新。</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-download"></i>
               </div>
-              <h3>闪电速度</h3>
-              <p>全球加速节点，大文件也能秒速下载，不耽误您的时间</p>
+              <h3>高速下载</h3>
+              <p>大文件也能全速下载，您的时间十分宝贵。</p>
             </div>
           </div>
         </div>
@@ -329,7 +329,7 @@ export default {
 
 .hero-image {
   flex: 1;
-  color: #606266;
+  color: #303133;
   text-align: center;
 }
 

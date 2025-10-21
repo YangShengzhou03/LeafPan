@@ -53,6 +53,14 @@ export const authAPI = {
     })
   },
 
+  // 发送邮箱验证码
+  async sendVerificationCode(email) {
+    return request('/auth/send-verification-code', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    })
+  },
+
   // 获取当前用户信息
   async getCurrentUser() {
     return request('/auth/me')
