@@ -132,6 +132,11 @@
                     </el-dropdown>
                 </div>
             </div>
+            
+            <!-- 网格视图空状态 -->
+            <div v-if="filteredFiles.length === 0" class="empty-state">
+                <el-empty description="暂无文件"></el-empty>
+            </div>
         </div>
 
         <!-- 文件列表 - 列表视图 -->
@@ -920,6 +925,15 @@ const getFileIcon = (type) => {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 20px;
+}
+
+/* 空状态样式 */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
 }
 
 .file-item {
