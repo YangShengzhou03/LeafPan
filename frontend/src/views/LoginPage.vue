@@ -257,55 +257,198 @@ const handleRegister = async () => {
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  animation: grain 8s steps(10) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0) }
+  10% { transform: translate(-5%, -10%) }
+  20% { transform: translate(-15%, 5%) }
+  30% { transform: translate(7%, -25%) }
+  40% { transform: translate(-5%, 25%) }
+  50% { transform: translate(-15%, 10%) }
+  60% { transform: translate(15%, 0%) }
+  70% { transform: translate(0%, 15%) }
+  80% { transform: translate(3%, 35%) }
+  90% { transform: translate(-10%, 10%) }
 }
 
 .login-form {
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px 35px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.login-form:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .logo-section {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
+  position: relative;
+}
+
+.logo-section::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 2px;
 }
 
 .logo {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 10px;
+  width: 70px;
+  height: 70px;
+  margin-bottom: 15px;
+  filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }
 
 .logo-section h1 {
-  color: #333;
+  color: #2d3748;
   margin: 0;
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .form-tabs {
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .form-content {
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .submit-btn {
   width: 100%;
-  height: 40px;
+  height: 44px;
   font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.submit-btn:hover::before {
+  left: 100%;
 }
 
 :deep(.el-tabs__item) {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 0 20px 12px;
+  transition: color 0.3s ease;
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: #667eea;
+}
+
+:deep(.el-tabs__active-bar) {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  height: 3px;
+  border-radius: 2px;
 }
 
 :deep(.el-form-item__label) {
-  font-weight: 500;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 8px;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.15);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+}
+
+:deep(.el-icon) {
+  color: #667eea;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .login-form {
+    margin: 20px;
+    padding: 30px 25px;
+    border-radius: 16px;
+  }
+  
+  .logo-section h1 {
+    font-size: 24px;
+  }
+  
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* 加载动画 */
+.submit-btn:deep(.el-loading-spinner .circular) {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>
