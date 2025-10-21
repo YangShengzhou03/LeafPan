@@ -3,6 +3,7 @@ import IndexLayout from '@/components/IndexLayout.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import UserLayout from '@/components/UserLayout.vue';
 import HomePage from '@/views/user/HomePage.vue';
+import FilesPage from '@/views/user/FilesPage.vue';
 
 const routes = [
   // 未登录布局（首页 + 登录/注册）
@@ -20,6 +21,7 @@ const routes = [
     component: UserLayout,
     children: [
       { path: '', name: 'HomePage', component: HomePage, meta: { title: '枫叶网盘 - 首页' } },
+      { path: 'files', name: 'FilesPage', component: FilesPage, meta: { title: '枫叶网盘 - 我的文件' } },
     ]
   },
 

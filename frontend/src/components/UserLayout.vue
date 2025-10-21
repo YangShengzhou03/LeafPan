@@ -3,48 +3,58 @@
         <div class="user-header">
             <div class="header-content">
                 <div class="logo-container">
-                    <i class="icon-leaf"></i>
                     <h1>枫叶网盘</h1>
                 </div>
-                <p class="subtitle">安全、简单的个人网盘服务</p>
             </div>
             <div class="header-actions">
                 <div class="user-info">
-                    <i class="icon-user"></i>
-                    <span>用户名</span>
+                    <div class="user-avatar">
+                        <i class="icon-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="username">{{ currentUser?.username || '用户名' }}</span>
+                    </div>
                 </div>
-                <button class="logout-btn">
+                <button class="logout-btn" @click="handleLogout">
                     <i class="icon-logout"></i>
                     <span>退出</span>
                 </button>
             </div>
         </div>
         <div class="user-content">
-            <div class="user-content-nav" :class="{ 'collapsed': isCollapsed }">
-                <div class="nav-toggle" @click="isCollapsed = !isCollapsed">
-                    <i class="icon-menu" :class="{ 'rotated': isCollapsed }"></i>
-                </div>
+            <div class="user-content-nav">
                 <div class="nav-items">
-                    <router-link to="/dashboard" class="nav-item" active-class="active">
-                        <i class="icon-dashboard"></i>
-                        <span v-show="!isCollapsed">仪表盘</span>
-                    </router-link>
                     <router-link to="/files" class="nav-item" active-class="active">
                         <i class="icon-files"></i>
-                        <span v-show="!isCollapsed">我的文件</span>
+                        <span>我的文件</span>
+                    </router-link>
+                    <router-link to="/dashboard" class="nav-item" active-class="active">
+                        <i class="icon-dashboard"></i>
+                        <span>仪表盘</span>
                     </router-link>
                     <router-link to="/shared" class="nav-item" active-class="active">
                         <i class="icon-share"></i>
-                        <span v-show="!isCollapsed">共享文件</span>
+                        <span>共享文件</span>
                     </router-link>
                     <router-link to="/recycle" class="nav-item" active-class="active">
                         <i class="icon-recycle"></i>
-                        <span v-show="!isCollapsed">回收站</span>
+                        <span>回收站</span>
                     </router-link>
+                    <div class="nav-divider"></div>
                     <router-link to="/settings" class="nav-item" active-class="active">
                         <i class="icon-settings"></i>
-                        <span v-show="!isCollapsed">设置</span>
+                        <span>设置</span>
                     </router-link>
+                </div>
+                <div class="nav-footer">
+                    <div class="storage-info">
+                        <div class="storage-bar">
+                            <div class="storage-used" :style="{ width: storagePercentage + '%' }"></div>
+                        </div>
+                        <div class="storage-text">
+                            {{ usedStorage }} / {{ totalStorage }}
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="user-content-container">
@@ -59,9 +69,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import store from '@/utils/store.js'
 
-const isCollapsed = ref(false)
+// 存储信息
+const totalStorageGB = ref(5) // 默认5GB
+const usedStorageGB = ref(1.2) // 已使用1.2GB
+
+// 计算存储百分比
+const storagePercentage = computed(() => {
+  return Math.min(100, Math.round((usedStorageGB.value / totalStorageGB.value) * 100))
+})
+
+// 格式化存储显示
+const totalStorage = computed(() => {
+  return `${totalStorageGB.value} GB`
+})
+
+const usedStorage = computed(() => {
+  return `${usedStorageGB.value.toFixed(1)} GB`
+})
+
+// 获取用户信息
+const currentUser = computed(() => {
+  return store.state.user
+})
+
+// 退出登录
+const handleLogout = async () => {
+  await store.logout()
+}
 </script>
 
 <style scoped>
@@ -127,8 +164,37 @@ const isCollapsed = ref(false)
     margin-right: 20px;
 }
 
-.user-info i {
-    margin-right: 8px;
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #409EFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.user-avatar i {
+    color: white;
+    font-size: 18px;
+    margin: 0;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    font-weight: 600;
+    color: #303133;
+    font-size: 14px;
+}
+
+.user-email {
+    font-size: 12px;
+    color: #909399;
 }
 
 .logout-btn {
@@ -163,40 +229,8 @@ const isCollapsed = ref(false)
     border-right: 1px solid #e9ecef;
     display: flex;
     flex-direction: column;
-    transition: width 0.3s ease;
     overflow: hidden;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-}
-
-.user-content-nav.collapsed {
-    width: 60px;
-}
-
-.nav-toggle {
-    padding: 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    border-bottom: 1px solid #e9ecef;
-    transition: background-color 0.3s ease;
-}
-
-.nav-toggle:hover {
-    background-color: #f5f7fa;
-}
-
-.nav-toggle i {
-    font-size: 18px;
-    color: #606266;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.nav-toggle:hover i {
-    color: #409EFF;
-}
-
-.nav-toggle i.rotated {
-    transform: rotate(90deg);
 }
 
 .nav-items {
@@ -251,6 +285,42 @@ const isCollapsed = ref(false)
     color: #409EFF;
 }
 
+.nav-divider {
+    height: 1px;
+    background-color: #e9ecef;
+    margin: 10px 20px;
+}
+
+.nav-footer {
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.storage-info {
+    width: 100%;
+}
+
+.storage-bar {
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.storage-used {
+    height: 100%;
+    background: linear-gradient(90deg, #409EFF, #79bbff);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.storage-text {
+    font-size: 12px;
+    color: #909399;
+    text-align: center;
+}
+
 .user-content-container {
     flex: 1;
     padding: 25px;
@@ -301,11 +371,7 @@ const isCollapsed = ref(false)
     }
     
     .user-content-nav {
-        width: 60px;
-    }
-    
-    .nav-item span {
-        display: none;
+        width: 220px;
     }
     
     .user-content-container {
