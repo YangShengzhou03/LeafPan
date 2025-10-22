@@ -5,7 +5,10 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import java.io.File;
 import java.util.Properties;
 
 @Service
@@ -48,22 +51,75 @@ public class EmailService {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("LeafAuto <" + senderEmail + ">"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-            message.setSubject("LeafPan网盘系统验证码");
+            message.setSubject("【枫叶网盘】LeafPan系统验证码");
             
+            // 创建多部分消息
+            MimeMultipart multipart = new MimeMultipart("related");
+            
+            // HTML内容部分
+            MimeBodyPart htmlPart = new MimeBodyPart();
             String htmlContent = "<html>" +
-                "<head></head>" +
+                "<head>" +
+                "<meta charset=\"UTF-8\">" +
+                "<style>" +
+                "body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f7fa; }" +
+                ".email-container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }" +
+                ".header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }" +
+                ".header h1 { margin: 0; font-size: 28px; font-weight: 600; }" +
+                ".header p { margin: 10px 0 0; opacity: 0.9; }" +
+                ".content { padding: 40px; }" +
+                ".greeting { font-size: 18px; color: #333; margin-bottom: 20px; }" +
+                ".code-section { background: #f8f9fa; border-radius: 8px; padding: 25px; text-align: center; margin: 30px 0; border-left: 4px solid #409EFF; }" +
+                ".verification-code { font-size: 42px; font-weight: bold; color: #409EFF; letter-spacing: 8px; margin: 15px 0; }" +
+                ".instructions { color: #666; line-height: 1.6; margin-bottom: 20px; }" +
+                ".footer { background: #f8f9fa; padding: 25px; text-align: center; color: #666; font-size: 14px; border-top: 1px solid #e9ecef; }" +
+                ".footer-logo { margin-top: 20px; }" +
+                ".footer-logo img { max-width: 200px; height: auto; }" +
+                ".warning { color: #ff6b6b; font-size: 13px; margin-top: 10px; }" +
+                "</style>" +
+                "</head>" +
                 "<body>" +
-                "<h2>LeafPan网盘系统验证码</h2>" +
-                "<p>您好，</p>" +
-                "<p>您正在进行验证操作，验证码为：</p>" +
-                "<h3 style=\"color: #409EFF;\">" + code + "</h3>" +
-                "<p>验证码有效期为5分钟，请及时使用。</p>" +
-                "<p>如果您没有进行此操作，请忽略此邮件。</p>" +
-                "<p>LeafPan团队</p>" +
+                "<div class=\"email-container\">" +
+                "<div class=\"header\">" +
+                "<h1>LeafPan 枫叶网盘</h1>" +
+                "<p>安全可靠的云存储解决方案</p>" +
+                "</div>" +
+                "<div class=\"content\">" +
+                "<p class=\"greeting\">尊敬的客户，您好！</p>" +
+                "<p class=\"instructions\">您正在进行账户验证操作，为确保您的账户安全，请使用以下验证码完成验证：</p>" +
+                "<div class=\"code-section\">" +
+                "<p style=\"margin: 0 0 10px; color: #666;\">您的验证码</p>" +
+                "<div class=\"verification-code\">" + code + "</div>" +
+                "<p style=\"margin: 10px 0 0; color: #999; font-size: 14px;\">有效期 5 分钟</p>" +
+                "</div>" +
+                "<p class=\"instructions\">请勿将此验证码透露给他人。如非本人操作，请立即修改账户密码并联系客服。</p>" +
+                "<p class=\"warning\">⚠️ 安全提示：LeafPan团队不会通过电话或短信向您索要验证码</p>" +
+                "</div>" +
+                "<div class=\"footer\">" +
+                "<p>感谢您使用 LeafPan 枫叶网盘服务</p>" +
+                "<p>如有任何问题，请联系客服：support@leafpan.com</p>" +
+                "<div class=\"footer-logo\">" +
+                "<img src=\"cid:footerPattern\" alt=\"LeafPan Pattern\">" +
+                "</div>" +
+                "<p style=\"margin-top: 15px; font-size: 12px; color: #999;\">© 2024 LeafPan Team. All rights reserved.</p>" +
+                "</div>" +
+                "</div>" +
                 "</body>" +
                 "</html>";
+            htmlPart.setContent(htmlContent, "text/html;charset=UTF-8");
+            multipart.addBodyPart(htmlPart);
             
-            message.setContent(htmlContent, "text/html;charset=UTF-8");
+            // 添加图片部分
+            MimeBodyPart imagePart = new MimeBodyPart();
+            File imageFile = new File("src/main/resources/static/Email.png");
+            if (imageFile.exists()) {
+                imagePart.attachFile(imageFile);
+                imagePart.setContentID("<footerPattern>");
+                imagePart.setDisposition(MimeBodyPart.INLINE);
+                multipart.addBodyPart(imagePart);
+            }
+            
+            message.setContent(multipart);
             
             Transport.send(message);
         } catch (MessagingException e) {
