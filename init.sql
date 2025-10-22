@@ -3,7 +3,7 @@ DROP DATABASE IF EXISTS leafpan;
 CREATE DATABASE leafpan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE leafpan;
 
--- 用户表
+-- 1. 用户表
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID',
     username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
@@ -23,7 +23,7 @@ CREATE TABLE users (
     INDEX idx_role (role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
--- 文件夹表（修复path长度避免索引过长）
+-- 2. 文件夹表
 CREATE TABLE folders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '文件夹ID',
     name VARCHAR(255) NOT NULL COMMENT '文件夹名称',
@@ -39,7 +39,7 @@ CREATE TABLE folders (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件夹表';
 
--- 文件表
+-- 3. 文件表
 CREATE TABLE files (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '文件ID',
     name VARCHAR(255) NOT NULL COMMENT '文件名',
@@ -62,7 +62,7 @@ CREATE TABLE files (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件表';
 
--- 分享表
+-- 4. 分享表
 CREATE TABLE shares (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '分享ID',
     share_code VARCHAR(10) NOT NULL UNIQUE COMMENT '分享码',
@@ -84,7 +84,7 @@ CREATE TABLE shares (
     FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分享表';
 
--- 操作日志表
+-- 5. 操作日志表
 CREATE TABLE operation_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '日志ID',
     user_id BIGINT NOT NULL COMMENT '用户ID',
@@ -101,7 +101,8 @@ CREATE TABLE operation_logs (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
 
--- 创建用户根目录触发器
+-- 用户创建后自动生成根目录触发器
+DROP TRIGGER IF EXISTS after_user_insert;
 DELIMITER //
 CREATE TRIGGER after_user_insert
 AFTER INSERT ON users
@@ -109,15 +110,16 @@ FOR EACH ROW
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-        SELECT GET_LOCK(CONCAT('user_root_folder_', NEW.id), 10);
+        DO GET_LOCK(CONCAT('user_root_folder_', NEW.id), 10);
     END;
     INSERT INTO folders (name, parent_id, user_id, path) 
     VALUES ('根目录', 0, NEW.id, '/')
-    ON DUPLICATE KEY UPDATE id=id;
+    ON DUPLICATE KEY UPDATE folders.id = folders.id; -- 明确指定folders表的id
 END//
 DELIMITER ;
 
--- 定时清理回收站文件（30天前删除的记录）
+-- 定时清理回收站事件
+DROP EVENT IF EXISTS clean_deleted_files;
 DELIMITER //
 CREATE EVENT IF NOT EXISTS clean_deleted_files
 ON SCHEDULE EVERY 1 DAY STARTS TIMESTAMP(CURRENT_DATE, '02:00:00')
@@ -139,7 +141,7 @@ BEGIN
     
     START TRANSACTION;
     
-    -- 删除过期文件记录
+    -- 删除过期文件
     OPEN file_cursor;
     file_loop: LOOP
         FETCH file_cursor INTO file_id_val;
@@ -150,7 +152,7 @@ BEGIN
     
     SET done = FALSE;
     
-    -- 删除过期文件夹记录
+    -- 删除过期文件夹
     OPEN folder_cursor;
     folder_loop: LOOP
         FETCH folder_cursor INTO folder_id_val;
@@ -166,12 +168,12 @@ DELIMITER ;
 -- 启用事件调度器
 SET GLOBAL event_scheduler = ON;
 
--- 插入默认管理员（密码：123456）
+-- 插入默认管理员
 INSERT INTO users (username, email, password, nickname, role, storage_quota, status) 
 VALUES ('admin', 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 1, 107374182400, 1)
-ON DUPLICATE KEY UPDATE id=id;
+ON DUPLICATE KEY UPDATE users.id = users.id; -- 明确指定users表的id
 
 -- 为管理员创建根目录
 INSERT INTO folders (name, parent_id, user_id, path) 
-SELECT '根目录', 0, id, '/' FROM users WHERE username = 'admin'
-ON DUPLICATE KEY UPDATE id=id;
+SELECT '根目录', 0, users.id, '/' FROM users WHERE username = 'admin'
+ON DUPLICATE KEY UPDATE folders.id = folders.id; -- 明确指定folders表的id
