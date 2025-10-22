@@ -1,0 +1,214 @@
+package com.yangshengzhou.backend.controller.user;
+
+import com.yangshengzhou.backend.dto.ApiResponse;
+import com.yangshengzhou.backend.entity.Folder;
+import com.yangshengzhou.backend.service.AuthService;
+import com.yangshengzhou.backend.service.FolderService;
+import com.yangshengzhou.backend.service.OperationLogService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/folder")
+public class FolderController {
+    
+    @Autowired
+    private FolderService folderService;
+    
+    @Autowired
+    private AuthService authService;
+    
+    @Autowired
+    private OperationLogService operationLogService;
+    
+    /**
+     * 创建文件夹
+     */
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse<Folder>> createFolder(@RequestBody Map<String, Object> requestBody, 
+                                                           HttpServletRequest request) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            String name = (String) requestBody.get("name");
+            Long parentId = requestBody.get("parentId") != null ? 
+                Long.valueOf(requestBody.get("parentId").toString()) : 1L; // 默认根目录
+            
+            if (name == null || name.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("文件夹名不能为空"));
+            }
+            
+            Folder folder = folderService.createFolder(name, parentId, currentUser.getId());
+            
+            // 记录创建文件夹日志
+            operationLogService.logOperation(
+                currentUser.getId(), 
+                "CREATE_FOLDER", 
+                "创建文件夹: " + name, 
+                getClientIpAddress(request)
+            );
+            
+            return ResponseEntity.ok(ApiResponse.success("文件夹创建成功", folder));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("创建文件夹失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 获取用户文件夹列表
+     */
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<Folder>>> getUserFolders() {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            List<Folder> folders = folderService.getUserFolders(currentUser.getId());
+            return ResponseEntity.ok(ApiResponse.success(folders));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("获取文件夹列表失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 获取子文件夹列表
+     */
+    @GetMapping("/{parentId}/subfolders")
+    public ResponseEntity<ApiResponse<List<Folder>>> getSubFolders(@PathVariable Long parentId) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            List<Folder> folders = folderService.getSubFolders(currentUser.getId(), parentId);
+            return ResponseEntity.ok(ApiResponse.success(folders));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("获取子文件夹列表失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 获取文件夹详情
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Folder>> getFolder(@PathVariable Long id) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            if (!folderService.isFolderOwnedByUser(id, currentUser.getId())) {
+                return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件夹"));
+            }
+            
+            return folderService.getFolder(id)
+                .map(folder -> ResponseEntity.ok(ApiResponse.success(folder)))
+                .orElse(ResponseEntity.badRequest().body(ApiResponse.error("文件夹不存在")));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("获取文件夹信息失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 重命名文件夹
+     */
+    @PutMapping("/{id}/rename")
+    public ResponseEntity<ApiResponse<Folder>> renameFolder(@PathVariable Long id, 
+                                                           @RequestBody Map<String, String> requestBody) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            if (!folderService.isFolderOwnedByUser(id, currentUser.getId())) {
+                return ResponseEntity.status(403).body(ApiResponse.error("无权修改此文件夹"));
+            }
+            
+            String newName = requestBody.get("name");
+            if (newName == null || newName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("文件夹名不能为空"));
+            }
+            
+            Folder updatedFolder = folderService.updateFolder(id, newName);
+            if (updatedFolder != null) {
+                return ResponseEntity.ok(ApiResponse.success("重命名成功", updatedFolder));
+            } else {
+                return ResponseEntity.badRequest().body(ApiResponse.error("重命名失败"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("重命名文件夹失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 删除文件夹
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteFolder(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            if (!folderService.isFolderOwnedByUser(id, currentUser.getId())) {
+                return ResponseEntity.status(403).body(ApiResponse.error("无权删除此文件夹"));
+            }
+            
+            Folder folder = folderService.getFolder(id).orElse(null);
+            if (folder == null) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("文件夹不存在"));
+            }
+            
+            // TODO: 检查文件夹是否为空，如果不为空，需要先删除所有子文件夹和文件
+            
+            boolean deleted = folderService.deleteFolder(id);
+            
+            if (deleted) {
+                // 记录删除日志
+                operationLogService.logOperation(
+                    currentUser.getId(), 
+                    "DELETE_FOLDER", 
+                    "删除文件夹: " + folder.getName(), 
+                    getClientIpAddress(request)
+                );
+                
+                return ResponseEntity.ok(ApiResponse.success("文件夹删除成功"));
+            } else {
+                return ResponseEntity.badRequest().body(ApiResponse.error("文件夹删除失败"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("删除文件夹失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 获取客户端IP地址
+     */
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty() && !"unknown".equalsIgnoreCase(xRealIp)) {
+            return xRealIp;
+        }
+        
+        return request.getRemoteAddr();
+    }
+}
