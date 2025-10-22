@@ -39,6 +39,7 @@ public class File {
     private String md5;
     
     @Column(name = "is_deleted", nullable = false)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.TINYINT)
     private Boolean isDeleted = false;
     
     @Column(nullable = false)

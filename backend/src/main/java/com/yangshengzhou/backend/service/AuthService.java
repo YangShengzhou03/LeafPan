@@ -87,7 +87,7 @@ public class AuthService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRole(0); // 使用整数类型
+        user.setRole((byte) 0); // 使用byte类型
         user.setCreatedTime(LocalDateTime.now());
         user.setUpdatedTime(LocalDateTime.now());
         

@@ -23,7 +23,7 @@ public class Share {
     private Long userId;
     
     @Column(name = "share_type", nullable = false)
-    private Integer shareType = 0; // 0-公开，1-密码，2-私密
+    private Byte shareType = 0; // 0-公开，1-密码，2-私密
     
     @Column(length = 64)
     private String password;
@@ -38,6 +38,7 @@ public class Share {
     private Integer viewCount = 0;
     
     @Column(name = "is_active", nullable = false)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.TINYINT)
     private Boolean isActive = true;
     
     @Column(name = "created_time", nullable = false, updatable = false)
@@ -46,7 +47,7 @@ public class Share {
     // 构造函数
     public Share() {}
     
-    public Share(String shareCode, Long fileId, Long folderId, Long userId, Integer shareType) {
+    public Share(String shareCode, Long fileId, Long folderId, Long userId, Byte shareType) {
         this.shareCode = shareCode;
         this.fileId = fileId;
         this.folderId = folderId;
@@ -101,11 +102,11 @@ public class Share {
         this.userId = userId;
     }
     
-    public Integer getShareType() {
+    public Byte getShareType() {
         return shareType;
     }
     
-    public void setShareType(Integer shareType) {
+    public void setShareType(Byte shareType) {
         this.shareType = shareType;
     }
     

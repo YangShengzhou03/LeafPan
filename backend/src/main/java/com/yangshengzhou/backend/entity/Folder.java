@@ -23,6 +23,7 @@ public class Folder {
     private String path;
     
     @Column(name = "is_deleted", nullable = false)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.TINYINT)
     private Boolean isDeleted = false;
     
     @Column(name = "created_time", nullable = false, updatable = false)

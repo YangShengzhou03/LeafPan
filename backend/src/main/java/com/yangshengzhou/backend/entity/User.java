@@ -26,16 +26,16 @@ public class User {
     private String avatar;
     
     @Column(nullable = false)
-    private Integer role = 0; // 0-普通用户，1-管理员
+    private Byte role = 0; // 0-普通用户，1-管理员
+    
+    @Column(nullable = false)
+    private Byte status = 1; // 0-禁用，1-正常
     
     @Column(name = "storage_quota", nullable = false)
     private Long storageQuota = 1073741824L; // 默认1GB
     
     @Column(name = "used_storage", nullable = false)
     private Long usedStorage = 0L;
-    
-    @Column(nullable = false)
-    private Integer status = 1; // 0-禁用，1-正常
     
     @Column(name = "last_login_time")
     private LocalDateTime lastLoginTime;
@@ -119,11 +119,11 @@ public class User {
         this.avatar = avatar;
     }
     
-    public Integer getRole() {
+    public Byte getRole() {
         return role;
     }
     
-    public void setRole(Integer role) {
+    public void setRole(Byte role) {
         this.role = role;
     }
     
@@ -143,11 +143,11 @@ public class User {
         this.usedStorage = usedStorage;
     }
     
-    public Integer getStatus() {
+    public Byte getStatus() {
         return status;
     }
     
-    public void setStatus(Integer status) {
+    public void setStatus(Byte status) {
         this.status = status;
     }
     

@@ -239,7 +239,7 @@ public class UserService {
     /**
      * 更新用户状态
      */
-    public User updateUserStatus(Long userId, Integer status) {
+    public User updateUserStatus(Long userId, Byte status) {
         User user = getUserById(userId);
         user.setStatus(status);
         return userRepository.save(user);
@@ -308,7 +308,7 @@ public class UserService {
      */
     public boolean updateUserStatus(Long id, boolean enabled) {
         User user = getUserById(id);
-        user.setStatus(enabled ? 1 : 0);
+        user.setStatus(enabled ? (byte) 1 : (byte) 0);
         userRepository.save(user);
         return true;
     }
