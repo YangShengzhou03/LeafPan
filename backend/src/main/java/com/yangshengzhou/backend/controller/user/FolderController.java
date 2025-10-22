@@ -2,6 +2,7 @@ package com.yangshengzhou.backend.controller.user;
 
 import com.yangshengzhou.backend.dto.ApiResponse;
 import com.yangshengzhou.backend.entity.Folder;
+import com.yangshengzhou.backend.entity.User;
 import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.FolderService;
 import com.yangshengzhou.backend.service.OperationLogService;
@@ -52,8 +53,12 @@ public class FolderController {
             operationLogService.logOperation(
                 currentUser.getId(), 
                 "CREATE_FOLDER", 
+                "文件夹", 
+                folder.getId(), 
+                name,
                 "创建文件夹: " + name, 
-                getClientIpAddress(request)
+                getClientIpAddress(request), 
+                ""
             );
             
             return ResponseEntity.ok(ApiResponse.success("文件夹创建成功", folder));
@@ -175,15 +180,19 @@ public class FolderController {
             
             // TODO: 检查文件夹是否为空，如果不为空，需要先删除所有子文件夹和文件
             
-            boolean deleted = folderService.deleteFolder(id);
+            boolean deleted = folderService.deleteFolder(id, currentUser.getId());
             
             if (deleted) {
                 // 记录删除日志
                 operationLogService.logOperation(
                     currentUser.getId(), 
                     "DELETE_FOLDER", 
+                    "文件夹", 
+                    folder.getId(), 
+                    folder.getName(),
                     "删除文件夹: " + folder.getName(), 
-                    getClientIpAddress(request)
+                    getClientIpAddress(request), 
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("文件夹删除成功"));

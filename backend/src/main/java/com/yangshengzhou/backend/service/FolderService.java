@@ -122,6 +122,13 @@ public class FolderService {
     }
     
     /**
+     * 获取子文件夹列表
+     */
+    public List<Folder> getSubFolders(Long parentId) {
+        return folderRepository.findByParentId(parentId);
+    }
+    
+    /**
      * 检查用户是否有权限访问文件夹
      */
     public boolean hasPermission(Long userId, Long folderId) {

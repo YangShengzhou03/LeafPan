@@ -28,6 +28,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     
     List<Folder> findByUserIdAndParentId(Long userId, Long parentId);
     
+    List<Folder> findByParentId(Long parentId);
+    
     boolean existsByUserIdAndName(Long userId, String name);
     
     boolean existsByUserIdAndNameAndIdNot(Long userId, String name, Long id);

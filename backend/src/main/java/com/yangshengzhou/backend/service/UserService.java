@@ -24,6 +24,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @Autowired
+    private OperationLogService operationLogService;
+    
     /**
      * 创建用户
      */
@@ -77,6 +80,24 @@ public class UserService {
         
         if (userDetails.getStatus() != null) {
             user.setStatus(userDetails.getStatus());
+        }
+        
+        return userRepository.save(user);
+    }
+    
+    /**
+     * 更新用户信息（从Map中获取数据）
+     */
+    public User updateUser(Long id, java.util.Map<String, String> updateData) {
+        User user = getUserById(id);
+        
+        // 更新用户信息
+        if (updateData.containsKey("nickname")) {
+            user.setNickname(updateData.get("nickname"));
+        }
+        
+        if (updateData.containsKey("avatar")) {
+            user.setAvatar(updateData.get("avatar"));
         }
         
         return userRepository.save(user);
@@ -238,10 +259,37 @@ public class UserService {
     }
     
     /**
+     * 获取用户存储使用情况
+     */
+    public java.util.Map<String, Object> getUserStorageUsage(Long userId) {
+        User user = getUserById(userId);
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("storageQuota", user.getStorageQuota());
+        result.put("usedStorage", user.getUsedStorage());
+        result.put("availableStorage", user.getStorageQuota() - user.getUsedStorage());
+        result.put("usagePercentage", (double) user.getUsedStorage() / user.getStorageQuota() * 100);
+        return result;
+    }
+    
+    /**
      * 根据状态获取用户列表
      */
     public List<User> getUsersByStatus(Integer status) {
         return userRepository.findByStatus(status);
+    }
+    
+    /**
+     * 获取用户操作日志
+     */
+    public Page getUserOperationLogs(Long userId, int page, int size) {
+        return operationLogService.getUserOperationLogs(userId, page, size);
+    }
+    
+    /**
+     * 根据类型获取用户操作日志
+     */
+    public Page getUserOperationLogsByType(Long userId, String type, int page, int size) {
+        return operationLogService.getUserOperationLogsByType(userId, type, page, size);
     }
     
     /**

@@ -182,4 +182,8 @@ public class User {
     public void setUpdatedTime(LocalDateTime updatedTime) {
         this.updatedTime = updatedTime;
     }
+    
+    public boolean isEnabled() {
+        return status == 1;
+    }
 }
