@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -56,7 +56,7 @@ public class AuthService {
         operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), user.getUsername(), "用户登录", ipAddress, "");
         
         // 更新最后登录时间
-        user.setLastLoginTime(new Date());
+        user.setLastLoginTime(LocalDateTime.now());
         userRepository.save(user);
         
         // 返回登录结果
@@ -86,9 +86,9 @@ public class AuthService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRole("USER");
-        user.setCreateTime(new Date());
-        user.setUpdateTime(new Date());
+        user.setRole(0); // 使用整数类型
+        user.setCreatedTime(LocalDateTime.now());
+        user.setUpdatedTime(LocalDateTime.now());
         
         // 保存用户
         user = userRepository.save(user);
@@ -130,7 +130,7 @@ public class AuthService {
         
         // 更新密码
         user.setPassword(passwordEncoder.encode(newPassword));
-        user.setUpdateTime(new Date());
+        user.setUpdatedTime(LocalDateTime.now());
         userRepository.save(user);
         
         // 记录修改密码日志
@@ -150,7 +150,7 @@ public class AuthService {
         
         User user = userOptional.get();
         user.setPassword(passwordEncoder.encode(newPassword));
-        user.setUpdateTime(new Date());
+        user.setUpdatedTime(LocalDateTime.now());
         userRepository.save(user);
         
         // 记录重置密码日志

@@ -1,6 +1,6 @@
 package com.yangshengzhou.backend.vo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class ShareVO {
     
@@ -10,8 +10,8 @@ public class ShareVO {
     private Long folderId;
     private Integer shareType;
     private String password;
-    private Date createTime;
-    private Date expireTime;
+    private LocalDateTime createTime;
+    private LocalDateTime expireTime;
     private Integer viewCount;
     private Integer downloadCount;
     private Integer isActive;
@@ -71,19 +71,19 @@ public class ShareVO {
         this.password = password;
     }
     
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
     
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
     
-    public Date getExpireTime() {
+    public LocalDateTime getExpireTime() {
         return expireTime;
     }
     
-    public void setExpireTime(Date expireTime) {
+    public void setExpireTime(LocalDateTime expireTime) {
         this.expireTime = expireTime;
     }
     

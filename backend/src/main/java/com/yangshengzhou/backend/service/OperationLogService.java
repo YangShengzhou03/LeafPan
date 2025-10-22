@@ -36,7 +36,6 @@ public class OperationLogService {
         log.setOperationType(operationType);
         log.setTargetType(targetType);
         log.setTargetId(targetId);
-        log.setTargetName(targetName);
         log.setDescription(description);
         log.setIpAddress(ipAddress);
         log.setUserAgent(userAgent);

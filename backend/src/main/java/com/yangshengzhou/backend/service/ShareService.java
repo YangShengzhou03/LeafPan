@@ -57,13 +57,12 @@ public class ShareService {
         // 设置过期时间
         if (request.getExpireTime() != null && !request.getExpireTime().isEmpty()) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date expireTime = sdf.parse(request.getExpireTime());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime expireTime = LocalDateTime.parse(request.getExpireTime(), formatter);
                 share.setExpireTime(expireTime);
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 // 默认7天后过期
-                Date expireTime = new Date();
-                expireTime.setTime(expireTime.getTime() + 7L * 24 * 60 * 60 * 1000);
+                LocalDateTime expireTime = LocalDateTime.now().plusDays(7);
                 share.setExpireTime(expireTime);
             }
         }
@@ -194,13 +193,12 @@ public class ShareService {
             // 更新过期时间
             if (request.getExpireTime() != null && !request.getExpireTime().isEmpty()) {
                 try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date expireTime = sdf.parse(request.getExpireTime());
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime expireTime = LocalDateTime.parse(request.getExpireTime(), formatter);
                     share.setExpireTime(expireTime);
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     // 默认7天后过期
-                    Date expireTime = new Date();
-                    expireTime.setTime(expireTime.getTime() + 7L * 24 * 60 * 60 * 1000);
+                    LocalDateTime expireTime = LocalDateTime.now().plusDays(7);
                     share.setExpireTime(expireTime);
                 }
             } else {
