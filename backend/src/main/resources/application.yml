@@ -32,6 +32,20 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
       
+  # Redis配置
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    database: 0
+    timeout: 3000
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+      
 # 服务器配置
 server:
   port: 8081
@@ -44,6 +58,14 @@ minio:
   access-key: minioadmin
   secret-key: minioadmin
   bucket-name: leafpan
+  
+# 邮件配置
+email:
+  sender: 3555844679@qq.com
+  password: xtibpzrdwnppchhi
+  smtp:
+    server: smtp.qq.com
+    port: 465
   
 # 应用自定义配置
 app:

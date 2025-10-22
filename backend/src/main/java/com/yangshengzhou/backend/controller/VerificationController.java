@@ -3,6 +3,7 @@ package com.yangshengzhou.backend.controller;
 import com.yangshengzhou.backend.service.VerificationCodeService;
 import com.yangshengzhou.backend.service.EmailService;
 import com.yangshengzhou.backend.common.ApiResponse;
+import com.yangshengzhou.backend.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,10 @@ public class VerificationController {
         
         if (email == null || email.trim().isEmpty()) {
             return ApiResponse.error(400, "邮箱不能为空");
+        }
+        
+        if (!ValidationUtils.isValidEmail(email)) {
+            return ApiResponse.error(400, "邮箱格式不正确");
         }
         
         try {
@@ -63,8 +68,16 @@ public class VerificationController {
             return ApiResponse.error(400, "邮箱不能为空");
         }
         
+        if (!ValidationUtils.isValidEmail(email)) {
+            return ApiResponse.error(400, "邮箱格式不正确");
+        }
+        
         if (code == null || code.trim().isEmpty()) {
             return ApiResponse.error(400, "验证码不能为空");
+        }
+        
+        if (!ValidationUtils.isValidVerificationCode(code)) {
+            return ApiResponse.error(400, "验证码格式不正确");
         }
         
         boolean isValid = verificationCodeService.verifyCode(email, code);

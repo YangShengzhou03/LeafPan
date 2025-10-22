@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getToken } from './utils.js'
 
 const server = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:8081/api',
+  baseURL: process.env.VUE_APP_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
