@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getToken } from './utils.js'
 
 const server = axios.create({
-  baseURL: 'http://localhost:8081',
+  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:8081/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -273,6 +273,14 @@ export const trashAPI = {
   // 清空回收站
   clearTrash: () => {
     return server.delete('/api/user/trash')
+  }
+}
+
+// 配置相关API
+export const configAPI = {
+  // 获取系统配置
+  getSystemConfig: () => {
+    return server.get('/config/system')
   }
 }
 

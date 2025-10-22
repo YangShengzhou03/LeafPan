@@ -34,6 +34,7 @@ public class SecurityConfig {
                 // 公开访问的端点
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/config/**").permitAll()  // 配置API公开访问
                 .requestMatchers("/error").permitAll()
                 // 管理员端点
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
