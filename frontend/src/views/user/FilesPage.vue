@@ -1,65 +1,55 @@
 <template>
     <div class="files-page">
-        <div class="files-header">
-            <h3>我的文件</h3>
-            <div class="header-actions">
-                <el-button type="primary" class="modern-btn" @click="handleUpload">
-                    <el-icon><Upload /></el-icon>
-                    上传文件
-                </el-button>
-                <el-button class="modern-btn" @click="handleNewFolder">
-                    新建文件夹
-                </el-button>
-            </div>
-        </div>
-
         <!-- 文件操作工具栏 -->
         <div class="files-toolbar">
             <div class="toolbar-left">
                 <el-button-group class="view-toggle">
-                    <el-button 
-                        :class="{ 'active-view': viewMode === 'grid' }" 
-                        @click="viewMode = 'grid'"
-                        title="网格视图"
-                    >
-                        <el-icon><Grid /></el-icon>
+                    <el-button :class="{ 'active-view': viewMode === 'grid' }" @click="viewMode = 'grid'" title="网格视图">
+                        <el-icon>
+                            <Grid />
+                        </el-icon>
                     </el-button>
-                    <el-button 
-                        :class="{ 'active-view': viewMode === 'list' }" 
-                        @click="viewMode = 'list'"
-                        title="列表视图"
-                    >
-                        <el-icon><List /></el-icon>
+                    <el-button :class="{ 'active-view': viewMode === 'list' }" @click="viewMode = 'list'" title="列表视图">
+                        <el-icon>
+                            <List />
+                        </el-icon>
                     </el-button>
                 </el-button-group>
                 <el-divider direction="vertical" class="toolbar-divider" />
                 <div class="search-container">
-                    <el-input
-                        v-model="searchQuery"
-                        placeholder="搜索文件..."
-                        class="search-input"
-                        clearable
-                    >
+                    <el-input v-model="searchQuery" placeholder="搜索文件..." class="search-input" clearable>
                         <template #prefix>
-                            <el-icon><Search /></el-icon>
+                            <el-icon>
+                                <Search />
+                            </el-icon>
                         </template>
                     </el-input>
                 </div>
             </div>
+
             <div class="toolbar-right">
+                <div class="header-actions">
+                    <el-button type="primary" class="modern-btn" @click="handleUpload">
+                        <el-icon>
+                            <Upload />
+                        </el-icon>
+                        上传文件
+                    </el-button>
+                    <el-button class="modern-btn" @click="handleNewFolder">
+                        新建文件夹
+                    </el-button>
+                </div>
                 <el-dropdown @command="handleSortCommand" class="sort-dropdown">
                     <el-button class="sort-button">
-                        {{ sortOptions.find(opt => opt.value === sortBy)?.label }}
-                        <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                        {{sortOptions.find(opt => opt.value === sortBy)?.label}}
+                        <el-icon class="el-icon--right">
+                            <ArrowDown />
+                        </el-icon>
                     </el-button>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item 
-                                v-for="option in sortOptions" 
-                                :key="option.value"
-                                :command="option.value"
-                                :class="{ 'active-sort': sortBy === option.value }"
-                            >
+                            <el-dropdown-item v-for="option in sortOptions" :key="option.value" :command="option.value"
+                                :class="{ 'active-sort': sortBy === option.value }">
                                 {{ option.label }}
                             </el-dropdown-item>
                         </el-dropdown-menu>
@@ -75,22 +65,21 @@
                     <a @click="navigateToFolder('')" class="breadcrumb-link">我的文件</a>
                 </el-breadcrumb-item>
                 <el-breadcrumb-item v-for="(folder, index) in currentPath" :key="index">
-                    <a @click="navigateToFolder(currentPath.slice(0, index + 1).join('/'))" class="breadcrumb-link">{{ folder }}</a>
+                    <a @click="navigateToFolder(currentPath.slice(0, index + 1).join('/'))" class="breadcrumb-link">{{
+                        folder
+                    }}</a>
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
 
         <!-- 文件列表 - 网格视图 -->
         <div v-if="viewMode === 'grid'" class="files-grid">
-            <div 
-                v-for="item in filteredFiles" 
-                :key="item.id" 
-                class="file-item"
-                @click="handleItemClick(item)"
-                @contextmenu.prevent="handleRightClick(item, $event)"
-            >
+            <div v-for="item in filteredFiles" :key="item.id" class="file-item" @click="handleItemClick(item)"
+                @contextmenu.prevent="handleRightClick(item, $event)">
                 <div class="file-icon-container">
-                    <el-icon class="file-icon"><component :is="getFileIconComponent(item.type)" /></el-icon>
+                    <el-icon class="file-icon">
+                        <component :is="getFileIconComponent(item.type)" />
+                    </el-icon>
                 </div>
                 <div class="file-name" :title="item.name">{{ item.name }}</div>
                 <div class="file-meta">
@@ -99,32 +88,46 @@
                 <div class="file-actions">
                     <el-dropdown @command="(command) => handleFileCommand(command, item)">
                         <el-button type="text" size="small" class="file-action-btn" @click.stop>
-                            <el-icon><More /></el-icon>
+                            <el-icon>
+                                <More />
+                            </el-icon>
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
                                 <el-dropdown-item command="download">
-                                    <el-icon><Download /></el-icon>
+                                    <el-icon>
+                                        <Download />
+                                    </el-icon>
                                     下载
                                 </el-dropdown-item>
                                 <el-dropdown-item command="share">
-                                    <el-icon><Share /></el-icon>
+                                    <el-icon>
+                                        <Share />
+                                    </el-icon>
                                     分享
                                 </el-dropdown-item>
                                 <el-dropdown-item command="rename">
-                                    <el-icon><Edit /></el-icon>
+                                    <el-icon>
+                                        <Edit />
+                                    </el-icon>
                                     重命名
                                 </el-dropdown-item>
                                 <el-dropdown-item command="move">
-                                    <el-icon><Position /></el-icon>
+                                    <el-icon>
+                                        <Position />
+                                    </el-icon>
                                     移动
                                 </el-dropdown-item>
                                 <el-dropdown-item command="copy">
-                                    <el-icon><CopyDocument /></el-icon>
+                                    <el-icon>
+                                        <CopyDocument />
+                                    </el-icon>
                                     复制
                                 </el-dropdown-item>
                                 <el-dropdown-item command="delete" divided class="danger-item">
-                                    <el-icon><Delete /></el-icon>
+                                    <el-icon>
+                                        <Delete />
+                                    </el-icon>
                                     删除
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -132,7 +135,7 @@
                     </el-dropdown>
                 </div>
             </div>
-            
+
             <!-- 网格视图空状态 -->
             <div v-if="filteredFiles.length === 0" class="empty-state">
                 <el-empty description="暂无文件"></el-empty>
@@ -144,7 +147,9 @@
             <el-table :data="filteredFiles" class="modern-table" @row-contextmenu="handleRowRightClick" stripe>
                 <el-table-column width="50">
                     <template #default="{ row }">
-                        <el-icon class="table-file-icon"><component :is="getFileIconComponent(row.type)" /></el-icon>
+                        <el-icon class="table-file-icon">
+                            <component :is="getFileIconComponent(row.type)" />
+                        </el-icon>
                     </template>
                 </el-table-column>
                 <el-table-column label="名称" min-width="300">
@@ -165,30 +170,44 @@
                 <el-table-column label="操作" width="180">
                     <template #default="{ row }">
                         <el-button type="text" class="table-action-btn" @click="handleFileCommand('download', row)">
-                            <el-icon><Download /></el-icon>
+                            <el-icon>
+                                <Download />
+                            </el-icon>
                         </el-button>
                         <el-button type="text" class="table-action-btn" @click="handleFileCommand('share', row)">
-                            <el-icon><Share /></el-icon>
+                            <el-icon>
+                                <Share />
+                            </el-icon>
                         </el-button>
                         <el-button type="text" class="table-action-btn" @click="handleFileCommand('rename', row)">
-                            <el-icon><Edit /></el-icon>
+                            <el-icon>
+                                <Edit />
+                            </el-icon>
                         </el-button>
                         <el-dropdown @command="(command) => handleFileCommand(command, row)">
                             <el-button type="text" class="table-action-btn">
-                                <el-icon><More /></el-icon>
+                                <el-icon>
+                                    <More />
+                                </el-icon>
                             </el-button>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item command="move">
-                                    <el-icon><Position /></el-icon>
-                                    移动
-                                </el-dropdown-item>
+                                        <el-icon>
+                                            <Position />
+                                        </el-icon>
+                                        移动
+                                    </el-dropdown-item>
                                     <el-dropdown-item command="copy">
-                                        <el-icon><Copy /></el-icon>
+                                        <el-icon>
+                                            <Copy />
+                                        </el-icon>
                                         复制
                                     </el-dropdown-item>
                                     <el-dropdown-item command="delete" divided class="danger-item">
-                                        <el-icon><Delete /></el-icon>
+                                        <el-icon>
+                                            <Delete />
+                                        </el-icon>
                                         删除
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
@@ -200,23 +219,13 @@
         </div>
 
         <!-- 上传文件对话框 -->
-        <el-dialog
-            v-model="uploadDialogVisible"
-            title="上传文件"
-            width="500px"
-            class="modern-dialog"
-        >
+        <el-dialog v-model="uploadDialogVisible" title="上传文件" width="500px" class="modern-dialog">
             <div class="upload-container">
-                <el-upload
-                    class="upload-area"
-                    drag
-                    action="#"
-                    :auto-upload="false"
-                    :on-change="handleFileChange"
-                    :file-list="fileList"
-                    multiple
-                >
-                    <el-icon class="upload-icon"><Upload /></el-icon>
+                <el-upload class="upload-area" drag action="#" :auto-upload="false" :on-change="handleFileChange"
+                    :file-list="fileList" multiple>
+                    <el-icon class="upload-icon">
+                        <Upload />
+                    </el-icon>
                     <div class="el-upload__text">
                         将文件拖到此处，或<em>点击选择文件</em>
                     </div>
@@ -233,12 +242,7 @@
         </el-dialog>
 
         <!-- 新建文件夹对话框 -->
-        <el-dialog
-            v-model="folderDialogVisible"
-            title="新建文件夹"
-            width="400px"
-            class="modern-dialog"
-        >
+        <el-dialog v-model="folderDialogVisible" title="新建文件夹" width="400px" class="modern-dialog">
             <el-form :model="folderForm" :rules="folderRules" ref="folderFormRef">
                 <el-form-item label="文件夹名称" prop="name">
                     <el-input v-model="folderForm.name" placeholder="请输入文件夹名称" class="modern-input"></el-input>
@@ -255,12 +259,7 @@
         </el-dialog>
 
         <!-- 重命名对话框 -->
-        <el-dialog
-            v-model="renameDialogVisible"
-            title="重命名"
-            width="400px"
-            class="modern-dialog"
-        >
+        <el-dialog v-model="renameDialogVisible" title="重命名" width="400px" class="modern-dialog">
             <el-form :model="renameForm" :rules="renameRules" ref="renameFormRef">
                 <el-form-item label="新名称" prop="name">
                     <el-input v-model="renameForm.name" placeholder="请输入新名称" class="modern-input"></el-input>
@@ -277,34 +276,42 @@
         </el-dialog>
 
         <!-- 右键菜单 -->
-        <el-menu
-            v-if="contextMenuVisible"
-            class="context-menu modern-context-menu"
-            :style="{ left: contextMenuX + 'px', top: contextMenuY + 'px' }"
-            @select="handleContextMenuSelect"
-        >
+        <el-menu v-if="contextMenuVisible" class="context-menu modern-context-menu"
+            :style="{ left: contextMenuX + 'px', top: contextMenuY + 'px' }" @select="handleContextMenuSelect">
             <el-menu-item index="download">
-                <el-icon><Download /></el-icon>
+                <el-icon>
+                    <Download />
+                </el-icon>
                 <span>下载</span>
             </el-menu-item>
             <el-menu-item index="share">
-                <el-icon><Share /></el-icon>
+                <el-icon>
+                    <Share />
+                </el-icon>
                 <span>分享</span>
             </el-menu-item>
             <el-menu-item index="rename">
-                <el-icon><Edit /></el-icon>
+                <el-icon>
+                    <Edit />
+                </el-icon>
                 <span>重命名</span>
             </el-menu-item>
             <el-menu-item index="move">
-                <el-icon><Position /></el-icon>
+                <el-icon>
+                    <Position />
+                </el-icon>
                 <span>移动</span>
             </el-menu-item>
             <el-menu-item index="copy">
-                <el-icon><Copy /></el-icon>
+                <el-icon>
+                    <Copy />
+                </el-icon>
                 <span>复制</span>
             </el-menu-item>
             <el-menu-item index="delete" divided class="danger-item">
-                <el-icon><Delete /></el-icon>
+                <el-icon>
+                    <Delete />
+                </el-icon>
                 <span>删除</span>
             </el-menu-item>
         </el-menu>
@@ -315,18 +322,18 @@
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { 
-    Upload, 
-    FolderAdd, 
-    Grid, 
-    List, 
-    Search, 
-    ArrowDown, 
-    Download, 
-    Share, 
-    Edit, 
-    More, 
-    CopyDocument, 
+import {
+    Upload,
+    FolderAdd,
+    Grid,
+    List,
+    Search,
+    ArrowDown,
+    Download,
+    Share,
+    Edit,
+    More,
+    CopyDocument,
     Position,
     Delete,
     Folder,
@@ -412,15 +419,15 @@ const contextMenuY = ref(0)
 // 计算属性：过滤和排序后的文件列表
 const filteredFiles = computed(() => {
     let result = [...files.value]
-    
+
     // 过滤
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
-        result = result.filter(file => 
+        result = result.filter(file =>
             file.name.toLowerCase().includes(query)
         )
     }
-    
+
     // 排序
     result.sort((a, b) => {
         switch (sortBy.value) {
@@ -436,7 +443,7 @@ const filteredFiles = computed(() => {
                 return 0
         }
     })
-    
+
     return result
 })
 
@@ -561,7 +568,7 @@ const confirmCreateFolder = async () => {
 // 处理文件命令
 const handleFileCommand = async (command, item) => {
     selectedItem.value = item
-    
+
     switch (command) {
         case 'download':
             ElMessage.info(`开始下载: ${item.name}`)
@@ -569,33 +576,33 @@ const handleFileCommand = async (command, item) => {
             await new Promise(resolve => setTimeout(resolve, 1500))
             ElMessage.success(`下载完成: ${item.name}`)
             break
-            
+
         case 'share':
             ElMessage.info(`分享文件: ${item.name}`)
             // 模拟分享
             await new Promise(resolve => setTimeout(resolve, 1000))
             ElMessage.success('分享链接已生成')
             break
-            
+
         case 'rename':
             renameDialogVisible.value = true
             renameForm.name = item.name
             break
-            
+
         case 'move':
             ElMessage.info(`移动文件: ${item.name}`)
             // 模拟移动
             await new Promise(resolve => setTimeout(resolve, 1000))
             ElMessage.success('文件移动成功')
             break
-            
+
         case 'copy':
             ElMessage.info(`复制文件: ${item.name}`)
             // 模拟复制
             await new Promise(resolve => setTimeout(resolve, 1000))
             ElMessage.success('文件复制成功')
             break
-            
+
         case 'delete':
             try {
                 await ElMessageBox.confirm(
@@ -703,9 +710,9 @@ const formatFileSize = (bytes) => {
 // 格式化日期
 const formatDate = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit'
     })
 }
 
@@ -1094,38 +1101,38 @@ const handleCurrentChange = (newPage) => {
     .files-page {
         padding: 12px;
     }
-    
+
     .files-header {
         flex-direction: column;
         gap: 16px;
         align-items: stretch;
     }
-    
+
     .files-toolbar {
         flex-direction: column;
         gap: 16px;
     }
-    
+
     .toolbar-left {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .search-container {
         width: 100%;
     }
-    
+
     .files-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 12px;
         padding: 12px;
     }
-    
+
     .file-item {
         padding: 16px;
         min-height: 120px;
     }
-    
+
     .file-icon {
         font-size: 36px;
     }
