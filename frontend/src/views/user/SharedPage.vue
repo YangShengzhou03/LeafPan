@@ -114,7 +114,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import mockApiService from '@/utils/mockApiService.js'
-import { formatDate } from '@/utils/api.js'
+import { utils } from '@/utils/api.js'
 
 // 标签页
 const activeTab = ref('sharedByMe')
@@ -128,6 +128,9 @@ const sharedByMe = ref([])
 const sharedWithMe = ref([])
 const availableFiles = ref([])
 const availableUsers = ref([])
+
+// 使用utils中的函数
+const formatDate = utils.formatDate
 
 // 对话框相关
 const shareDialogVisible = ref(false)
@@ -402,34 +405,18 @@ onMounted(async () => {
 
 <style scoped>
 .shared-page {
-  padding: 24px;
-  background-color: #f8fafc;
+  padding: 20px;
+  background-color: #ffffff;
   min-height: 100vh;
   font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
 }
 
-.shared-header {
-  margin-bottom: 30px;
-}
-
-.shared-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0 0 10px 0;
-}
-
-.shared-header p {
-  color: #606266;
-  margin: 0;
-  font-size: 16px;
-}
-
 /* 标签页 */
 .shared-tabs {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
   padding: 20px;
 }
 
@@ -437,7 +424,7 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .search-bar {
@@ -448,35 +435,38 @@ onMounted(async () => {
 .shared-files-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .file-item {
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 12px 16px;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  transition: all 0.3s ease;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
 }
 
 .file-item:hover {
-  background-color: #f0f7ff;
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
 }
 
 .file-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
+  margin-right: 12px;
   flex-shrink: 0;
 }
 
 .file-icon i {
-  font-size: 24px;
+  font-size: 20px;
   color: #fff;
 }
 
@@ -487,19 +477,20 @@ onMounted(async () => {
 
 .file-name {
   font-weight: 500;
-  color: #303133;
-  margin-bottom: 5px;
+  color: #1f2937;
+  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 14px;
 }
 
 .file-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   font-size: 12px;
-  color: #909399;
+  color: #6b7280;
 }
 
 .meta-item {
@@ -509,7 +500,7 @@ onMounted(async () => {
 
 .file-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* 空状态 */
@@ -519,7 +510,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  color: #909399;
+  color: #9ca3af;
 }
 
 .empty-state i {
@@ -534,51 +525,55 @@ onMounted(async () => {
 
 /* 文件图标样式 */
 .folder-icon {
-  background-color: #E6A23C;
+  background-color: #f59e0b;
 }
 
 .image-icon {
-  background-color: #67C23A;
+  background-color: #10b981;
 }
 
 .video-icon {
-  background-color: #F56C6C;
+  background-color: #ef4444;
 }
 
 .audio-icon {
-  background-color: #409EFF;
+  background-color: #3b82f6;
 }
 
 .pdf-icon {
-  background-color: #F56C6C;
+  background-color: #ef4444;
 }
 
 .document-icon {
-  background-color: #409EFF;
+  background-color: #3b82f6;
 }
 
 .archive-icon {
-  background-color: #E6A23C;
+  background-color: #f59e0b;
 }
 
 .code-icon {
-  background-color: #909399;
+  background-color: #6b7280;
 }
 
 .other-icon {
-  background-color: #909399;
+  background-color: #6b7280;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .shared-header h1 {
-    font-size: 24px;
+  .shared-page {
+    padding: 16px;
+  }
+
+  .shared-tabs {
+    padding: 16px;
   }
 
   .tab-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 15px;
+    gap: 12px;
   }
 
   .search-bar {
@@ -592,18 +587,18 @@ onMounted(async () => {
 
   .file-icon {
     margin-right: 0;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .file-actions {
     width: 100%;
     justify-content: flex-end;
-    margin-top: 10px;
+    margin-top: 8px;
   }
 
   .file-meta {
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
   }
 }
 </style>

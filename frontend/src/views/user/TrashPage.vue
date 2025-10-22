@@ -108,13 +108,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import mockApiService from '@/utils/mockApiService.js'
-import { formatFileSize, formatDate } from '@/utils/api.js'
+import { utils } from '@/utils/api.js'
 
 // 数据
 const trashFiles = ref([])
 const selectedFiles = ref([])
 const searchQuery = ref('')
 const sortBy = ref('deletedAt')
+
+// 使用utils中的函数
+const formatFileSize = utils.formatFileSize
+const formatDate = utils.formatDate
 
 // 对话框
 const batchActionDialog = ref({
@@ -383,27 +387,10 @@ onMounted(() => {
 
 <style scoped>
 .trash-page {
-  padding: 24px;
-  background-color: #f8fafc;
+  padding: 20px;
+  background-color: #ffffff;
   min-height: 100vh;
   font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
-}
-
-.trash-header {
-  margin-bottom: 30px;
-}
-
-.trash-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0 0 10px 0;
-}
-
-.trash-header p {
-  color: #606266;
-  margin: 0;
-  font-size: 16px;
 }
 
 /* 工具栏 */
@@ -411,16 +398,17 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
 }
 
 .toolbar-left {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .toolbar-right {
@@ -430,9 +418,10 @@ onMounted(() => {
 
 /* 文件列表 */
 .file-list {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
@@ -442,8 +431,8 @@ onMounted(() => {
 }
 
 .file-icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -453,7 +442,7 @@ onMounted(() => {
 }
 
 .file-icon i {
-  font-size: 18px;
+  font-size: 16px;
   color: #fff;
 }
 
@@ -463,15 +452,16 @@ onMounted(() => {
 
 .file-name {
   font-weight: 500;
-  color: #303133;
+  color: #1f2937;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 14px;
 }
 
 .file-path {
   font-size: 12px;
-  color: #909399;
+  color: #6b7280;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -479,66 +469,66 @@ onMounted(() => {
 
 /* 剩余时间样式 */
 .urgent {
-  color: #F56C6C;
+  color: #ef4444;
   font-weight: 600;
 }
 
 .warning {
-  color: #E6A23C;
+  color: #f59e0b;
   font-weight: 500;
 }
 
 .normal {
-  color: #67C23A;
+  color: #10b981;
 }
 
 /* 文件图标样式 */
 .folder-icon {
-  background-color: #E6A23C;
+  background-color: #f59e0b;
 }
 
 .image-icon {
-  background-color: #67C23A;
+  background-color: #10b981;
 }
 
 .video-icon {
-  background-color: #F56C6C;
+  background-color: #ef4444;
 }
 
 .audio-icon {
-  background-color: #409EFF;
+  background-color: #3b82f6;
 }
 
 .pdf-icon {
-  background-color: #F56C6C;
+  background-color: #ef4444;
 }
 
 .document-icon {
-  background-color: #409EFF;
+  background-color: #3b82f6;
 }
 
 .archive-icon {
-  background-color: #E6A23C;
+  background-color: #f59e0b;
 }
 
 .code-icon {
-  background-color: #909399;
+  background-color: #6b7280;
 }
 
 .other-icon {
-  background-color: #909399;
+  background-color: #6b7280;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .trash-header h1 {
-    font-size: 24px;
+  .trash-page {
+    padding: 16px;
   }
 
   .toolbar {
     flex-direction: column;
     align-items: stretch;
-    gap: 15px;
+    gap: 12px;
   }
 
   .toolbar-left {
@@ -547,7 +537,7 @@ onMounted(() => {
 
   .toolbar-right {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .toolbar-right .el-input,

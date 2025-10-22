@@ -565,7 +565,7 @@ const navigateTo = (path) => {
     font-size: 24px;
     font-weight: 600;
     margin: 0;
-    color: #303133;
+    color: #1f2937;
 }
 
 .header-actions {
@@ -583,18 +583,31 @@ const navigateTo = (path) => {
 
 .storage-card, .stats-card {
     height: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.card-header span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
 }
 
 .storage-info {
     display: flex;
     align-items: center;
     gap: 24px;
+    padding: 20px;
 }
 
 .storage-chart {
@@ -604,6 +617,7 @@ const navigateTo = (path) => {
 .percentage-label {
     font-size: 16px;
     font-weight: bold;
+    color: #1f2937;
 }
 
 .storage-details {
@@ -617,11 +631,11 @@ const navigateTo = (path) => {
 }
 
 .storage-text .used {
-    color: #409EFF;
+    color: #3b82f6;
 }
 
 .storage-text .total {
-    color: #909399;
+    color: #6b7280;
 }
 
 .storage-breakdown {
@@ -635,7 +649,7 @@ const navigateTo = (path) => {
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: #606266;
+    color: #4b5563;
 }
 
 .color-dot {
@@ -645,19 +659,19 @@ const navigateTo = (path) => {
 }
 
 .color-dot.document {
-    background-color: #409EFF;
+    background-color: #3b82f6;
 }
 
 .color-dot.image {
-    background-color: #67C23A;
+    background-color: #10b981;
 }
 
 .color-dot.video {
-    background-color: #E6A23C;
+    background-color: #f59e0b;
 }
 
 .color-dot.other {
-    background-color: #909399;
+    background-color: #6b7280;
 }
 
 /* 文件统计区域 */
@@ -665,6 +679,7 @@ const navigateTo = (path) => {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+    padding: 20px;
 }
 
 .stat-item {
@@ -673,25 +688,35 @@ const navigateTo = (path) => {
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background-color: #F5F7FA;
+    background-color: #f8fafc;
     border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
 .stat-value {
     font-size: 24px;
     font-weight: 600;
-    color: #303133;
+    color: #1f2937;
     margin-bottom: 8px;
 }
 
 .stat-label {
     font-size: 14px;
-    color: #909399;
+    color: #6b7280;
 }
 
 /* 最近文件区域 */
 .recent-files-card {
     margin-bottom: 24px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.recent-files-card .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
 }
 
 .file-info {
@@ -704,6 +729,7 @@ const navigateTo = (path) => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #1f2937;
 }
 
 /* 快速访问区域 */
@@ -711,10 +737,23 @@ const navigateTo = (path) => {
     margin-bottom: 24px;
 }
 
+.quick-access-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.quick-access-card .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
 .quick-access-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
+    padding: 20px;
 }
 
 .quick-access-item {
@@ -723,40 +762,44 @@ const navigateTo = (path) => {
     align-items: center;
     justify-content: center;
     padding: 20px 10px;
-    background-color: #F5F7FA;
+    background-color: #f8fafc;
     border-radius: 8px;
+    border: 1px solid #e2e8f0;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s ease;
 }
 
 .quick-access-item:hover {
-    background-color: #ECF5FF;
-    transform: translateY(-2px);
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .quick-access-item i {
     font-size: 24px;
     margin-bottom: 8px;
-    color: #409EFF;
+    color: #3b82f6;
 }
 
 .quick-access-item span {
     font-size: 14px;
-    color: #606266;
+    color: #4b5563;
+    font-weight: 500;
 }
 
 /* 上传区域样式 */
 .upload-area {
-    border: 1px dashed #DCDFE6;
-    border-radius: 6px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
     padding: 20px 0;
     text-align: center;
-    background-color: #FAFAFA;
+    background-color: #f9fafb;
 }
 
 .upload-area:hover {
-    border-color: #409EFF;
-    background-color: #F0F9FF;
+    border-color: #3b82f6;
+    background-color: #f0f9ff;
 }
 
 /* 响应式设计 */

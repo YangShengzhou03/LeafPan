@@ -100,27 +100,28 @@ const fileStats = ref([
 
 /* 存储卡片 */
 .storage-card {
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  padding: 30px;
-  margin-bottom: 30px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
 }
 
 .storage-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .storage-card-header {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .storage-card-header h2 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #2c3e50;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
   margin: 0;
 }
 
@@ -133,96 +134,97 @@ const fileStats = ref([
 .storage-chart {
   display: flex;
   align-items: center;
-  gap: 50px;
+  gap: 40px;
 }
 
 .circular-progress {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
 }
 
 .storage-details {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .storage-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 200px;
+  min-width: 180px;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
   transition: all 0.2s ease;
 }
 
 .storage-item:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 .storage-item .label {
-  color: #7f8c8d;
-  font-size: 16px;
+  color: #64748b;
+  font-size: 14px;
   font-weight: 500;
 }
 
 .storage-item .value {
-  color: #2c3e50;
-  font-weight: 700;
-  font-size: 18px;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 /* 统计网格 */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
   text-align: center;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .stat-content h3 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   color: #409EFF;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
 }
 
 .stat-content p {
-  color: #7f8c8d;
+  color: #64748b;
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .dashboard-page {
-    padding: 15px;
+    padding: 16px;
   }
 
   .storage-info {
     flex-direction: column;
-    gap: 30px;
+    gap: 24px;
   }
 
   .storage-chart {
@@ -240,21 +242,21 @@ const fileStats = ref([
   }
 
   .circular-progress {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
   }
 
   .storage-item {
-    min-width: 160px;
+    min-width: 140px;
     padding: 10px 12px;
   }
 
   .storage-item .label {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .storage-item .value {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .stats-grid {
@@ -262,11 +264,11 @@ const fileStats = ref([
   }
 
   .stat-content h3 {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .stat-content p {
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 </style>
