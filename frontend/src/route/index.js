@@ -146,39 +146,4 @@ const router = createRouter({
   routes
 });
 
-// 路由守卫
-router.beforeEach((to, from, next) => {
-  // 设置页面标题
-  if (to.meta.title) {
-    document.title = to.meta.title
-  }
-  
-  // 检查是否需要认证
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // 如果未登录，重定向到登录页
-    if (!store.isAuthenticated) {
-      next({
-        path: '/login',
-        query: { redirect: to.fullPath }
-      })
-    } else {
-      // 检查是否需要管理员权限
-      if (to.matched.some(record => record.meta.requiresAdmin)) {
-        // 如果不是管理员，重定向到用户首页
-        if (!store.isAdmin) {
-          next({ path: '/user' })
-        } else {
-          next()
-        }
-      } else {
-        // 普通用户页面，直接通过
-        next()
-      }
-    }
-  } else {
-    // 不需要认证的页面，直接通过
-    next()
-  }
-})
-
 export default router;
