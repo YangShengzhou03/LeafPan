@@ -53,11 +53,7 @@ public class EmailService {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject("【枫叶网盘】LeafPan系统验证码");
             
-            // 创建多部分消息
-            MimeMultipart multipart = new MimeMultipart("related");
-            
-            // HTML内容部分
-            MimeBodyPart htmlPart = new MimeBodyPart();
+            // 创建HTML消息
             String htmlContent = "<html>" +
                 "<head>" +
                 "<meta charset=\"UTF-8\">" +
@@ -73,8 +69,6 @@ public class EmailService {
                 ".verification-code { font-size: 42px; font-weight: bold; color: #409EFF; letter-spacing: 8px; margin: 15px 0; }" +
                 ".instructions { color: #666; line-height: 1.6; margin-bottom: 20px; }" +
                 ".footer { background: #f8f9fa; padding: 25px; text-align: center; color: #666; font-size: 14px; border-top: 1px solid #e9ecef; }" +
-                ".footer-logo { margin-top: 20px; }" +
-                ".footer-logo img { max-width: 200px; height: auto; }" +
                 ".warning { color: #ff6b6b; font-size: 13px; margin-top: 10px; }" +
                 "</style>" +
                 "</head>" +
@@ -98,28 +92,13 @@ public class EmailService {
                 "<div class=\"footer\">" +
                 "<p>感谢您使用 LeafPan 枫叶网盘服务</p>" +
                 "<p>如有任何问题，请联系开发者：yangsz03@foxmail.com</p>" +
-                "<div class=\"footer-logo\">" +
-                "<img src=\"cid:footerPattern\" alt=\"LeafPan Pattern\">" +
-                "</div>" +
                 "<p style=\"margin-top: 15px; font-size: 12px; color: #999;\">© 2025 LeafPan Team. All rights reserved.</p>" +
                 "</div>" +
                 "</div>" +
                 "</body>" +
                 "</html>";
-            htmlPart.setContent(htmlContent, "text/html;charset=UTF-8");
-            multipart.addBodyPart(htmlPart);
             
-            // 添加图片部分
-            MimeBodyPart imagePart = new MimeBodyPart();
-            File imageFile = new File("src/main/resources/static/Email.png");
-            if (imageFile.exists()) {
-                imagePart.attachFile(imageFile);
-                imagePart.setContentID("<footerPattern>");
-                imagePart.setDisposition(MimeBodyPart.INLINE);
-                multipart.addBodyPart(imagePart);
-            }
-            
-            message.setContent(multipart);
+            message.setContent(htmlContent, "text/html;charset=UTF-8");
             
             Transport.send(message);
         } catch (MessagingException e) {
