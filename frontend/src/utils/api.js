@@ -40,57 +40,57 @@ server.interceptors.response.use(
 export const authAPI = {
   // 登录
   login: (credentials) => {
-    return server.post('/api/auth/login', credentials)
+    return server.post('/auth/login', credentials)
   },
   
   // 注册
   register: (userData) => {
-    return server.post('/api/auth/register', userData)
+    return server.post('/auth/register', userData)
   },
   
   // 获取当前用户信息
   getCurrentUser: () => {
-    return server.get('/api/auth/me')
+    return server.get('/auth/me')
   },
   
   // 修改密码
   changePassword: (passwordData) => {
-    return server.put('/api/auth/password', passwordData)
+    return server.put('/auth/password', passwordData)
   },
   
   // 刷新令牌
   refreshToken: () => {
-    return server.post('/api/auth/refresh')
+    return server.post('/auth/refresh')
   },
   
   // 登出
   logout: () => {
-    return server.post('/api/auth/logout')
+    return server.post('/auth/logout')
   },
   
   // 忘记密码
   forgotPassword: (email) => {
-    return server.post('/api/auth/forgot-password', { email })
+    return server.post('/auth/forgot-password', { email })
   },
   
   // 重置密码
   resetPassword: (token, password) => {
-    return server.post('/api/auth/reset-password', { token, password })
+    return server.post('/auth/reset-password', { token, password })
   },
   
   // 验证邮箱
   verifyEmail: (token) => {
-    return server.get(`/api/auth/verify-email?token=${token}`)
+    return server.get(`/auth/verify-email?token=${token}`)
   },
   
   // 重新发送验证邮件
   resendVerificationEmail: () => {
-    return server.post('/api/auth/resend-verification')
+    return server.post('/auth/resend-verification')
   },
   
   // 发送邮箱验证码
   sendVerificationCode: (email) => {
-    return server.post('/api/verification/send', { email })
+    return server.post('/verification/send', { email })
   }
 }
 
@@ -98,7 +98,7 @@ export const authAPI = {
 export const fileAPI = {
   // 上传文件
   upload: (formData, onUploadProgress) => {
-    return server.post('/api/user/file/upload', formData, {
+    return server.post('/user/file/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -108,44 +108,44 @@ export const fileAPI = {
   
   // 获取文件列表
   getFiles: (params) => {
-    return server.get('/api/user/file/list', { params })
+    return server.get('/user/file/list', { params })
   },
   
   // 获取文件详情
   getFile: (id) => {
-    return server.get(`/api/user/file/${id}`)
+    return server.get(`/user/file/${id}`)
   },
   
   // 下载文件
   download: (id) => {
-    return server.get(`/api/user/file/${id}/download`, {
+    return server.get(`/user/file/${id}/download`, {
       responseType: 'blob'
     })
   },
   
   // 预览文件
   preview: (id) => {
-    return server.get(`/api/user/file/${id}/preview`)
+    return server.get(`/user/file/${id}/preview`)
   },
   
   // 重命名文件
   rename: (id, newName) => {
-    return server.put(`/api/user/file/${id}/rename`, { name: newName })
+    return server.put(`/user/file/${id}/rename`, { name: newName })
   },
   
   // 删除文件
   delete: (id) => {
-    return server.delete(`/api/user/file/${id}`)
+    return server.delete(`/user/file/${id}`)
   },
   
   // 搜索文件
   search: (name) => {
-    return server.get('/api/user/file/search', { params: { name } })
+    return server.get('/user/file/search', { params: { name } })
   },
   
   // 获取存储使用情况
   getStorageUsage: () => {
-    return server.get('/api/user/storage/usage')
+    return server.get('/user/storage/usage')
   }
 }
 
@@ -153,32 +153,32 @@ export const fileAPI = {
 export const folderAPI = {
   // 创建文件夹
   create: (folderData) => {
-    return server.post('/api/folder/create', folderData)
+    return server.post('/folder/create', folderData)
   },
   
   // 获取用户文件夹列表
   getFolders: () => {
-    return server.get('/api/folder/list')
+    return server.get('/folder/list')
   },
   
   // 获取子文件夹
   getSubFolders: (parentId) => {
-    return server.get(`/api/folder/${parentId}/subfolders`)
+    return server.get(`/folder/${parentId}/subfolders`)
   },
   
   // 获取文件夹详情
   getFolder: (id) => {
-    return server.get(`/api/folder/${id}`)
+    return server.get(`/folder/${id}`)
   },
   
   // 重命名文件夹
  rename: (id, newName) => {
-    return server.put(`/api/folder/${id}/rename`, { name: newName })
+    return server.put(`/folder/${id}/rename`, { name: newName })
   },
   
   // 删除文件夹
   delete: (id) => {
-    return server.delete(`/api/folder/${id}`)
+    return server.delete(`/folder/${id}`)
   }
 }
 
@@ -186,37 +186,37 @@ export const folderAPI = {
 export const shareAPI = {
   // 创建分享
   create: (shareData) => {
-    return server.post('/api/share/create', shareData)
+    return server.post('/share/create', shareData)
   },
   
   // 获取用户分享列表
   getUserShares: () => {
-    return server.get('/api/share/list')
+    return server.get('/share/list')
   },
   
   // 获取分享详情
   getShare: (shareCode) => {
-    return server.get(`/api/share/${shareCode}`)
+    return server.get(`/share/${shareCode}`)
   },
   
   // 更新分享
   update: (id, shareData) => {
-    return server.put(`/api/share/${id}`, shareData)
+    return server.put(`/share/${id}`, shareData)
   },
   
   // 删除分享
   delete: (id) => {
-    return server.delete(`/api/share/${id}`)
+    return server.delete(`/share/${id}`)
   },
   
   // 通过分享码访问文件
   accessSharedFile: (shareCode) => {
-    return server.get(`/api/share/${shareCode}/file`)
+    return server.get(`/share/${shareCode}/file`)
   },
   
   // 公开访问分享
   publicAccess: (shareCode) => {
-    return server.get(`/api/share/public/${shareCode}`)
+    return server.get(`/share/public/${shareCode}`)
   }
 }
 

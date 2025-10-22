@@ -85,7 +85,7 @@ public class EmailService {
                 "<p>安全可靠的云存储解决方案</p>" +
                 "</div>" +
                 "<div class=\"content\">" +
-                "<p class=\"greeting\">尊敬的客户，您好！</p>" +
+                "<p class=\"greeting\">尊敬的用户，您好！</p>" +
                 "<p class=\"instructions\">您正在进行账户验证操作，为确保您的账户安全，请使用以下验证码完成验证：</p>" +
                 "<div class=\"code-section\">" +
                 "<p style=\"margin: 0 0 10px; color: #666;\">您的验证码</p>" +
@@ -93,15 +93,15 @@ public class EmailService {
                 "<p style=\"margin: 10px 0 0; color: #999; font-size: 14px;\">有效期 5 分钟</p>" +
                 "</div>" +
                 "<p class=\"instructions\">请勿将此验证码透露给他人。如非本人操作，请立即修改账户密码并联系客服。</p>" +
-                "<p class=\"warning\">⚠️ 安全提示：LeafPan团队不会通过电话或短信向您索要验证码</p>" +
+                "<p class=\"warning\">⚠️ 注意：LeafPan团队绝不会向您索要验证码</p>" +
                 "</div>" +
                 "<div class=\"footer\">" +
                 "<p>感谢您使用 LeafPan 枫叶网盘服务</p>" +
-                "<p>如有任何问题，请联系客服：support@leafpan.com</p>" +
+                "<p>如有任何问题，请联系开发者：yangsz03@foxmail.com</p>" +
                 "<div class=\"footer-logo\">" +
                 "<img src=\"cid:footerPattern\" alt=\"LeafPan Pattern\">" +
                 "</div>" +
-                "<p style=\"margin-top: 15px; font-size: 12px; color: #999;\">© 2024 LeafPan Team. All rights reserved.</p>" +
+                "<p style=\"margin-top: 15px; font-size: 12px; color: #999;\">© 2025 LeafPan Team. All rights reserved.</p>" +
                 "</div>" +
                 "</div>" +
                 "</body>" +
