@@ -1,0 +1,66 @@
+# Spring Boot 应用配置
+spring:
+  application:
+    name: leafpan-backend
+  
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        
+  # Jackson配置
+  jackson:
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+      
+# 服务器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    
+# MinIO配置
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: leafpan
+  
+# 应用自定义配置
+app:
+  # JWT配置
+  jwt:
+    secret: leafpan-secret-key-for-jwt-token-generation
+    expiration: 86400000  # 24小时
+    
+  # 文件存储配置
+  storage:
+    max-file-size: 100MB
+    allowed-extensions: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar
+    
+# 日志配置
+logging:
+  level:
+    com.yangshengzhou.backend: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
