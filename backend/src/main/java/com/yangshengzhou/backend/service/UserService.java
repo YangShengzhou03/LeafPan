@@ -296,6 +296,53 @@ public class UserService {
      * 根据角色获取用户列表
      */
     public List<User> getUsersByRole(String role) {
-        return userRepository.findByRole(role);
+        return userRepository.findByRole(Integer.valueOf(role));
+    }
+    
+    /**
+     * 更新用户状态（boolean版本）
+     */
+    public boolean updateUserStatus(Long id, boolean enabled) {
+        User user = getUserById(id);
+        user.setStatus(enabled ? 1 : 0);
+        userRepository.save(user);
+        return true;
+    }
+    
+    /**
+     * 重置用户密码
+     */
+    public boolean resetUserPassword(Long id, String newPassword) {
+        User user = getUserById(id);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
+    }
+    
+    /**
+     * 获取用户统计信息
+     */
+    public Map<String, Object> getUserStatistics() {
+        Map<String, Object> statistics = new HashMap<>();
+        
+        // 总用户数
+        long totalUsers = userRepository.count();
+        statistics.put("totalUsers", totalUsers);
+        
+        // 活跃用户数
+        long activeUsers = userRepository.countActiveUsers();
+        statistics.put("activeUsers", activeUsers);
+        
+        // 管理员用户数
+        List<User> adminUsers = userRepository.findByRole(1);
+        statistics.put("adminUsers", adminUsers.size());
+        
+        // 普通用户数
+        statistics.put("normalUsers", totalUsers - adminUsers.size());
+        
+        // 今日新增用户数（需要实现）
+        statistics.put("todayNewUsers", 0);
+        
+        return statistics;
     }
 }

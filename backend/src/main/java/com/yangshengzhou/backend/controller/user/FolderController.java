@@ -62,7 +62,7 @@ public class FolderController {
                 folder.getId(), 
                 "创建文件夹: " + name, 
                 getClientIpAddress(request), 
-                "",
+                request.getHeader("User-Agent"),
                 ""
             );
             

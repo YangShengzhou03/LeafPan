@@ -74,7 +74,7 @@ public class FileController {
                 uploadedFile.getId(), 
                 "上传文件: " + uploadedFile.getName(), 
                 getClientIpAddress(request),
-                "",
+                request.getHeader("User-Agent"),
                 ""
             );
                 
@@ -192,7 +192,7 @@ public class FileController {
                 file.getId(), 
                 "下载文件: " + file.getName(), 
                 getClientIpAddress(request),
-                "",
+                request.getHeader("User-Agent"),
                 ""
             );
             
@@ -273,7 +273,7 @@ public class FileController {
                     id, 
                     "重命名文件: " + newName, 
                     getClientIpAddress(request),
-                    "",
+                    request.getHeader("User-Agent"),
                     ""
                 );
                 
@@ -321,7 +321,7 @@ public class FileController {
                     id, 
                     "删除文件: " + file.getName(), 
                     getClientIpAddress(request),
-                    "",
+                    request.getHeader("User-Agent"),
                     ""
                 );
                 

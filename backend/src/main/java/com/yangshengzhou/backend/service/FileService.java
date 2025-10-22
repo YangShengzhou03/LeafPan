@@ -151,4 +151,59 @@ public class FileService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
         return fileRepository.findAll(pageable);
     }
+    
+    /**
+     * 获取文件统计信息
+     */
+    public Map<String, Object> getFileStatistics() {
+        Map<String, Object> statistics = new HashMap<>();
+        
+        // 总文件数
+        long totalFiles = fileRepository.count();
+        statistics.put("totalFiles", totalFiles);
+        
+        // 今日新增文件数（需要实现）
+        statistics.put("todayNewFiles", 0);
+        
+        // 总文件大小
+        Long totalSize = fileRepository.sumSize();
+        statistics.put("totalSize", totalSize != null ? totalSize : 0L);
+        
+        return statistics;
+    }
+    
+    /**
+     * 获取存储使用统计
+     */
+    public Map<String, Object> getStorageUsage() {
+        Map<String, Object> usage = new HashMap<>();
+        
+        // 总存储使用量
+        Long totalUsed = fileRepository.sumSize();
+        usage.put("totalUsed", totalUsed != null ? totalUsed : 0L);
+        
+        // 用户数量（需要从UserService获取）
+        usage.put("totalUsers", 0);
+        
+        // 平均使用量
+        usage.put("averageUsage", 0L);
+        
+        return usage;
+    }
+    
+    /**
+     * 获取文件类型统计
+     */
+    public Map<String, Object> getFileTypeStatistics() {
+        Map<String, Object> statistics = new HashMap<>();
+        
+        // 按文件类型统计（需要实现）
+        statistics.put("imageFiles", 0);
+        statistics.put("documentFiles", 0);
+        statistics.put("videoFiles", 0);
+        statistics.put("audioFiles", 0);
+        statistics.put("otherFiles", 0);
+        
+        return statistics;
+    }
 }

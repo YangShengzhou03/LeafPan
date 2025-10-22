@@ -95,7 +95,7 @@ public class AdminFileController {
                     file.getId(),
                     "管理员删除文件: " + file.getName(),
                     getClientIpAddress(request),
-                    "",
+                    request.getHeader("User-Agent"),
                     ""
                 );
                 

@@ -1,7 +1,6 @@
 package com.yangshengzhou.backend.controller.admin;
 
 import com.yangshengzhou.backend.dto.ApiResponse;
-import com.yangshengzhou.backend.dto.UserDTO;
 import com.yangshengzhou.backend.entity.User;
 import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.UserService;
@@ -71,14 +70,14 @@ public class AdminUserController {
      * 更新用户信息
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updateData, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            User updatedUser = userService.updateUser(id, userDTO);
+            User updatedUser = userService.updateUser(id, updateData);
             
             if (updatedUser != null) {
                 // 记录操作日志
@@ -89,7 +88,7 @@ public class AdminUserController {
                     updatedUser.getId(),
                     "管理员更新用户信息: " + updatedUser.getUsername(),
                     getClientIpAddress(request),
-                    "",
+                    request.getHeader("User-Agent"),
                     ""
                 );
                 
@@ -130,7 +129,7 @@ public class AdminUserController {
                     user.getId(),
                     "管理员删除用户: " + user.getUsername(),
                     getClientIpAddress(request),
-                    "",
+                    request.getHeader("User-Agent"),
                     ""
                 );
                 
@@ -174,7 +173,7 @@ public class AdminUserController {
                     user.getId(),
                     "管理员" + (enabled ? "启用" : "禁用") + "用户: " + user.getUsername(),
                     getClientIpAddress(request),
-                    "",
+                    request.getHeader("User-Agent"),
                     ""
                 );
                 
@@ -236,7 +235,9 @@ public class AdminUserController {
                     "USER",
                     user.getId(),
                     "管理员重置用户密码: " + user.getUsername(),
-                    getClientIpAddress(request)
+                    getClientIpAddress(request),
+                    request.getHeader("User-Agent"),
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("用户密码重置成功"));

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public interface ShareRepository extends JpaRepository<Share, Long> {
     List<Share> findActiveSharesByUserId(@Param("userId") Long userId, @Param("now") LocalDateTime now);
     
     @Query("SELECT s FROM Share s WHERE s.shareCode = :shareCode AND s.isActive = true AND (s.expireTime IS NULL OR s.expireTime > :now)")
-    Optional<Share> findValidShareByCode(@Param("shareCode") String shareCode, @Param("now") LocalDateTime now);
+    Optional<Share> findValidShareByCode(@Param("shareCode") String shareCode, @Param("now") Date now);
     
     @Query("SELECT s FROM Share s WHERE s.userId = :userId AND s.fileId = :fileId AND s.isActive = true")
     List<Share> findByUserIdAndFileIdAndIsActiveTrue(@Param("userId") Long userId, @Param("fileId") Long fileId);
