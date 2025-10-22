@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/folder")
+@RequestMapping("/api/folder")
 public class FolderController {
     
     @Autowired

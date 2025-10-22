@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getToken } from './utils.js'
 
 const server = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || '/api',
+  baseURL: process.env.VUE_APP_API_URL || '',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json'
@@ -55,7 +55,7 @@ export const authAPI = {
   
   // 修改密码
   changePassword: (passwordData) => {
-    return server.put('/auth/password', passwordData)
+    return server.post('/auth/change-password', passwordData)
   },
   
   // 刷新令牌
@@ -98,7 +98,7 @@ export const authAPI = {
 export const fileAPI = {
   // 上传文件
   upload: (formData, onUploadProgress) => {
-    return server.post('/user/file/upload', formData, {
+    return server.post('/api/user/file/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -108,44 +108,44 @@ export const fileAPI = {
   
   // 获取文件列表
   getFiles: (params) => {
-    return server.get('/user/file/list', { params })
+    return server.get('/api/user/file/list', { params })
   },
   
   // 获取文件详情
   getFile: (id) => {
-    return server.get(`/user/file/${id}`)
+    return server.get(`/api/user/file/${id}`)
   },
   
   // 下载文件
   download: (id) => {
-    return server.get(`/user/file/${id}/download`, {
+    return server.get(`/api/user/file/${id}/download`, {
       responseType: 'blob'
     })
   },
   
   // 预览文件
   preview: (id) => {
-    return server.get(`/user/file/${id}/preview`)
+    return server.get(`/api/user/file/${id}/preview`)
   },
   
   // 重命名文件
   rename: (id, newName) => {
-    return server.put(`/user/file/${id}/rename`, { name: newName })
+    return server.put(`/api/user/file/${id}/rename`, { name: newName })
   },
   
   // 删除文件
   delete: (id) => {
-    return server.delete(`/user/file/${id}`)
+    return server.delete(`/api/user/file/${id}`)
   },
   
   // 搜索文件
   search: (name) => {
-    return server.get('/user/file/search', { params: { name } })
+    return server.get('/api/user/file/search', { params: { name } })
   },
   
   // 获取存储使用情况
   getStorageUsage: () => {
-    return server.get('/user/storage/usage')
+    return server.get('/api/file/storage/usage')
   }
 }
 
@@ -153,32 +153,32 @@ export const fileAPI = {
 export const folderAPI = {
   // 创建文件夹
   create: (folderData) => {
-    return server.post('/folder/create', folderData)
+    return server.post('/api/folder/create', folderData)
   },
   
   // 获取用户文件夹列表
   getFolders: () => {
-    return server.get('/folder/list')
+    return server.get('/api/folder/list')
   },
   
   // 获取子文件夹
   getSubFolders: (parentId) => {
-    return server.get(`/folder/${parentId}/subfolders`)
+    return server.get(`/api/folder/${parentId}/subfolders`)
   },
   
   // 获取文件夹详情
   getFolder: (id) => {
-    return server.get(`/folder/${id}`)
+    return server.get(`/api/folder/${id}`)
   },
   
   // 重命名文件夹
  rename: (id, newName) => {
-    return server.put(`/folder/${id}/rename`, { name: newName })
+    return server.put(`/api/folder/${id}/rename`, { name: newName })
   },
   
   // 删除文件夹
   delete: (id) => {
-    return server.delete(`/folder/${id}`)
+    return server.delete(`/api/folder/${id}`)
   }
 }
 
@@ -186,37 +186,37 @@ export const folderAPI = {
 export const shareAPI = {
   // 创建分享
   create: (shareData) => {
-    return server.post('/share/create', shareData)
+    return server.post('/api/share/create', shareData)
   },
   
   // 获取用户分享列表
   getUserShares: () => {
-    return server.get('/share/list')
+    return server.get('/api/share/list')
   },
   
   // 获取分享详情
   getShare: (shareCode) => {
-    return server.get(`/share/${shareCode}`)
+    return server.get(`/api/share/${shareCode}`)
   },
   
   // 更新分享
   update: (id, shareData) => {
-    return server.put(`/share/${id}`, shareData)
+    return server.put(`/api/share/${id}`, shareData)
   },
   
   // 删除分享
   delete: (id) => {
-    return server.delete(`/share/${id}`)
+    return server.delete(`/api/share/${id}`)
   },
   
   // 通过分享码访问文件
   accessSharedFile: (shareCode) => {
-    return server.get(`/share/${shareCode}/file`)
+    return server.get(`/api/share/${shareCode}/file`)
   },
   
   // 公开访问分享
   publicAccess: (shareCode) => {
-    return server.get(`/share/public/${shareCode}`)
+    return server.get(`/api/share/public/${shareCode}`)
   }
 }
 
@@ -224,37 +224,37 @@ export const shareAPI = {
 export const userAPI = {
   // 获取用户信息
   getUserInfo: () => {
-    return server.get('/user/info')
+    return server.get('/api/user/info')
   },
   
   // 更新用户信息
   updateUserInfo: (userData) => {
-    return server.put('/user/info', userData)
+    return server.put('/api/user/info', userData)
   },
   
   // 更新个人资料
   updateProfile: (profileData) => {
-    return server.put('/user/profile', profileData)
+    return server.put('/api/user/profile', profileData)
   },
   
   // 获取当前用户信息
   getCurrentUser: () => {
-    return server.get('/user/me')
+    return server.get('/api/user/me')
   },
   
   // 获取操作日志
   getOperationLogs: (params) => {
-    return server.get('/user/logs', { params })
+    return server.get('/api/user/logs', { params })
   },
   
   // 获取存储信息
   getStorageInfo: () => {
-    return server.get('/user/storage')
+    return server.get('/api/user/storage')
   },
   
   // 获取仪表板统计数据
   getDashboardStats: () => {
-    return server.get('/user/dashboard/stats')
+    return server.get('/api/user/dashboard/stats')
   }
 }
 

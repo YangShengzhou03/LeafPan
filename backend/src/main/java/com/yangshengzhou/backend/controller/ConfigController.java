@@ -15,7 +15,7 @@ import java.util.Map;
  * 提供前端所需的系统配置信息
  */
 @RestController
-@RequestMapping("/config")
+@RequestMapping("/api/config")
 public class ConfigController {
     
     @Value("${server.port}")

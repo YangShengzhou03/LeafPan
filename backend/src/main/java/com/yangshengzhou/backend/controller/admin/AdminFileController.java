@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/file")
+@RequestMapping("/api/admin/file")
 public class AdminFileController {
     
     @Autowired

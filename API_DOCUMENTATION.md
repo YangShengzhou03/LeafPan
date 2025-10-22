@@ -7,7 +7,7 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
 ## 基础信息
 
 - **基础URL**: `http://localhost:8081`
-- **认证方式**: Bearer Token
+- **认证方式**: Bearer Token (JWT)
 - **数据格式**: JSON
 - **字符编码**: UTF-8
 
@@ -34,11 +34,28 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
       "user": {
         "id": 1,
         "username": "admin",
-        "email": "admin@example.com"
+        "email": "admin@example.com",
+        "nickname": "管理员",
+        "avatar": "https://example.com/avatar.jpg",
+        "role": 1,
+        "status": 1,
+        "storageQuota": 1073741824,
+        "usedStorage": 1048576,
+        "lastLoginTime": "2023-06-15T10:30:00",
+        "lastLoginIp": "192.168.1.100",
+        "createdTime": "2023-01-01T00:00:00",
+        "updatedTime": "2023-06-15T10:30:00"
       }
     }
   }
   ```
+
+**用户角色说明**:
+- `role`: 0-普通用户，1-管理员
+- `status`: 0-禁用，1-正常
+- `storageQuota`: 存储配额（字节），默认1GB
+- `usedStorage`: 已用存储空间（字节）
+- `lastLoginIp`: 最后登录IP地址
 
 ### 用户注册
 
@@ -52,22 +69,74 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
     "email": "string"
   }
   ```
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "注册成功",
+    "data": {
+      "id": 2,
+      "username": "testuser",
+      "email": "test@example.com",
+      "nickname": null,
+      "avatar": null,
+      "role": 0,
+      "status": 1,
+      "storageQuota": 1073741824,
+      "usedStorage": 0,
+      "lastLoginTime": null,
+      "lastLoginIp": null,
+      "createdTime": "2023-06-15T10:30:00",
+      "updatedTime": "2023-06-15T10:30:00"
+    }
+  }
+  ```
 
 ### 获取当前用户信息
 
 - **接口地址**: `/api/auth/me`
 - **请求方法**: GET
 - **请求头**: `Authorization: Bearer <token>`
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "success",
+    "data": {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "nickname": "管理员",
+      "avatar": "https://example.com/avatar.jpg",
+      "role": 1,
+      "status": 1,
+      "storageQuota": 1073741824,
+      "usedStorage": 1048576,
+      "lastLoginTime": "2023-06-15T10:30:00",
+      "lastLoginIp": "192.168.1.100",
+      "createdTime": "2023-01-01T00:00:00",
+      "updatedTime": "2023-06-15T10:30:00"
+    }
+  }
+  ```
 
 ### 修改密码
 
-- **接口地址**: `/api/auth/password`
-- **请求方法**: PUT
+- **接口地址**: `/api/auth/change-password`
+- **请求方法**: POST
 - **请求参数**:
   ```json
   {
     "oldPassword": "string",
     "newPassword": "string"
+  }
+  ```
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "密码修改成功",
+    "data": null
   }
   ```
 
@@ -275,68 +344,117 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
 
 ## 用户相关 API
 
-### 获取用户信息
+### 获取用户个人资料
 
-- **接口地址**: `/api/user/info`
+- **接口地址**: `/api/user/profile`
 - **请求方法**: GET
-
-### 更新用户信息
-
-- **接口地址**: `/api/user/info`
-- **请求方法**: PUT
-- **请求参数**:
+- **请求头**: `Authorization: Bearer <token>`
+- **响应示例**:
   ```json
   {
-    "username": "string",
-    "email": "string",
-    "phone": "string"
+    "code": 200,
+    "message": "success",
+    "data": {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "nickname": "管理员",
+      "avatar": "https://example.com/avatar.jpg",
+      "role": 1,
+      "status": 1,
+      "storageQuota": 1073741824,
+      "usedStorage": 1048576,
+      "lastLoginTime": "2023-06-15T10:30:00",
+      "lastLoginIp": "192.168.1.100",
+      "createdTime": "2023-01-01T00:00:00",
+      "updatedTime": "2023-06-15T10:30:00"
+    }
   }
   ```
 
-### 更新个人资料
+### 更新用户个人资料
 
 - **接口地址**: `/api/user/profile`
 - **请求方法**: PUT
+- **请求头**: `Authorization: Bearer <token>`
 - **请求参数**:
   ```json
   {
-    "username": "string",
-    "email": "string",
-    "phone": "string",
-    "gender": "string",
-    "birthDate": "string",
-    "emergencyContact": "string",
-    "emergencyPhone": "string"
+    "nickname": "string",
+    "avatar": "string",
+    "email": "string"
   }
   ```
-
-### 获取当前用户信息
-
-- **接口地址**: `/api/user/me`
-- **请求方法**: GET
-
-### 获取操作日志
-
-- **接口地址**: `/api/user/logs`
-- **请求方法**: GET
-- **请求参数**:
-  - `page`: 页码（默认为1）
-  - `size`: 每页数量（默认为20）
-  - `type`: 操作类型（可选）
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "更新成功",
+    "data": {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "nickname": "新昵称",
+      "avatar": "https://example.com/new-avatar.jpg",
+      "role": 1,
+      "status": 1,
+      "storageQuota": 1073741824,
+      "usedStorage": 1048576,
+      "lastLoginTime": "2023-06-15T10:30:00",
+      "lastLoginIp": "192.168.1.100",
+      "createdTime": "2023-01-01T00:00:00",
+      "updatedTime": "2023-06-15T11:00:00"
+    }
+  }
+  ```
 
 ### 获取存储信息
 
 - **接口地址**: `/api/user/storage`
 - **请求方法**: GET
+- **请求头**: `Authorization: Bearer <token>`
 - **响应示例**:
   ```json
   {
     "code": 200,
+    "message": "success",
     "data": {
-      "totalSpace": 5368709120,
-      "usedSpace": 2147483648,
-      "availableSpace": 3221225472,
-      "usagePercentage": 40
+      "totalQuota": 1073741824,
+      "usedStorage": 1048576,
+      "availableStorage": 1072693248,
+      "usagePercentage": 0.1
+    }
+  }
+  ```
+
+### 获取操作日志
+
+- **接口地址**: `/api/user/logs`
+- **请求方法**: GET
+- **请求头**: `Authorization: Bearer <token>`
+- **请求参数**:
+  - `page` (可选): 页码，默认1
+  - `size` (可选): 每页大小，默认10
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "success",
+    "data": {
+      "total": 50,
+      "page": 1,
+      "size": 10,
+      "list": [
+        {
+          "id": 1,
+          "userId": 1,
+          "operation": "LOGIN",
+          "description": "用户登录",
+          "ip": "192.168.1.100",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          "createdTime": "2023-06-15T10:30:00"
+        }
+      ]
     }
   }
   ```
@@ -379,6 +497,195 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
 
 - **接口地址**: `/api/user/trash`
 - **请求方法**: DELETE
+
+## 管理员用户管理 API
+
+### 获取用户列表
+
+- **接口地址**: `/api/admin/users/list`
+- **请求方法**: GET
+- **请求头**: `Authorization: Bearer <token>`
+- **请求参数**:
+  - `page` (可选): 页码，默认1
+  - `size` (可选): 每页大小，默认10
+  - `keyword` (可选): 搜索关键词（用户名、邮箱）
+  - `role` (可选): 角色筛选（0-普通用户，1-管理员）
+  - `status` (可选): 状态筛选（0-禁用，1-正常）
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "success",
+    "data": {
+      "total": 100,
+      "page": 1,
+      "size": 10,
+      "list": [
+        {
+          "id": 1,
+          "username": "admin",
+          "email": "admin@example.com",
+          "nickname": "管理员",
+          "avatar": "https://example.com/avatar.jpg",
+          "role": 1,
+          "status": 1,
+          "storageQuota": 1073741824,
+          "usedStorage": 1048576,
+          "lastLoginTime": "2023-06-15T10:30:00",
+          "lastLoginIp": "192.168.1.100",
+          "createdTime": "2023-01-01T00:00:00",
+          "updatedTime": "2023-06-15T10:30:00"
+        }
+      ]
+    }
+  }
+  ```
+
+### 获取用户详情
+
+- **接口地址**: `/api/admin/users/{id}`
+- **请求方法**: GET
+- **请求头**: `Authorization: Bearer <token>`
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "success",
+    "data": {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "nickname": "管理员",
+      "avatar": "https://example.com/avatar.jpg",
+      "role": 1,
+      "status": 1,
+      "storageQuota": 1073741824,
+      "usedStorage": 1048576,
+      "lastLoginTime": "2023-06-15T10:30:00",
+      "lastLoginIp": "192.168.1.100",
+      "createdTime": "2023-01-01T00:00:00",
+      "updatedTime": "2023-06-15T10:30:00"
+    }
+  }
+  ```
+
+### 更新用户信息
+
+- **接口地址**: `/api/admin/users/{id}`
+- **请求方法**: PUT
+- **请求头**: `Authorization: Bearer <token>`
+- **请求参数**:
+  ```json
+  {
+    "nickname": "string",
+    "avatar": "string",
+    "email": "string",
+    "role": 0,
+    "status": 1,
+    "storageQuota": 1073741824
+  }
+  ```
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "更新成功",
+    "data": {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "nickname": "新昵称",
+      "avatar": "https://example.com/new-avatar.jpg",
+      "role": 1,
+      "status": 1,
+      "storageQuota": 2147483648,
+      "usedStorage": 1048576,
+      "lastLoginTime": "2023-06-15T10:30:00",
+      "lastLoginIp": "192.168.1.100",
+      "createdTime": "2023-01-01T00:00:00",
+      "updatedTime": "2023-06-15T11:00:00"
+    }
+  }
+  ```
+
+### 删除用户
+
+- **接口地址**: `/api/admin/users/{id}`
+- **请求方法**: DELETE
+- **请求头**: `Authorization: Bearer <token>`
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "删除成功",
+    "data": null
+  }
+  ```
+
+### 修改用户状态
+
+- **接口地址**: `/api/admin/users/{id}/status`
+- **请求方法**: PUT
+- **请求头**: `Authorization: Bearer <token>`
+- **请求参数**:
+  ```json
+  {
+    "status": 0
+  }
+  ```
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "状态更新成功",
+    "data": {
+      "id": 1,
+      "status": 0
+    }
+  }
+  ```
+
+### 重置用户密码
+
+- **接口地址**: `/api/admin/users/{id}/password`
+- **请求方法**: PUT
+- **请求头**: `Authorization: Bearer <token>`
+- **请求参数**:
+  ```json
+  {
+    "password": "string"
+  }
+  ```
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "密码重置成功",
+    "data": null
+  }
+  ```
+
+### 获取用户统计信息
+
+- **接口地址**: `/api/admin/users/statistics`
+- **请求方法**: GET
+- **请求头**: `Authorization: Bearer <token>`
+- **响应示例**:
+  ```json
+  {
+    "code": 200,
+    "message": "success",
+    "data": {
+      "totalUsers": 100,
+      "activeUsers": 85,
+      "inactiveUsers": 15,
+      "adminUsers": 5,
+      "normalUsers": 95,
+      "todayLoginUsers": 10,
+      "weekLoginUsers": 50
+    }
+  }
+  ```
 
 ## 错误处理
 
