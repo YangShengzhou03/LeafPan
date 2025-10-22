@@ -1,6 +1,5 @@
 package com.yangshengzhou.backend.security;
 
-import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,9 +24,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsService userDetailsService;
-    
-    @Autowired
-    private AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

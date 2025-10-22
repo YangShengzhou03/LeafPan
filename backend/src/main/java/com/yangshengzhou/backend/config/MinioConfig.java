@@ -42,7 +42,12 @@ public class MinioConfig {
     @PostConstruct
     public void init() {
         try {
-            MinioClient client = minioClient();
+            // 直接创建MinioClient实例，避免循环依赖
+            MinioClient client = MinioClient.builder()
+                    .endpoint(endpoint)
+                    .credentials(accessKey, secretKey)
+                    .build();
+            
             boolean bucketExists = client.bucketExists(
                 io.minio.BucketExistsArgs.builder()
                     .bucket(bucketName)
