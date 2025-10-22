@@ -25,11 +25,12 @@ public class FileService {
     public File uploadFile(MultipartFile file, Long userId, Long folderId, String storageKey) {
         File fileEntity = new File();
         fileEntity.setName(file.getOriginalFilename());
+        fileEntity.setOriginalName(file.getOriginalFilename());
         fileEntity.setUserId(userId);
         fileEntity.setFolderId(folderId);
         fileEntity.setSize(file.getSize());
         fileEntity.setStorageKey(storageKey);
-        fileEntity.setContentType(file.getContentType());
+        fileEntity.setMimeType(file.getContentType());
         
         // 获取文件扩展名
         String originalFilename = file.getOriginalFilename();

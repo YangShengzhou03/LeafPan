@@ -1,8 +1,8 @@
 package com.yangshengzhou.backend.controller;
 
+import com.yangshengzhou.backend.dto.ApiResponse;
 import com.yangshengzhou.backend.service.VerificationCodeService;
 import com.yangshengzhou.backend.service.EmailService;
-import com.yangshengzhou.backend.common.ApiResponse;
 import com.yangshengzhou.backend.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

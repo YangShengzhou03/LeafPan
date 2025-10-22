@@ -7,6 +7,7 @@ import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.FileService;
 import com.yangshengzhou.backend.service.FileStorageService;
 import com.yangshengzhou.backend.service.OperationLogService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

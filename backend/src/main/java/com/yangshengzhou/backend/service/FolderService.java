@@ -46,6 +46,18 @@ public class FolderService {
         folder.setParentId(request.getParentId());
         folder.setUserId(userId);
         
+        // 构建文件夹路径
+        String path = "/";
+        if (request.getParentId() != null && request.getParentId() > 0) {
+            Optional<Folder> parentFolder = folderRepository.findById(request.getParentId());
+            if (parentFolder.isPresent()) {
+                path = parentFolder.get().getPath() + request.getName() + "/";
+            }
+        } else {
+            path = "/" + request.getName() + "/";
+        }
+        folder.setPath(path);
+        
         return folderRepository.save(folder);
     }
     
