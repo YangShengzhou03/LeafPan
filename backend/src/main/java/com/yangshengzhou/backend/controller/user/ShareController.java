@@ -3,6 +3,7 @@ package com.yangshengzhou.backend.controller.user;
 import com.yangshengzhou.backend.dto.ApiResponse;
 import com.yangshengzhou.backend.entity.File;
 import com.yangshengzhou.backend.entity.Share;
+import com.yangshengzhou.backend.entity.User;
 import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.FileService;
 import com.yangshengzhou.backend.service.FileStorageService;

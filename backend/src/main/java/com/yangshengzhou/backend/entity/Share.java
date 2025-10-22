@@ -141,7 +141,7 @@ public class Share {
         this.viewCount = viewCount;
     }
     
-    public Integer getIsActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
     

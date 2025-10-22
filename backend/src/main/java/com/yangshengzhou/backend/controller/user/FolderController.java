@@ -1,6 +1,7 @@
 package com.yangshengzhou.backend.controller.user;
 
 import com.yangshengzhou.backend.dto.ApiResponse;
+import com.yangshengzhou.backend.dto.CreateFolderRequest;
 import com.yangshengzhou.backend.entity.Folder;
 import com.yangshengzhou.backend.entity.User;
 import com.yangshengzhou.backend.service.AuthService;

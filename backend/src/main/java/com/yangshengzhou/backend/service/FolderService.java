@@ -135,4 +135,9 @@ public class FolderService {
         Optional<Folder> folderOptional = folderRepository.findById(folderId);
         return folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId);
     }
+
+    public boolean isFolderOwnedByUser(Long folderId, Long userId) {
+        Optional<Folder> folderOptional = folderRepository.findById(folderId);
+        return folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId);
+    }
 }
