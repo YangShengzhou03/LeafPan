@@ -108,7 +108,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import mockApiService from '@/utils/mockApiService.js'
-import { utils } from '@/utils/api.js'
 
 // 数据
 const trashFiles = ref([])

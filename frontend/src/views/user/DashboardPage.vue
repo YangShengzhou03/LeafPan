@@ -49,7 +49,6 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { utils } from '@/utils/api.js'
 
 const { formatFileSize } = utils
 

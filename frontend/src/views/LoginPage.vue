@@ -145,7 +145,6 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
-import { authAPI } from '@/utils/api.js'
 import store from '@/utils/store.js'
 
 const router = useRouter()
