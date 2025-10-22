@@ -98,6 +98,14 @@ public class FileService {
     }
     
     /**
+     * 检查文件是否属于用户
+     */
+    public boolean isFileOwnedByUser(Long fileId, Long userId) {
+        Optional<File> fileOptional = fileRepository.findById(fileId);
+        return fileOptional.isPresent() && fileOptional.get().getUserId().equals(userId);
+    }
+    
+    /**
      * 按名称搜索文件
      */
     public List<File> searchFilesByName(Long userId, String keyword) {
