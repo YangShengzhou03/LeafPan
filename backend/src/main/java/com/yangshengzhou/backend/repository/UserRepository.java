@@ -24,4 +24,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT COUNT(u) FROM User u WHERE u.status = 1")
     long countActiveUsers();
+    
+    @Query("SELECT u FROM User u WHERE u.status = :status")
+    List<User> findByStatus(@Param("status") Integer status);
+    
+    @Query("SELECT u FROM User u WHERE u.role = :role")
+    List<User> findByRole(@Param("role") String role);
+    
+    @Query("SELECT COUNT(u) FROM User u WHERE u.userId = :userId")
+    Long countByUserId(@Param("userId") Long userId);
+    
+    @Query("SELECT COUNT(u) FROM User u WHERE u.userId = :userId AND u.operationType = :operationType")
+    Long countByUserIdAndOperationType(@Param("userId") Long userId, @Param("operationType") String operationType);
+    
+    @Query("SELECT u FROM User u WHERE u.operationTime BETWEEN :startTime AND :endTime")
+    List<User> findByOperationTimeBetween(@Param("startTime") java.util.Date startTime, @Param("endTime") java.util.Date endTime);
+    
+    @Query("SELECT u FROM User u WHERE u.operationTime < :cutoffDate")
+    List<User> findByOperationTimeBefore(@Param("cutoffDate") java.util.Date cutoffDate);
 }

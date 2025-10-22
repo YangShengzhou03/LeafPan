@@ -146,11 +146,3 @@ public class FileService {
         return fileRepository.findByUserIdAndFolderId(userId, folderId, pageable);
     }
 }
-    
-    /**
-     * 根据文件名查找文件
-     */
-    public List<File> searchFilesByName(Long userId, String name) {
-        return fileRepository.findByUserIdAndNameContaining(userId, name);
-    }
-}

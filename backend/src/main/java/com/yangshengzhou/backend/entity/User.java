@@ -25,8 +25,11 @@ public class User {
     @Column(length = 255)
     private String avatar;
     
+    @Column(nullable = false)
+    private Integer role = 0; // 0-普通用户，1-管理员
+    
     @Column(name = "storage_quota", nullable = false)
-    private Long storageQuota = 10737418240L; // 默认10GB
+    private Long storageQuota = 1073741824L; // 默认1GB
     
     @Column(name = "used_storage", nullable = false)
     private Long usedStorage = 0L;
@@ -114,6 +117,14 @@ public class User {
     
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+    
+    public Integer getRole() {
+        return role;
+    }
+    
+    public void setRole(Integer role) {
+        this.role = role;
     }
     
     public Long getStorageQuota() {

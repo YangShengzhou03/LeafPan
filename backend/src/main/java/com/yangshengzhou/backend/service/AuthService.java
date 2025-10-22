@@ -53,7 +53,7 @@ public class AuthService {
         String token = jwtUtil.generateToken(username);
         
         // 记录登录日志
-        operationLogService.logOperation(user.getId(), "LOGIN", "用户登录", ipAddress);
+        operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), user.getUsername(), "用户登录", ipAddress, "");
         
         // 更新最后登录时间
         user.setLastLoginTime(new Date());
@@ -94,7 +94,7 @@ public class AuthService {
         user = userRepository.save(user);
         
         // 记录注册日志
-        operationLogService.logOperation(user.getId(), "REGISTER", "用户注册", ipAddress);
+        operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), user.getUsername(), "用户注册", ipAddress, "");
         
         return user;
     }
@@ -134,7 +134,7 @@ public class AuthService {
         userRepository.save(user);
         
         // 记录修改密码日志
-        operationLogService.logOperation(userId, "CHANGE_PASSWORD", "修改密码", ipAddress);
+        operationLogService.logOperation(userId, "CHANGE_PASSWORD", "用户", userId, user.getUsername(), "修改密码", ipAddress, "");
         
         return true;
     }
@@ -154,8 +154,8 @@ public class AuthService {
         userRepository.save(user);
         
         // 记录重置密码日志
-        operationLogService.logOperation(operatorId, "RESET_PASSWORD", 
-            "重置用户密码: " + user.getUsername(), ipAddress);
+        operationLogService.logOperation(operatorId, "RESET_PASSWORD", "用户", userId, user.getUsername(), 
+            "重置用户密码: " + user.getUsername(), ipAddress, "");
         
         return true;
     }

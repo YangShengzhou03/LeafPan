@@ -28,4 +28,10 @@ public interface FileRepository extends JpaRepository<File, Long> {
     Long sumSizeByUserId(@Param("userId") Long userId);
     
     boolean existsByUserIdAndStorageKey(Long userId, String storageKey);
+    
+    org.springframework.data.domain.Page<File> findByUserId(Long userId, org.springframework.data.domain.Pageable pageable);
+    
+    org.springframework.data.domain.Page<File> findByUserIdAndFolderId(Long userId, Long folderId, org.springframework.data.domain.Pageable pageable);
+    
+    boolean existsByStorageKey(String storageKey);
 }

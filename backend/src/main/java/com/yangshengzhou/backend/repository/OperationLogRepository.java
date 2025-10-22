@@ -24,7 +24,21 @@ public interface OperationLogRepository extends JpaRepository<OperationLog, Long
                                                         @Param("endTime") LocalDateTime endTime);
     
     @Query("SELECT COUNT(o) FROM OperationLog o WHERE o.userId = :userId AND o.operationType = :operationType AND o.createdTime >= :since")
-    Long countByUserIdAndOperationTypeAndCreatedTimeAfter(@Param("userId") Long userId, 
-                                                        @Param("operationType") String operationType, 
-                                                        @Param("since") LocalDateTime since);
+    List<OperationLog> findByUserId(Long userId);
+    
+    List<OperationLog> findByUserIdAndOperationType(Long userId, String operationType);
+    
+    org.springframework.data.domain.Page<OperationLog> findByUserId(Long userId, org.springframework.data.domain.Pageable pageable);
+    
+    org.springframework.data.domain.Page<OperationLog> findByUserIdAndOperationType(Long userId, String operationType, org.springframework.data.domain.Pageable pageable);
+    
+    org.springframework.data.domain.Page<OperationLog> findByOperationType(String operationType, org.springframework.data.domain.Pageable pageable);
+    
+    Long countByUserId(Long userId);
+    
+    Long countByUserIdAndOperationType(Long userId, String operationType);
+    
+    List<OperationLog> findByOperationTimeBetween(java.util.Date startTime, java.util.Date endTime);
+    
+    List<OperationLog> findByOperationTimeBefore(java.util.Date cutoffDate);
 }

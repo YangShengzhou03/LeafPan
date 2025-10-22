@@ -24,5 +24,11 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.parentId = :parentId AND f.isDeleted = false ORDER BY f.name")
     List<Folder> findByUserIdAndParentIdOrderByName(@Param("userId") Long userId, @Param("parentId") Long parentId);
     
-    boolean existsByUserIdAndNameAndParentIdAndIsDeletedFalse(Long userId, String name, Long parentId);
+    List<Folder> findByUserId(Long userId);
+    
+    List<Folder> findByUserIdAndParentId(Long userId, Long parentId);
+    
+    boolean existsByUserIdAndName(Long userId, String name);
+    
+    boolean existsByUserIdAndNameAndIdNot(Long userId, String name, Long id);
 }
