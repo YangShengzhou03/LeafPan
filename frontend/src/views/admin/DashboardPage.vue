@@ -100,7 +100,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { User, Folder, Document, Share } from '@element-plus/icons-vue'
-import { adminAPI } from '@/utils/api.js'
+import Server from '@/utils/Server.js'
 
 // 统计数据
 const stats = ref({
@@ -128,27 +128,29 @@ const formatStorage = (sizeInGB) => {
 const loadDashboardData = async () => {
   try {
     // 调用后端API获取真实数据
-    const response = await adminAPI.getSystemStats()
+    const response = await Server.get('/api/admin/stats')
     
     // 更新统计数据
     stats.value = {
-      userCount: response.userCount || 0,
-      fileCount: response.fileCount || 0,
-      usedStorage: response.usedStorage || 0,
-      shareCount: response.shareCount || 0
+      userCount: response.data.userCount || 0,
+      fileCount: response.data.fileCount || 0,
+      usedStorage: response.data.usedStorage || 0,
+      shareCount: response.data.shareCount || 0
     }
     
     // 获取最近注册用户
-    const usersResponse = await adminAPI.getUserList({ 
-      page: 1, 
-      size: 5,
-      sort: 'createdAt,desc'
+    const usersResponse = await Server.get('/api/admin/users', { 
+      params: {
+        page: 0, 
+        size: 5,
+        sort: 'createdAt,desc'
+      }
     })
     
-    recentUsers.value = usersResponse.content || []
+    recentUsers.value = usersResponse.data.data.content || []
     
     // 更新系统运行时间
-    uptime.value = response.uptime || ''
+    uptime.value = response.data.uptime || ''
   } catch (error) {
     console.error('加载仪表盘数据失败:', error)
   }

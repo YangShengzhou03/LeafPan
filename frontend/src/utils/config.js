@@ -1,5 +1,5 @@
 // 配置管理工具
-import { configAPI } from './api'
+import Server from './Server'
 
 // 默认配置
 const defaultConfig = {
@@ -36,7 +36,7 @@ export const getConfigItem = (key, defaultValue = null) => {
  */
 export const loadConfig = async () => {
   try {
-    const response = await configAPI.getSystemConfig()
+    const response = await Server.get('/api/admin/config')
     if (response && response.data) {
       // 合并后端配置和默认配置
       currentConfig = { ...defaultConfig, ...response.data }

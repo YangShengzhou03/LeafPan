@@ -327,12 +327,12 @@ const confirmBatchAction = async () => {
   try {
     if (action === 'restore') {
       await Promise.all(selectedFiles.value.map(file =>
-        trashAPI.restoreFile(file.id)
+        Server.post(`/api/trash/restore/${file.id}`)
       ))
       ElMessage.success(`已恢复 ${selectedFiles.value.length} 个文件`)
     } else if (action === 'delete') {
       await Promise.all(selectedFiles.value.map(file =>
-        trashAPI.deleteFile(file.id)
+        Server.delete(`/api/trash/${file.id}`)
       ))
       ElMessage.success(`已永久删除 ${selectedFiles.value.length} 个文件`)
     }
@@ -352,7 +352,7 @@ const confirmClearTrash = async () => {
   clearTrashDialog.value.loading = true
 
   try {
-    await trashAPI.clearTrash()
+    await Server.delete('/api/trash/clear')
     ElMessage.success('回收站已清空')
     clearTrashDialog.value.visible = false
     await fetchTrashFiles()
@@ -367,7 +367,7 @@ const confirmClearTrash = async () => {
 // 获取回收站文件
 const fetchTrashFiles = async () => {
   try {
-    const response = await trashAPI.getTrashFiles()
+    const response = await Server.get('/api/trash/files')
     trashFiles.value = response.data || []
   } catch (error) {
     ElMessage.error('获取回收站文件失败')

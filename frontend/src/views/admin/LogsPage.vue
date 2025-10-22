@@ -128,7 +128,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Download, Delete, Warning, InfoFilled, Document, List } from '@element-plus/icons-vue'
-import { adminAPI } from '@/utils/api.js'
+import Server from '@/utils/Server.js'
 
 // 响应式数据
 const loading = ref(false)
@@ -230,17 +230,19 @@ const updateStats = () => {
 const loadLogs = async () => {
   loading.value = true
   try {
-    const response = await adminAPI.getOperationLogs({
-      page: currentPage.value,
-      size: pageSize.value,
-      level: filter.level,
-      module: filter.module,
-      startDate: filter.dateRange?.[0],
-      endDate: filter.dateRange?.[1]
+    const response = await Server.get('/api/admin/logs', {
+      params: {
+        page: currentPage.value - 1,
+        size: pageSize.value,
+        level: filter.level,
+        module: filter.module,
+        startDate: filter.dateRange?.[0],
+        endDate: filter.dateRange?.[1]
+      }
     })
 
-    logs.value = response.data || []
-    totalLogs.value = response.total || 0
+    logs.value = response.data.data.content || []
+    totalLogs.value = response.data.data.totalElements || 0
     updateStats()
   } catch (error) {
     console.error('加载日志数据失败:', error)
@@ -278,15 +280,18 @@ const viewLogDetail = (log) => {
 const exportLogs = async () => {
   exporting.value = true
   try {
-    const response = await adminAPI.exportLogs({
-      level: filter.level,
-      module: filter.module,
-      startDate: filter.dateRange?.[0],
-      endDate: filter.dateRange?.[1]
+    const response = await Server.get('/api/admin/logs/export', {
+      responseType: 'blob',
+      params: {
+        level: filter.level,
+        module: filter.module,
+        startDate: filter.dateRange?.[0],
+        endDate: filter.dateRange?.[1]
+      }
     })
 
     // 创建下载链接
-    const blob = new Blob([response], { type: 'application/json' })
+    const blob = new Blob([response.data], { type: 'application/json' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -318,7 +323,7 @@ const clearLogs = async () => {
 
     clearing.value = true
 
-    await adminAPI.clearLogs()
+    await Server.delete('/api/admin/logs')
 
     logs.value = []
     totalLogs.value = 0
