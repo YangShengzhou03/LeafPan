@@ -114,7 +114,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import mockApiService from '@/utils/mockApiService.js'
-
+import { formatDate } from '@/utils/utils.js'
 
 // 标签页
 const activeTab = ref('sharedByMe')
@@ -128,9 +128,6 @@ const sharedByMe = ref([])
 const sharedWithMe = ref([])
 const availableFiles = ref([])
 const availableUsers = ref([])
-
-// 使用utils中的函数
-const formatDate = utils.formatDate
 
 // 对话框相关
 const shareDialogVisible = ref(false)

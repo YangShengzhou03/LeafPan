@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
-import { authAPI, utils } from './api.js'
+import { authAPI } from './api.js'
+import * as utils from './utils.js'
 
 // 全局状态
 const state = reactive({

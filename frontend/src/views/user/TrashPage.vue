@@ -108,16 +108,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import mockApiService from '@/utils/mockApiService.js'
+import { formatFileSize, formatDate } from '@/utils/utils.js'
 
 // 数据
 const trashFiles = ref([])
 const selectedFiles = ref([])
 const searchQuery = ref('')
 const sortBy = ref('deletedAt')
-
-// 使用utils中的函数
-const formatFileSize = utils.formatFileSize
-const formatDate = utils.formatDate
 
 // 对话框
 const batchActionDialog = ref({

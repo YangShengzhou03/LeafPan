@@ -49,8 +49,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-
-const { formatFileSize } = utils
+import { formatFileSize } from '@/utils/utils.js'
 
 // 存储信息
 const totalStorageGB = ref(5) // 默认5GB
