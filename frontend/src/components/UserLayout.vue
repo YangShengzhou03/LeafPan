@@ -10,7 +10,7 @@
                 <div class="user-dropdown" :class="{ 'active': isDropdownOpen }">
                     <div class="user-info" @click="toggleDropdown" aria-haspopup="true" :aria-expanded="isDropdownOpen">
                         <div class="user-avatar">
-                            <i class="icon-user" aria-hidden="true"></i>
+                            <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="avatar-image">
                         </div>
                         <div class="user-details">
                             <span class="username">{{ currentUser?.username || '用户名' }}</span>
@@ -227,13 +227,10 @@ onUnmounted(() => {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #409EFF, #79bbff);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin-right: 12px;
     box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
     transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .user-avatar:hover {
@@ -241,10 +238,11 @@ onUnmounted(() => {
     box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
 }
 
-.user-avatar i {
-    color: white;
-    font-size: 18px;
-    margin: 0;
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .user-details {

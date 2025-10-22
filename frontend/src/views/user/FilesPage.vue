@@ -116,11 +116,11 @@
                                     重命名
                                 </el-dropdown-item>
                                 <el-dropdown-item command="move">
-                                    <el-icon><Move /></el-icon>
+                                    <el-icon><Position /></el-icon>
                                     移动
                                 </el-dropdown-item>
                                 <el-dropdown-item command="copy">
-                                    <el-icon><Copy /></el-icon>
+                                    <el-icon><CopyDocument /></el-icon>
                                     复制
                                 </el-dropdown-item>
                                 <el-dropdown-item command="delete" divided class="danger-item">
@@ -180,9 +180,9 @@
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item command="move">
-                                        <el-icon><Move /></el-icon>
-                                        移动
-                                    </el-dropdown-item>
+                                    <el-icon><Position /></el-icon>
+                                    移动
+                                </el-dropdown-item>
                                     <el-dropdown-item command="copy">
                                         <el-icon><Copy /></el-icon>
                                         复制
@@ -296,7 +296,7 @@
                 <span>重命名</span>
             </el-menu-item>
             <el-menu-item index="move">
-                <el-icon><Move /></el-icon>
+                <el-icon><Position /></el-icon>
                 <span>移动</span>
             </el-menu-item>
             <el-menu-item index="copy">
@@ -326,8 +326,8 @@ import {
     Share, 
     Edit, 
     More, 
-    Move, 
-    Copy, 
+    CopyDocument, 
+    Position,
     Delete,
     Folder,
     Document,
