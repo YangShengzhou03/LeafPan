@@ -344,7 +344,7 @@ import {
     Files,
     DataLine
 } from '@element-plus/icons-vue'
-import { fileAPI, folderAPI } from '@/utils/api'
+import Server from '@/utils/Server.js'
 
 const router = useRouter()
 
@@ -464,12 +464,14 @@ const loadFiles = async () => {
     try {
         const path = currentPath.value.join('/')
         // 添加分页参数
-        const response = await fileAPI.getFiles({
-            path,
-            page: currentPage.value,
-            pageSize: pageSize.value
+        const response = await Server.get('/api/files', {
+            params: {
+                path,
+                page: currentPage.value,
+                pageSize: pageSize.value
+            }
         })
-        if (response.success) {
+        if (response.data) {
             files.value = response.data.content || response.data.files || []
             totalFiles.value = response.data.totalElements || response.data.total || 0
         } else {
@@ -536,7 +538,10 @@ const confirmUpload = async () => {
             formData.append('path', path)
         }
         
-        await fileAPI.upload(formData, {
+        await Server.post('/api/files/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
             onUploadProgress: (progressEvent) => {
                 const percentCompleted = Math.round(
                     (progressEvent.loaded * 100) / progressEvent.total
@@ -574,7 +579,7 @@ const confirmCreateFolder = async () => {
             try {
                 const parentId = currentPath.value.length > 0 ? 
                     currentPath.value[currentPath.value.length - 1] : 1
-                await folderAPI.create({
+                await Server.post('/api/folders', {
                     name: folderForm.name,
                     parentId: parentId
                 })
@@ -598,9 +603,11 @@ const handleFileCommand = async (command, item) => {
     switch (command) {
         case 'download':
             try {
-                const response = await fileAPI.download(item.id)
+                const response = await Server.get(`/api/files/${item.id}/download`, {
+                    responseType: 'blob'
+                })
                 // 创建下载链接
-                const url = window.URL.createObjectURL(new Blob([response]))
+                const url = window.URL.createObjectURL(new Blob([response.data]))
                 const link = document.createElement('a')
                 link.href = url
                 link.setAttribute('download', item.name)
@@ -616,10 +623,21 @@ const handleFileCommand = async (command, item) => {
             break
 
         case 'share':
-            ElMessage.info(`分享文件: ${item.name}`)
-            // 模拟分享
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            ElMessage.success('分享链接已生成')
+            try {
+                const response = await Server.post('/api/share/create', {
+                    targetId: item.id,
+                    targetType: item.type === 'folder' ? 'folder' : 'file',
+                    shareType: 0, // 默认公开分享
+                    password: null,
+                    expireTime: null
+                })
+                ElMessage.success('分享链接已生成')
+                // 可以在这里处理分享链接的显示
+                console.log('分享链接:', response.data.shareCode)
+            } catch (error) {
+                console.error('分享失败:', error)
+                ElMessage.error('分享失败')
+            }
             break
 
         case 'rename':
@@ -654,9 +672,9 @@ const handleFileCommand = async (command, item) => {
                 )
                 // 删除文件或文件夹
                 if (item.type === 'folder') {
-                    await folderAPI.delete(item.id)
+                    await Server.delete(`/api/folders/${item.id}`)
                 } else {
-                    await fileAPI.delete(item.id)
+                    await Server.delete(`/api/files/${item.id}`)
                 }
                 ElMessage.success('删除成功')
                 // 重新加载数据
@@ -681,9 +699,13 @@ const confirmRename = async () => {
             try {
                 const item = selectedItem.value
                 if (item.type === 'folder') {
-                    await folderAPI.rename(item.id, renameForm.name)
+                    await Server.put(`/api/folders/${item.id}/rename`, null, {
+                        params: { name: renameForm.name }
+                    })
                 } else {
-                    await fileAPI.rename(item.id, renameForm.name)
+                    await Server.put(`/api/files/${item.id}/rename`, null, {
+                        params: { name: renameForm.name }
+                    })
                 }
                 ElMessage.success('重命名成功')
                 renameDialogVisible.value = false

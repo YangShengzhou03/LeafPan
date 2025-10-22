@@ -153,7 +153,7 @@ import {
   FirstAidKit, QuestionFilled
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { userAPI } from '@/utils/api'
+import Server from '@/utils/Server.js'
 
 // 编辑对话框相关状态
 const editDialogVisible = ref(false)
@@ -267,105 +267,32 @@ const handleDialogClose = () => {
 const submitEditForm = async () => {
   if (!editFormRef.value) return
   
-  try {
-    // 验证表单
-    const valid = await editFormRef.value.validate()
-    if (!valid) return
-    
-    // 确认对话框
-    try {
-      await ElMessageBox.confirm(
-        '确定要保存个人信息修改吗？',
-        '确认修改',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
+  await editFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        const response = await Server.put('/api/user/profile', {
+          username: editForm.username,
+          email: editForm.email,
+          phone: editForm.phone,
+          bio: editForm.bio
+        })
+        
+        if (response.data) {
+          user.value = response.data
+          editDialogVisible.value = false
+          ElMessage.success('个人信息更新成功')
         }
-      )
-    } catch (cancel) {
-      // 用户取消操作
-      return
+      } catch (error) {
+        console.error('更新个人信息失败:', error)
+        ElMessage.error('更新个人信息失败')
+      }
     }
-    
-    submitLoading.value = true
-    
-    const birthDate = editForm.birthdate || ''
-    
-    await userAPI.updateProfile({
-      username: editForm.name,
-      email: editForm.email,
-      phone: editForm.phone,
-      gender: convertGenderToChinese(editForm.gender),
-      birthDate: birthDate,
-      emergencyContact: '',
-      emergencyPhone: ''
-    })
-    
-    // 更新本地用户信息 - 只更新允许修改的字段
-    Object.assign(userProfile, {
-      name: editForm.name,
-      gender: editForm.gender,
-      birthdate: editForm.birthdate,
-      email: editForm.email,
-      phone: editForm.phone
-    })
-    
-    ElMessage.success({
-      message: '个人信息更新成功',
-      duration: 2000,
-      showClose: true
-    })
-    handleDialogClose()
-  } catch (error) {
-    console.error('更新个人信息失败:', error)
-    
-    // 错误处理由封装的service组件自动处理，这里只需要处理业务逻辑错误
-    if (error.message) {
-      ElMessage.error({
-        message: error.message,
-        duration: 3000,
-        showClose: true
-      })
-    }
-  } finally {
-    submitLoading.value = false
-  }
+  })
 }
 
-onMounted(async () => {
-  try {
-    // 使用真实的API获取个人信息
-    const result = await userAPI.getCurrentUser()
-    
-    if (result.code === 200 && result.data) {
-      // 更新本地用户信息，正确映射后端字段名
-    Object.assign(userProfile, {
-      name: result.data.username || userProfile.name,
-      gender: result.data.gender === '男' ? 'male' : 
-               result.data.gender === '女' ? 'female' : 
-               result.data.gender || userProfile.gender, // 将中文性别转换为英文格式
-      birthdate: result.data.birthDate || userProfile.birthdate,
-      email: result.data.email || userProfile.email,
-      phone: result.data.phone || userProfile.phone,
-      avatarUrl: result.data.avatarUrl || userProfile.avatarUrl
-    })
-
-    } else {
-      throw new Error(result.message || '获取个人信息失败')
-    }
-  } catch (error) {
-    console.error('获取个人信息失败:', error)
-    
-    // 错误处理由封装的service组件自动处理，这里只需要处理业务逻辑错误
-    if (error.message && !error.message.includes('未登录')) {
-      ElMessage.warning({
-        message: `加载个人信息失败: ${error.message}`,
-        duration: 3000,
-        showClose: true
-      })
-    }
-  }
+// 组件挂载时获取用户信息
+onMounted(() => {
+  fetchUserInfo()
 })
 
 // 头像上传相关方法
@@ -381,6 +308,24 @@ const beforeAvatarUpload = (file) => {
   if (!isJPG) ElMessage.error('上传头像图片只能是 JPG 或 PNG 格式!')
   if (!isLt2M) ElMessage.error('上传头像图片大小不能超过 2MB!')
   return isJPG && isLt2M
+}
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+  try {
+    const response = await Server.get('/api/user/profile')
+    if (response.data) {
+      user.value = response.data
+      // 填充表单数据
+      editForm.username = user.value.username
+      editForm.email = user.value.email
+      editForm.phone = user.value.phone || ''
+      editForm.bio = user.value.bio || ''
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    ElMessage.error('获取用户信息失败')
+  }
 }
 </script>
 
@@ -721,3 +666,8 @@ const beforeAvatarUpload = (file) => {
   }
 }
 </style>
+
+
+
+
+

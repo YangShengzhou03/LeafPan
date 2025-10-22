@@ -152,7 +152,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
-import { adminAPI } from '@/utils/api.js'
+import Server from '@/utils/Server.js'
 
 // 数据状态
 const loading = ref(false)
@@ -238,9 +238,11 @@ const loadUsers = async () => {
   loading.value = true
   try {
     // 调用后端API获取真实数据
-    const response = await adminAPI.getUserList({
-      page: currentPage.value - 1,
-      size: pageSize.value
+    const response = await Server.get('/api/admin/users', {
+      params: {
+        page: currentPage.value - 1,
+        size: pageSize.value
+      }
     })
     
     if (response.data.code === 200) {
@@ -322,10 +324,10 @@ const saveUser = async () => {
     
     if (editingUser.value) {
       // 更新用户
-      await adminAPI.updateUser(editingUser.value.id, userData)
+      await Server.put(`/api/admin/users/${editingUser.value.id}`, userData)
     } else {
       // 添加用户
-      await adminAPI.addUser(userData)
+      await Server.post('/api/admin/users', userData)
     }
     
     ElMessage.success(editingUser.value ? '用户更新成功' : '用户添加成功')
@@ -356,7 +358,9 @@ const toggleUserStatus = async (user) => {
     )
     
     // 调用后端API更新用户状态
-    await adminAPI.updateUserStatus(user.id, user.status !== 'active')
+    await Server.put(`/api/admin/users/${user.id}/status`, {
+      enabled: user.status !== 'active'
+    })
     
     ElMessage.success(`用户${action}成功`)
     loadUsers() // 重新加载数据
@@ -382,7 +386,7 @@ const deleteUser = async (user) => {
     )
     
     // 调用后端API删除用户
-    await adminAPI.deleteUser(user.id)
+    await Server.delete(`/api/admin/users/${user.id}`)
     
     ElMessage.success('用户删除成功')
     loadUsers() // 重新加载数据

@@ -107,7 +107,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { fileAPI, folderAPI, trashAPI } from '@/utils/api.js'
+import Server from '@/utils/Server.js'
 import { formatFileSize, formatDate } from '@/utils/utils.js'
 
 // 数据
@@ -246,7 +246,7 @@ const handleSort = () => {
 // 恢复文件
 const restoreFile = async (file) => {
   try {
-    await trashAPI.restoreFile(file.id)
+    await Server.post(`/api/trash/restore/${file.id}`)
     ElMessage.success(`"${file.name}" 已恢复`)
     await fetchTrashFiles()
   } catch (error) {
@@ -267,7 +267,7 @@ const deleteFile = (file) => {
     }
   ).then(async () => {
     try {
-      await trashAPI.deleteFile(file.id)
+      await Server.delete(`/api/trash/${file.id}`)
       ElMessage.success('文件已永久删除')
       await fetchTrashFiles()
     } catch (error) {

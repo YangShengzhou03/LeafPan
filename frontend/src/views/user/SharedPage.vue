@@ -113,7 +113,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { shareAPI, fileAPI } from '@/utils/api.js'
+import Server from '@/utils/Server.js'
 import { formatDate } from '@/utils/utils.js'
 
 // 标签页
@@ -268,7 +268,7 @@ const stopShare = (file) => {
     }
   ).then(async () => {
     try {
-      await shareAPI.delete(file.id)
+      await Server.delete(`/api/share/${file.id}`)
       ElMessage.success('已停止共享')
       await fetchSharedByMe()
     } catch (error) {
@@ -283,8 +283,10 @@ const stopShare = (file) => {
 // 下载文件
 const downloadFile = async (file) => {
   try {
-    const response = await fileAPI.download(file.fileId)
-    const url = window.URL.createObjectURL(new Blob([response]))
+    const response = await Server.get(`/api/files/${file.fileId}/download`, {
+      responseType: 'blob'
+    })
+    const url = window.URL.createObjectURL(new Blob([response.data]))
     const link = document.createElement('a')
     link.href = url
     link.setAttribute('download', file.name)
@@ -318,7 +320,7 @@ const removeShare = (file) => {
     }
   ).then(async () => {
     try {
-      await shareAPI.delete(file.id)
+      await Server.delete(`/api/share/${file.id}`)
       ElMessage.success('已移除共享')
       await fetchSharedWithMe()
     } catch (error) {
@@ -340,12 +342,12 @@ const submitShare = async () => {
 
     if (isEditing.value) {
       // 编辑共享
-      await shareAPI.update(shareForm.value.id, shareForm.value)
+      await Server.put(`/api/share/${shareForm.value.id}`, shareForm.value)
       ElMessage.success('共享已更新')
       await fetchSharedByMe()
     } else {
       // 创建新共享
-      await shareAPI.create(shareForm.value)
+      await Server.post('/api/share/create', shareForm.value)
       ElMessage.success('共享已创建')
       await fetchSharedByMe()
     }
@@ -364,7 +366,7 @@ const submitShare = async () => {
 // 获取我共享的文件
 const fetchSharedByMe = async () => {
   try {
-    const response = await shareAPI.getUserShares()
+    const response = await Server.get('/api/share/user-shares')
     sharedByMe.value = response.data || []
   } catch (error) {
     console.error('获取共享文件失败:', error)
@@ -375,7 +377,7 @@ const fetchSharedByMe = async () => {
 const fetchSharedWithMe = async () => {
   try {
     // 这个API可能需要根据实际后端实现调整
-    const response = await shareAPI.getUserShares()
+    const response = await Server.get('/api/share/shared-with-me')
     sharedWithMe.value = response.data || []
   } catch (error) {
     console.error('获取共享文件失败:', error)
@@ -385,7 +387,7 @@ const fetchSharedWithMe = async () => {
 // 获取可用文件列表
 const fetchAvailableFiles = async () => {
   try {
-    const response = await fileAPI.getFiles()
+    const response = await Server.get('/api/files')
     availableFiles.value = response.data || []
   } catch (error) {
     console.error('获取文件列表失败:', error)
@@ -395,7 +397,7 @@ const fetchAvailableFiles = async () => {
 // 获取可用用户列表
 const fetchAvailableUsers = async () => {
   try {
-    const response = await userAPI.getUserList()
+    const response = await Server.get('/api/user/list')
     availableUsers.value = response.data || []
   } catch (error) {
     console.error('获取用户列表失败:', error)

@@ -66,7 +66,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { configAPI } from '@/utils/api.js'
+import Server from '@/utils/Server.js'
 
 // 当前选中的标签页
 const activeTab = ref('basic')
@@ -130,23 +130,23 @@ const emailSettings = reactive({
 const loadSettings = async () => {
   try {
     // 调用后端API获取系统设置
-    const response = await configAPI.getSystemConfig()
+    const response = await Server.get('/api/admin/config')
     
     // 更新基本设置
-    Object.assign(basicSettings, response.basic || {})
+    Object.assign(basicSettings, response.data.basic || {})
     
     // 更新存储设置
-    Object.assign(storageSettings, response.storage || {})
+    Object.assign(storageSettings, response.data.storage || {})
     
     // 更新安全设置
-    Object.assign(securitySettings, response.security || {})
+    Object.assign(securitySettings, response.data.security || {})
     
     // 更新邮件设置
-    Object.assign(emailSettings, response.email || {})
+    Object.assign(emailSettings, response.data.email || {})
     
     // 更新系统信息
-    lastBackupTime.value = response.lastBackupTime || ''
-    systemUptime.value = response.systemUptime || ''
+    lastBackupTime.value = response.data.lastBackupTime || ''
+    systemUptime.value = response.data.systemUptime || ''
     updateServerTime()
     
     // 每秒更新服务器时间
@@ -174,7 +174,7 @@ const saveSettings = async () => {
       email: emailSettings
     }
     
-    await configAPI.updateSystemConfig(settings)
+    await Server.post('/api/admin/config', settings)
     
     ElMessage.success('系统设置保存成功')
   } catch (error) {
@@ -206,8 +206,12 @@ const uploadLogo = async (options) => {
     const formData = new FormData()
     formData.append('file', options.file)
     
-    const response = await configAPI.uploadLogo(formData)
-    basicSettings.systemLogo = response.logoUrl
+    const response = await Server.post('/api/admin/logo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    basicSettings.systemLogo = response.data.logoUrl
     ElMessage.success('Logo上传成功')
   } catch (error) {
     console.error('Logo上传失败:', error)
@@ -220,7 +224,7 @@ const testEmail = async () => {
   testingEmail.value = true
   try {
     // 调用后端API测试邮件发送
-    await configAPI.testEmail(emailSettings)
+    await Server.post('/api/admin/test-email', emailSettings)
     ElMessage.success('测试邮件发送成功，请检查收件箱')
   } catch (error) {
     console.error('测试邮件发送失败:', error)
@@ -235,7 +239,7 @@ const createBackup = async () => {
   backingUp.value = true
   try {
     // 调用后端API创建备份
-    await configAPI.createBackup()
+    await Server.post('/api/admin/backup')
     
     const now = new Date()
     lastBackupTime.value = now.toLocaleString()
@@ -258,7 +262,7 @@ const cleanTempFiles = async () => {
   cleaningTemp.value = true
   try {
     // 调用后端API清理临时文件
-    await configAPI.cleanTempFiles()
+    await Server.post('/api/admin/clean-temp')
     ElMessage.success('临时文件清理完成')
   } catch (error) {
     console.error('清理临时文件失败:', error)
@@ -273,7 +277,7 @@ const cleanLogFiles = async () => {
   cleaningLogs.value = true
   try {
     // 调用后端API清理日志文件
-    await configAPI.cleanLogFiles()
+    await Server.post('/api/admin/clean-logs')
     ElMessage.success('日志文件清理完成')
   } catch (error) {
     console.error('清理日志文件失败:', error)
@@ -288,7 +292,7 @@ const cleanTrash = async () => {
   cleaningTrash.value = true
   try {
     // 调用后端API清理回收站
-    await configAPI.cleanTrash()
+    await Server.post('/api/admin/clean-trash')
     ElMessage.success('回收站清理完成')
   } catch (error) {
     console.error('清理回收站失败:', error)

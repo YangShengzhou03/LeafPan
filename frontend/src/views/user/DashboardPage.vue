@@ -50,7 +50,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { formatFileSize } from '@/utils/utils.js'
-import { userAPI } from '@/utils/api'
+import Server from '@/utils/Server.js'
 
 // 存储信息
 const totalStorageGB = ref(1) // 默认1GB，与数据库中的默认值一致
@@ -93,8 +93,8 @@ const fileStats = ref([
 const fetchStorageInfo = async () => {
   try {
     loading.value = true
-    const response = await userAPI.getStorageInfo()
-    if (response.success) {
+    const response = await Server.get('/api/user/storage')
+    if (response.data) {
       const data = response.data
       totalStorageGB.value = data.totalSpace / (1024 * 1024 * 1024) // 转换为GB
       usedStorageGB.value = data.usedSpace / (1024 * 1024 * 1024) // 转换为GB
@@ -111,8 +111,8 @@ const fetchFileStats = async () => {
   try {
     // 这里假设有一个获取文件统计的API
     // 如果没有，可以使用获取文件列表的API来计算统计信息
-    const response = await userAPI.getDashboardStats()
-    if (response.success) {
+    const response = await Server.get('/api/user/dashboard-stats')
+    if (response.data) {
       const data = response.data
       fileStats.value = [
         { type: 'files', label: '文件总数', count: data.totalFiles || 0 },

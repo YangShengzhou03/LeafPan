@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { authAPI, userAPI } from './api.js'
+import Server from './Server.js'
 import * as utils from './utils.js'
 
 // 全局状态
@@ -54,10 +54,10 @@ const store = {
   async login(credentials) {
     state.loading = true
     try {
-      const response = await authAPI.login(credentials)
+      const response = await Server.post('/api/auth/login', credentials)
       
-      if (response.token) {
-        utils.saveToken(response.token)
+      if (response.data.token) {
+        utils.saveToken(response.data.token)
         await this.fetchCurrentUser()
         return { success: true }
       }
@@ -65,7 +65,7 @@ const store = {
       return { success: false, message: '登录失败' }
     } catch (error) {
       this.clearUser()
-      return { success: false, message: error.message }
+      return { success: false, message: error.response?.data?.message || error.message }
     } finally {
       state.loading = false
     }
@@ -75,10 +75,10 @@ const store = {
   async register(userData) {
     state.loading = true
     try {
-      const response = await authAPI.register(userData)
+      await Server.post('/api/auth/register', userData)
       return { success: true, message: '注册成功' }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: error.response?.data?.message || error.message }
     } finally {
       state.loading = false
     }
@@ -88,10 +88,10 @@ const store = {
   async sendVerificationCode(email) {
     state.loading = true
     try {
-      const response = await authAPI.sendVerificationCode(email)
+      await Server.post('/api/auth/send-verification', { email })
       return { success: true, message: '验证码发送成功' }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: error.response?.data?.message || error.message }
     } finally {
       state.loading = false
     }
@@ -105,8 +105,8 @@ const store = {
     }
 
     try {
-      const user = await authAPI.getCurrentUser()
-      this.setUser(user)
+      const response = await Server.get('/api/auth/me')
+      this.setUser(response.data)
     } catch (error) {
       this.clearUser()
       console.error('获取用户信息失败:', error)
@@ -116,14 +116,43 @@ const store = {
   // 获取存储信息
   async fetchStorageInfo() {
     if (!utils.isLoggedIn()) {
-      return
+      return null
     }
 
     try {
-      const storageInfo = await userAPI.getStorageInfo()
-      this.updateStorageInfo(storageInfo)
+      const response = await Server.get('/api/user/storage')
+      state.storageInfo = response.data
+      return response.data
     } catch (error) {
       console.error('获取存储信息失败:', error)
+      return null
+    }
+  },
+
+  // 更新用户信息
+  async updateProfile(userData) {
+    state.loading = true
+    try {
+      const response = await Server.put('/api/user/profile', userData)
+      this.setUser(response.data)
+      return { success: true, message: '更新成功' }
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || error.message }
+    } finally {
+      state.loading = false
+    }
+  },
+
+  // 更新密码
+  async updatePassword(passwordData) {
+    state.loading = true
+    try {
+      await Server.put('/api/user/password', passwordData)
+      return { success: true, message: '密码更新成功' }
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || error.message }
+    } finally {
+      state.loading = false
     }
   },
 
