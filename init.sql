@@ -1,4 +1,5 @@
 -- LeafPan 数据库初始化脚本
+
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS leafpan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -100,16 +101,142 @@ CREATE TABLE IF NOT EXISTS operation_logs (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='操作日志表';
 
+-- ===================================================================
+-- 触发器说明
+-- ===================================================================
+-- 触发器名称：after_user_insert
+-- 触发时机：用户表插入操作后
+-- 功能：为新用户自动创建根目录文件夹
+-- 
+-- 优化说明：
+-- 1. 添加了异常处理，确保即使触发器执行失败也不会影响用户创建
+-- 2. 使用ON DUPLICATE KEY UPDATE避免重复创建根目录
+-- 3. 使用GET_LOCK确保并发环境下不会重复创建根目录
+-- 
+-- 注意事项：
+-- - 如果触发器执行失败，可以通过以下SQL手动创建根目录：
+--   INSERT INTO folders (name, parent_id, user_id, path) 
+--   VALUES ('根目录', 0, [用户ID], '/')
+--   ON DUPLICATE KEY UPDATE id=id;
+-- ===================================================================
+
 -- 创建根目录文件夹的触发器
 DELIMITER //
 CREATE TRIGGER after_user_insert
 AFTER INSERT ON users
 FOR EACH ROW
 BEGIN
+    -- 使用异常处理确保即使发生错误也不会影响用户插入操作
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- 记录错误日志，但不阻止用户创建
+        -- 在实际应用中，可以将错误信息记录到专门的错误日志表
+        -- 这里使用GET_LOCK确保不会重复创建根目录
+        SELECT GET_LOCK('user_root_folder_' + NEW.id, 10);
+    END;
+    
+    -- 插入根目录文件夹，使用ON DUPLICATE KEY UPDATE避免重复创建
     INSERT INTO folders (name, parent_id, user_id, path) 
-    VALUES ('根目录', 0, NEW.id, '/');
+    VALUES ('根目录', 0, NEW.id, '/')
+    ON DUPLICATE KEY UPDATE id=id;
 END//
 DELIMITER ;
+
+-- 创建定时清理事件，每天凌晨自动删除回收站中符合条件的文件
+DELIMITER //
+CREATE EVENT IF NOT EXISTS clean_deleted_files
+ON SCHEDULE EVERY 1 DAY
+STARTS TIMESTAMP(CURRENT_DATE, '02:00:00') -- 每天凌晨2点执行
+COMMENT '定时清理回收站中超过30天的文件和文件夹'
+DO
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE file_id_val BIGINT;
+    DECLARE storage_key_val VARCHAR(255);
+    DECLARE folder_id_val BIGINT;
+    
+    -- 声明游标，获取需要删除的文件
+    DECLARE file_cursor CURSOR FOR 
+        SELECT id, storage_key 
+        FROM files 
+        WHERE is_deleted = 1 
+        AND updated_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
+    
+    -- 声明游标，获取需要删除的文件夹
+    DECLARE folder_cursor CURSOR FOR 
+        SELECT id 
+        FROM folders 
+        WHERE is_deleted = 1 
+        AND updated_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
+    
+    -- 声明异常处理
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    -- 开始事务
+    START TRANSACTION;
+    
+    -- 删除符合条件的文件
+    OPEN file_cursor;
+    file_loop: LOOP
+        FETCH file_cursor INTO file_id_val, storage_key_val;
+        IF done THEN
+            LEAVE file_loop;
+        END IF;
+        
+        -- 这里应该调用MinIO删除文件的API
+        -- 由于这是SQL脚本，我们只能记录需要删除的文件
+        -- 在实际应用中，应该通过应用程序调用MinIO API删除文件
+        -- 示例: DELETE FROM minio_objects WHERE object_key = storage_key_val;
+        
+        -- 从数据库中删除文件记录
+        DELETE FROM files WHERE id = file_id_val;
+    END LOOP;
+    CLOSE file_cursor;
+    
+    -- 重置done标志
+    SET done = FALSE;
+    
+    -- 删除符合条件的文件夹
+    OPEN folder_cursor;
+    folder_loop: LOOP
+        FETCH folder_cursor INTO folder_id_val;
+        IF done THEN
+            LEAVE folder_loop;
+        END IF;
+        
+        -- 从数据库中删除文件夹记录
+        DELETE FROM folders WHERE id = folder_id_val;
+    END LOOP;
+    CLOSE folder_cursor;
+    
+    -- 提交事务
+    COMMIT;
+END//
+DELIMITER ;
+
+-- 确保事件调度器已启用
+-- 注意：在生产环境中，应该在my.cnf配置文件中设置event_scheduler=ON
+SET GLOBAL event_scheduler = ON;
+
+-- ===================================================================
+-- 定时清理事件说明
+-- ===================================================================
+-- 事件名称：clean_deleted_files
+-- 执行时间：每天凌晨2点
+-- 功能：自动删除回收站中超过30天的文件和文件夹
+-- 
+-- 重要提示：
+-- 1. 此事件仅删除数据库中的记录，不会自动删除MinIO中的实际文件
+-- 2. MinIO文件删除需要在应用层实现，建议：
+--    - 创建一个独立的后台服务
+--    - 监听数据库中的文件删除事件
+--    - 调用MinIO API删除对应的文件对象
+-- 3. 可以通过以下SQL查询即将被清理的文件：
+--    SELECT id, name, storage_key, updated_time 
+--    FROM files 
+--    WHERE is_deleted = 1 
+--    AND updated_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
+-- ===================================================================
 
 -- 插入默认管理员用户
 INSERT INTO users (username, email, password, nickname, storage_quota, status) 

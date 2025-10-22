@@ -53,8 +53,8 @@ import { formatFileSize } from '@/utils/utils.js'
 import { userAPI } from '@/utils/api'
 
 // 存储信息
-const totalStorageGB = ref(5) // 默认5GB
-const usedStorageGB = ref(1.2) // 已使用1.2GB
+const totalStorageGB = ref(1) // 默认1GB，与数据库中的默认值一致
+const usedStorageGB = ref(0) // 已使用0GB，初始值
 const loading = ref(false)
 
 // 计算存储百分比
