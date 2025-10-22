@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getToken } from './utils.js'
 
 const server = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost:8081',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -227,6 +227,16 @@ export const userAPI = {
     return server.put('/api/user/info', userData)
   },
   
+  // 更新个人资料
+  updateProfile: (profileData) => {
+    return server.put('/api/user/profile', profileData)
+  },
+  
+  // 获取当前用户信息
+  getCurrentUser: () => {
+    return server.get('/api/user/me')
+  },
+  
   // 获取操作日志
   getOperationLogs: (params) => {
     return server.get('/api/user/logs', { params })
@@ -235,6 +245,11 @@ export const userAPI = {
   // 获取存储信息
   getStorageInfo: () => {
     return server.get('/api/user/storage')
+  },
+  
+  // 获取仪表板统计数据
+  getDashboardStats: () => {
+    return server.get('/api/user/dashboard/stats')
   }
 }
 

@@ -48,12 +48,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { formatFileSize } from '@/utils/utils.js'
+import { userAPI } from '@/utils/api'
 
 // 存储信息
 const totalStorageGB = ref(5) // 默认5GB
 const usedStorageGB = ref(1.2) // 已使用1.2GB
+const loading = ref(false)
 
 // 计算存储百分比
 const storagePercentage = computed(() => {
@@ -81,11 +83,56 @@ const availableStorageBytes = computed(() => {
 
 // 文件统计
 const fileStats = ref([
-  { type: 'files', label: '文件总数', count: 128 },
-  { type: 'folders', label: '文件夹', count: 24 },
-  { type: 'shared', label: '共享文件', count: 12 },
-  { type: 'favorites', label: '收藏文件', count: 8 }
+  { type: 'files', label: '文件总数', count: 0 },
+  { type: 'folders', label: '文件夹', count: 0 },
+  { type: 'shared', label: '共享文件', count: 0 },
+  { type: 'favorites', label: '收藏文件', count: 0 }
 ])
+
+// 获取存储信息
+const fetchStorageInfo = async () => {
+  try {
+    loading.value = true
+    const response = await userAPI.getStorageInfo()
+    if (response.success) {
+      const data = response.data
+      totalStorageGB.value = data.totalSpace / (1024 * 1024 * 1024) // 转换为GB
+      usedStorageGB.value = data.usedSpace / (1024 * 1024 * 1024) // 转换为GB
+    }
+  } catch (error) {
+    console.error('获取存储信息失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 获取文件统计
+const fetchFileStats = async () => {
+  try {
+    // 这里假设有一个获取文件统计的API
+    // 如果没有，可以使用获取文件列表的API来计算统计信息
+    const response = await userAPI.getDashboardStats()
+    if (response.success) {
+      const data = response.data
+      fileStats.value = [
+        { type: 'files', label: '文件总数', count: data.totalFiles || 0 },
+        { type: 'folders', label: '文件夹', count: data.totalFolders || 0 },
+        { type: 'shared', label: '共享文件', count: data.sharedFiles || 0 },
+        { type: 'favorites', label: '收藏文件', count: data.favoriteFiles || 0 }
+      ]
+    }
+  } catch (error) {
+    console.error('获取文件统计失败:', error)
+  }
+}
+
+// 页面加载时获取数据
+onMounted(async () => {
+  await Promise.all([
+    fetchStorageInfo(),
+    fetchFileStats()
+  ])
+})
 </script>
 
 <style scoped>

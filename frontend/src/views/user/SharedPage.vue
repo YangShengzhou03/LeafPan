@@ -113,7 +113,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import mockApiService from '@/utils/mockApiService.js'
+import { shareAPI, fileAPI } from '@/utils/api.js'
 import { formatDate } from '@/utils/utils.js'
 
 // 标签页
@@ -268,7 +268,7 @@ const stopShare = (file) => {
     }
   ).then(async () => {
     try {
-      await mockApiService.stopShare(file.id)
+      await shareAPI.delete(file.id)
       ElMessage.success('已停止共享')
       await fetchSharedByMe()
     } catch (error) {
@@ -281,10 +281,22 @@ const stopShare = (file) => {
 }
 
 // 下载文件
-const downloadFile = (file) => {
-  ElMessage.success(`开始下载 "${file.name}"`)
-  // 这里应该调用下载API
-  console.log('下载文件:', file)
+const downloadFile = async (file) => {
+  try {
+    const response = await fileAPI.download(file.fileId)
+    const url = window.URL.createObjectURL(new Blob([response]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', file.name)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    ElMessage.success(`开始下载 "${file.name}"`)
+  } catch (error) {
+    ElMessage.error('下载失败')
+    console.error('下载文件失败:', error)
+  }
 }
 
 // 查看文件
@@ -306,7 +318,7 @@ const removeShare = (file) => {
     }
   ).then(async () => {
     try {
-      await mockApiService.removeShare(file.id)
+      await shareAPI.delete(file.id)
       ElMessage.success('已移除共享')
       await fetchSharedWithMe()
     } catch (error) {
@@ -328,12 +340,12 @@ const submitShare = async () => {
 
     if (isEditing.value) {
       // 编辑共享
-      await mockApiService.updateShare(shareForm.value)
+      await shareAPI.update(shareForm.value.id, shareForm.value)
       ElMessage.success('共享已更新')
       await fetchSharedByMe()
     } else {
       // 创建新共享
-      await mockApiService.createShare(shareForm.value)
+      await shareAPI.create(shareForm.value)
       ElMessage.success('共享已创建')
       await fetchSharedByMe()
     }
@@ -352,8 +364,8 @@ const submitShare = async () => {
 // 获取我共享的文件
 const fetchSharedByMe = async () => {
   try {
-    const response = await mockApiService.getSharedByMe()
-    sharedByMe.value = response
+    const response = await shareAPI.getUserShares()
+    sharedByMe.value = response.data || []
   } catch (error) {
     console.error('获取共享文件失败:', error)
   }
@@ -362,8 +374,9 @@ const fetchSharedByMe = async () => {
 // 获取与我共享的文件
 const fetchSharedWithMe = async () => {
   try {
-    const response = await mockApiService.getSharedWithMe()
-    sharedWithMe.value = response
+    // 这个API可能需要根据实际后端实现调整
+    const response = await shareAPI.getUserShares()
+    sharedWithMe.value = response.data || []
   } catch (error) {
     console.error('获取共享文件失败:', error)
   }
@@ -372,8 +385,8 @@ const fetchSharedWithMe = async () => {
 // 获取可用文件列表
 const fetchAvailableFiles = async () => {
   try {
-    const response = await mockApiService.getFiles()
-    availableFiles.value = response
+    const response = await fileAPI.getFiles()
+    availableFiles.value = response.data || []
   } catch (error) {
     console.error('获取文件列表失败:', error)
   }
@@ -382,8 +395,14 @@ const fetchAvailableFiles = async () => {
 // 获取可用用户列表
 const fetchAvailableUsers = async () => {
   try {
-    const response = await mockApiService.getAvailableUsers()
-    availableUsers.value = response
+    // 这个API可能需要根据实际后端实现调整
+    const response = await shareAPI.getUserShares()
+    // 模拟用户数据，实际应该从API获取
+    availableUsers.value = [
+      { id: 1, username: 'user1' },
+      { id: 2, username: 'user2' },
+      { id: 3, username: 'user3' }
+    ]
   } catch (error) {
     console.error('获取用户列表失败:', error)
   }

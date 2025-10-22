@@ -146,14 +146,14 @@
 </template>
 
 <script setup>
-import { ref, reactive,onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import {
   Plus, User, Edit, ArrowRight, Lock,
   Calendar, Notification, Phone, Setting, Bell,
   FirstAidKit, QuestionFilled
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { mockApiService } from '@/utils/mockApiService'
+import { userAPI } from '@/utils/api'
 
 // 编辑对话框相关状态
 const editDialogVisible = ref(false)
@@ -292,7 +292,7 @@ const submitEditForm = async () => {
     
     const birthDate = editForm.birthdate || ''
     
-    await mockApiService.updateProfile({
+    await userAPI.updateProfile({
       username: editForm.name,
       email: editForm.email,
       phone: editForm.phone,
@@ -335,8 +335,8 @@ const submitEditForm = async () => {
 
 onMounted(async () => {
   try {
-    // 使用封装的service组件获取个人信息
-    const result = await mockApiService.getCurrentUser()
+    // 使用真实的API获取个人信息
+    const result = await userAPI.getCurrentUser()
     
     if (result.code === 200 && result.data) {
       // 更新本地用户信息，正确映射后端字段名

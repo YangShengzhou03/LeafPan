@@ -107,7 +107,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import mockApiService from '@/utils/mockApiService.js'
+import { fileAPI, folderAPI } from '@/utils/api.js'
 import { formatFileSize, formatDate } from '@/utils/utils.js'
 
 // 数据
