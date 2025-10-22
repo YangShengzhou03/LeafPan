@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL COMMENT '加密后的密码',
     nickname VARCHAR(50) NULL COMMENT '昵称',
     avatar VARCHAR(255) NULL COMMENT '头像URL',
+    role TINYINT NOT NULL DEFAULT 0 COMMENT '角色：0-普通用户，1-管理员',
     storage_quota BIGINT NOT NULL DEFAULT 1073741824 COMMENT '存储配额(字节)，默认1GB',
     used_storage BIGINT NOT NULL DEFAULT 0 COMMENT '已用存储空间(字节)',
     status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-正常',
@@ -20,7 +21,8 @@ CREATE TABLE IF NOT EXISTS users (
     last_login_ip VARCHAR(45) NULL COMMENT '最后登录IP',
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    INDEX idx_status (status)
+    INDEX idx_status (status),
+    INDEX idx_role (role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 
 -- 2. 文件夹表 (folders)
@@ -239,8 +241,8 @@ SET GLOBAL event_scheduler = ON;
 -- ===================================================================
 
 -- 插入默认管理员用户
-INSERT INTO users (username, email, password, nickname, storage_quota, status) 
-VALUES ('admin', 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 107374182400, 1)
+INSERT INTO users (username, email, password, nickname, role, storage_quota, status) 
+VALUES ('admin', 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 1, 107374182400, 1)
 ON DUPLICATE KEY UPDATE id=id;
 
 -- 为管理员创建根目录

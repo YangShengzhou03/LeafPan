@@ -7,6 +7,7 @@ const state = reactive({
   user: null,
   isAuthenticated: utils.isLoggedIn(),
   loading: false,
+  isAdmin: false,
   storageInfo: {
     totalStorageGB: 0,
     usedStorageGB: 0
@@ -21,6 +22,8 @@ const store = {
   setUser(user) {
     state.user = user
     state.isAuthenticated = true
+    // 设置管理员状态
+    state.isAdmin = user.role === 1
     // 更新存储信息
     if (user.storageInfo) {
       state.storageInfo = user.storageInfo
@@ -31,6 +34,7 @@ const store = {
   clearUser() {
     state.user = null
     state.isAuthenticated = false
+    state.isAdmin = false
     utils.removeToken()
     // 重置存储信息为默认值
     state.storageInfo = {

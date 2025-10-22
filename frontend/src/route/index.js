@@ -2,11 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router';
 import IndexLayout from '@/components/IndexLayout.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import UserLayout from '@/components/UserLayout.vue';
+import AdminLayout from '@/components/AdminLayout.vue';
 import FilesPage from '@/views/user/FilesPage.vue';
 import DashboardPage from '@/views/user/DashboardPage.vue';
 import SharedPage from '@/views/user/SharedPage.vue';
 import TrashPage from '@/views/user/TrashPage.vue';
 import SettingsPage from '@/views/user/SettingsPage.vue';
+import store from '@/utils/store.js';
 
 const routes = [
   // 未登录布局（首页 + 登录/注册）
@@ -31,7 +33,7 @@ const routes = [
   {
     path: '/user',
     component: UserLayout,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresAdmin: false },
     children: [
       {
         path: '',
@@ -39,7 +41,8 @@ const routes = [
         component: FilesPage,
         meta: {
           title: '枫叶网盘 - 我的文件',
-          requiresAuth: true
+          requiresAuth: true,
+          requiresAdmin: false
         }
       },
       {
@@ -48,7 +51,8 @@ const routes = [
         component: DashboardPage,
         meta: {
           title: '枫叶网盘 - 仪表盘',
-          requiresAuth: true
+          requiresAuth: true,
+          requiresAdmin: false
         }
       },
       {
@@ -57,7 +61,8 @@ const routes = [
         component: SharedPage,
         meta: {
           title: '枫叶网盘 - 共享文件',
-          requiresAuth: true
+          requiresAuth: true,
+          requiresAdmin: false
         }
       },
       {
@@ -66,7 +71,8 @@ const routes = [
         component: TrashPage,
         meta: {
           title: '枫叶网盘 - 回收站',
-          requiresAuth: true
+          requiresAuth: true,
+          requiresAdmin: false
         }
       },
       {
@@ -75,7 +81,57 @@ const routes = [
         component: SettingsPage,
         meta: {
           title: '枫叶网盘 - 设置',
-          requiresAuth: true
+          requiresAuth: true,
+          requiresAdmin: false
+        }
+      },
+    ]
+  },
+
+  // 管理员布局（管理员专属页面）
+  {
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      {
+        path: '',
+        name: 'AdminDashboard',
+        component: () => import('@/views/admin/DashboardPage.vue'),
+        meta: {
+          title: '枫叶网盘 - 管理员仪表盘',
+          requiresAuth: true,
+          requiresAdmin: true
+        }
+      },
+      {
+        path: 'users',
+        name: 'AdminUsers',
+        component: () => import('@/views/admin/UsersPage.vue'),
+        meta: {
+          title: '枫叶网盘 - 用户管理',
+          requiresAuth: true,
+          requiresAdmin: true
+        }
+      },
+      {
+        path: 'system',
+        name: 'AdminSystem',
+        component: () => import('@/views/admin/SystemPage.vue'),
+        meta: {
+          title: '枫叶网盘 - 系统设置',
+          requiresAuth: true,
+          requiresAdmin: true
+        }
+      },
+      {
+        path: 'logs',
+        name: 'AdminLogs',
+        component: () => import('@/views/admin/LogsPage.vue'),
+        meta: {
+          title: '枫叶网盘 - 操作日志',
+          requiresAuth: true,
+          requiresAdmin: true
         }
       },
     ]
@@ -91,24 +147,38 @@ const router = createRouter({
 });
 
 // 路由守卫
-// router.beforeEach((to, from, next) => {
-//   // 设置页面标题
-//   document.title = to.meta.title || 'Leaf·Pan';
-
-//   // 检查是否需要登录权限
-//   const store = require('@/utils/store.js').default;
-//   const isAuthenticated = store.state.isAuthenticated;
-
-//   if (to.meta.requiresAuth && !isAuthenticated) {
-//     // 需要登录但未登录，重定向到登录页
-//     next('/login');
-//   } else if ((to.path === '/login' || to.path === '/') && isAuthenticated) {
-//     // 已登录用户访问登录页或首页，重定向到用户首页
-//     next('/user');
-//   } else {
-//     // 其他情况正常导航
-//     next();
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  // 设置页面标题
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
+  
+  // 检查是否需要认证
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // 如果未登录，重定向到登录页
+    if (!store.isAuthenticated) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      // 检查是否需要管理员权限
+      if (to.matched.some(record => record.meta.requiresAdmin)) {
+        // 如果不是管理员，重定向到用户首页
+        if (!store.isAdmin) {
+          next({ path: '/user' })
+        } else {
+          next()
+        }
+      } else {
+        // 普通用户页面，直接通过
+        next()
+      }
+    }
+  } else {
+    // 不需要认证的页面，直接通过
+    next()
+  }
+})
 
 export default router;
