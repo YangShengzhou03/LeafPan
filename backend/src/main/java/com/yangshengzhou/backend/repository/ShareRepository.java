@@ -32,4 +32,6 @@ public interface ShareRepository extends JpaRepository<Share, Long> {
     List<Share> findByUserIdAndFolderIdAndIsActiveTrue(@Param("userId") Long userId, @Param("folderId") Long folderId);
     
     boolean existsByShareCode(String shareCode);
+
+    Optional<Share> findByShareCode(String shareCode);
 }

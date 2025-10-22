@@ -2,6 +2,7 @@ package com.yangshengzhou.backend.service;
 
 import com.yangshengzhou.backend.entity.User;
 import com.yangshengzhou.backend.repository.UserRepository;
+import com.yangshengzhou.backend.service.OperationLogService;
 import com.yangshengzhou.backend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -142,7 +143,7 @@ public class AuthService {
     /**
      * 重置密码（管理员功能）
      */
-    public boolean resetPassword(Long userId, String newPassword, String operatorId, String ipAddress) {
+    public boolean resetPassword(Long userId, String newPassword, Long operatorId, String ipAddress) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
             return false;
@@ -158,5 +159,59 @@ public class AuthService {
             "重置用户密码: " + user.getUsername(), ipAddress, "");
         
         return true;
+    }
+    
+    /**
+     * 刷新Token
+     */
+    public Map<String, Object> refreshToken(String refreshToken) {
+        // 这里需要实现token刷新逻辑
+        // 暂时返回空结果
+        throw new RuntimeException("Token刷新功能暂未实现");
+    }
+    
+    /**
+     * 用户登出
+     */
+    public void logout(String token) {
+        // 这里需要实现登出逻辑，比如将token加入黑名单
+        // 暂时只记录日志
+        User currentUser = getCurrentUser();
+        if (currentUser != null) {
+            operationLogService.logOperation(currentUser.getId(), "LOGOUT", "用户", currentUser.getId(), 
+                currentUser.getUsername(), "用户登出", "", "");
+        }
+    }
+    
+    /**
+     * 发送密码重置邮件
+     */
+    public void sendPasswordResetEmail(String email) {
+        // 这里需要实现发送密码重置邮件的逻辑
+        throw new RuntimeException("密码重置邮件功能暂未实现");
+    }
+    
+    /**
+     * 重置密码（通过token）
+     */
+    public void resetPassword(String token, String newPassword) {
+        // 这里需要实现通过token重置密码的逻辑
+        throw new RuntimeException("通过token重置密码功能暂未实现");
+    }
+    
+    /**
+     * 验证邮箱
+     */
+    public void verifyEmail(String token) {
+        // 这里需要实现邮箱验证的逻辑
+        throw new RuntimeException("邮箱验证功能暂未实现");
+    }
+    
+    /**
+     * 重新发送验证邮件
+     */
+    public void resendVerificationEmail(String email) {
+        // 这里需要实现重新发送验证邮件的逻辑
+        throw new RuntimeException("重新发送验证邮件功能暂未实现");
     }
 }

@@ -40,7 +40,7 @@ public class AdminFileController {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            Page files = fileService.getAllFiles(page, size);
+            Page<File> files = fileService.getAllFiles(page, size);
             
             return ResponseEntity.ok(ApiResponse.success(files));
         } catch (Exception e) {
@@ -60,8 +60,7 @@ public class AdminFileController {
             }
             
             return fileService.getFile(id)
-                .map(ResponseEntity::ok)
-                .map(response -> ResponseEntity.ok(ApiResponse.success(response.getBody())))
+                .map(file -> ResponseEntity.ok(ApiResponse.success(file)))
                 .orElse(ResponseEntity.badRequest().body(ApiResponse.error("文件不存在")));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取文件信息失败: " + e.getMessage()));
@@ -92,7 +91,9 @@ public class AdminFileController {
                 operationLogService.logOperation(
                     currentUser.getId(),
                     "DELETE_FILE",
-                    "管理员删除文件: " + file.getFileName(),
+                    "FILE",
+                    file.getId(),
+                    "管理员删除文件: " + file.getName(),
                     getClientIpAddress(request)
                 );
                 
@@ -138,7 +139,7 @@ public class AdminFileController {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            Page files = fileService.getUserFiles(userId, page, size);
+            Page<File> files = fileService.getUserFiles(userId, page, size);
             
             return ResponseEntity.ok(ApiResponse.success(files));
         } catch (Exception e) {

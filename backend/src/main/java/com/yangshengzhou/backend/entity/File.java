@@ -2,6 +2,7 @@ package com.yangshengzhou.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "files")
@@ -184,5 +185,15 @@ public class File {
     
     public void setUpdatedTime(LocalDateTime updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public void setContentType(String contentType) {
+    }
+
+    public void setPath(String fileName) {
+    }
+
+    public void setUploadTime(Date date) {
+
     }
 }

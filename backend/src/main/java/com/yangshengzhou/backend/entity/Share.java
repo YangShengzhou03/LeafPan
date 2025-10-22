@@ -156,4 +156,8 @@ public class Share {
     public void setCreatedTime(LocalDateTime createdTime) {
         this.createdTime = createdTime;
     }
+
+    public LocalDateTime getCreateTime() {
+        return null;
+    }
 }

@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,7 +65,9 @@ public class OperationLogService {
      * 获取指定时间范围内的用户操作日志
      */
     public List<OperationLogVO> getUserOperationLogsByTimeRange(Long userId, Date startTime, Date endTime) {
-        List<OperationLog> logs = operationLogRepository.findByUserIdAndOperationTimeBetween(userId, startTime, endTime);
+        LocalDateTime startDateTime = startTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        List<OperationLog> logs = operationLogRepository.findByUserIdAndCreatedTimeBetween(userId, startDateTime, endDateTime);
         return convertToVOs(logs);
     }
     
@@ -79,7 +83,7 @@ public class OperationLogService {
      * 获取指定操作类型的所有操作日志（管理员）
      */
     public List<OperationLogVO> getAllOperationLogsByType(String operationType) {
-        List<OperationLog> logs = operationLogRepository.findByOperationType(operationType);
+        List<OperationLog> logs = operationLogRepository.findByOperationTypeOrderByCreatedTimeDesc(operationType);
         return convertToVOs(logs);
     }
     
@@ -87,7 +91,9 @@ public class OperationLogService {
      * 获取指定时间范围内的所有操作日志（管理员）
      */
     public List<OperationLogVO> getAllOperationLogsByTimeRange(Date startTime, Date endTime) {
-        List<OperationLog> logs = operationLogRepository.findByOperationTimeBetween(startTime, endTime);
+        LocalDateTime startDateTime = startTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        List<OperationLog> logs = operationLogRepository.findByCreatedTimeBetween(startDateTime, endDateTime);
         return convertToVOs(logs);
     }
     
@@ -112,8 +118,9 @@ public class OperationLogService {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, -daysToKeep);
         Date cutoffDate = calendar.getTime();
+        LocalDateTime cutoffDateTime = cutoffDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         
-        List<OperationLog> expiredLogs = operationLogRepository.findByOperationTimeBefore(cutoffDate);
+        List<OperationLog> expiredLogs = operationLogRepository.findByCreatedTimeBefore(cutoffDateTime);
         operationLogRepository.deleteAll(expiredLogs);
         
         return expiredLogs.size();
@@ -123,7 +130,7 @@ public class OperationLogService {
      * 分页获取用户的操作日志
      */
     public Page<OperationLog> getUserOperationLogs(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "operationTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return operationLogRepository.findByUserId(userId, pageable);
     }
     
@@ -131,7 +138,7 @@ public class OperationLogService {
      * 分页获取用户指定类型的操作日志
      */
     public Page<OperationLog> getUserOperationLogsByType(Long userId, String operationType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "operationTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return operationLogRepository.findByUserIdAndOperationType(userId, operationType, pageable);
     }
     
@@ -139,7 +146,7 @@ public class OperationLogService {
      * 分页获取所有操作日志（管理员用）
      */
     public Page<OperationLog> getAllOperationLogs(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "operationTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return operationLogRepository.findAll(pageable);
     }
     
@@ -147,7 +154,7 @@ public class OperationLogService {
      * 分页获取指定类型的所有操作日志（管理员用）
      */
     public Page<OperationLog> getOperationLogsByType(String operationType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "operationTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return operationLogRepository.findByOperationType(operationType, pageable);
     }
     
@@ -164,11 +171,10 @@ public class OperationLogService {
             vo.setOperationType(log.getOperationType());
             vo.setTargetType(log.getTargetType());
             vo.setTargetId(log.getTargetId());
-            vo.setTargetName(log.getTargetName());
             vo.setDescription(log.getDescription());
             vo.setIpAddress(log.getIpAddress());
             vo.setUserAgent(log.getUserAgent());
-            vo.setCreateTime(log.getOperationTime());
+            vo.setCreateTime(Date.from(log.getCreatedTime().atZone(ZoneId.systemDefault()).toInstant()));
             
             // 获取用户名
             Optional<User> userOptional = userRepository.findById(log.getUserId());
@@ -176,9 +182,40 @@ public class OperationLogService {
                 vo.setUsername(userOptional.get().getUsername());
             }
             
+            // 根据目标类型和ID获取目标名称
+            if (log.getTargetType() != null && log.getTargetId() != null) {
+                String targetName = getTargetName(log.getTargetType(), log.getTargetId());
+                vo.setTargetName(targetName);
+            }
+            
             vos.add(vo);
         }
         
         return vos;
+    }
+    
+    /**
+     * 根据目标类型和ID获取目标名称
+     */
+    private String getTargetName(String targetType, Long targetId) {
+        try {
+            switch (targetType) {
+                case "USER":
+                    Optional<User> userOptional = userRepository.findById(targetId);
+                    return userOptional.map(User::getUsername).orElse("未知用户");
+                case "FILE":
+                    // 这里需要根据实际的文件服务来获取文件名
+                    // 由于没有文件仓库，暂时返回默认值
+                    return "文件_" + targetId;
+                case "FOLDER":
+                    // 这里需要根据实际的文件夹服务来获取文件夹名
+                    // 由于没有文件夹仓库，暂时返回默认值
+                    return "文件夹_" + targetId;
+                default:
+                    return targetType + "_" + targetId;
+            }
+        } catch (Exception e) {
+            return targetType + "_" + targetId;
+        }
     }
 }

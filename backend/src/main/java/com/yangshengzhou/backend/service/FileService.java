@@ -146,4 +146,7 @@ public class FileService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
         return fileRepository.findByUserIdAndFolderId(userId, folderId, pageable);
     }
+
+    public Page<File> getAllFiles(int page, int size) {
+    }
 }
