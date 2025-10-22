@@ -58,19 +58,34 @@ export const authAPI = {
     return server.put('/api/auth/password', passwordData)
   },
   
+  // 刷新令牌
+  refreshToken: () => {
+    return server.post('/api/auth/refresh')
+  },
+  
   // 登出
   logout: () => {
     return server.post('/api/auth/logout')
   },
   
-  // 获取存储信息
-  getStorageInfo: () => {
-    return server.get('/api/user/storage')
+  // 忘记密码
+  forgotPassword: (email) => {
+    return server.post('/api/auth/forgot-password', { email })
   },
   
-  // 发送邮箱验证码
-  sendVerificationCode: (email) => {
-    return server.post('/api/auth/send-verification-code', { email })
+  // 重置密码
+  resetPassword: (token, password) => {
+    return server.post('/api/auth/reset-password', { token, password })
+  },
+  
+  // 验证邮箱
+  verifyEmail: (token) => {
+    return server.get(`/api/auth/verify-email?token=${token}`)
+  },
+  
+  // 重新发送验证邮件
+  resendVerificationEmail: () => {
+    return server.post('/api/auth/resend-verification')
   }
 }
 
@@ -119,8 +134,13 @@ export const fileAPI = {
   },
   
   // 搜索文件
-  search: (query) => {
-    return server.get('/api/user/file/search', { params: { query } })
+  search: (name) => {
+    return server.get('/api/user/file/search', { params: { name } })
+  },
+  
+  // 获取存储使用情况
+  getStorageUsage: () => {
+    return server.get('/api/user/storage/usage')
   }
 }
 
@@ -128,32 +148,32 @@ export const fileAPI = {
 export const folderAPI = {
   // 创建文件夹
   create: (folderData) => {
-    return server.post('/api/user/folder', folderData)
+    return server.post('/api/folder/create', folderData)
   },
   
-  // 获取文件夹列表
-  getFolders: (params) => {
-    return server.get('/api/user/folder/list', { params })
+  // 获取用户文件夹列表
+  getFolders: () => {
+    return server.get('/api/folder/list')
   },
   
   // 获取子文件夹
   getSubFolders: (parentId) => {
-    return server.get(`/api/user/folder/${parentId}/subfolders`)
+    return server.get(`/api/folder/${parentId}/subfolders`)
   },
   
   // 获取文件夹详情
   getFolder: (id) => {
-    return server.get(`/api/user/folder/${id}`)
+    return server.get(`/api/folder/${id}`)
   },
   
   // 重命名文件夹
   rename: (id, newName) => {
-    return server.put(`/api/user/folder/${id}/rename`, { name: newName })
+    return server.put(`/api/folder/${id}/rename`, { name: newName })
   },
   
   // 删除文件夹
   delete: (id) => {
-    return server.delete(`/api/user/folder/${id}`)
+    return server.delete(`/api/folder/${id}`)
   }
 }
 
@@ -161,12 +181,12 @@ export const folderAPI = {
 export const shareAPI = {
   // 创建分享
   create: (shareData) => {
-    return server.post('/api/user/share', shareData)
+    return server.post('/api/share/create', shareData)
   },
   
   // 获取用户分享列表
-  getUserShares: (params) => {
-    return server.get('/api/user/share/list', { params })
+  getUserShares: () => {
+    return server.get('/api/share/list')
   },
   
   // 获取分享详情
@@ -176,17 +196,22 @@ export const shareAPI = {
   
   // 更新分享
   update: (id, shareData) => {
-    return server.put(`/api/user/share/${id}`, shareData)
+    return server.put(`/api/share/${id}`, shareData)
   },
   
   // 删除分享
   delete: (id) => {
-    return server.delete(`/api/user/share/${id}`)
+    return server.delete(`/api/share/${id}`)
   },
   
   // 通过分享码访问文件
   accessSharedFile: (shareCode) => {
     return server.get(`/api/share/${shareCode}/file`)
+  },
+  
+  // 公开访问分享
+  publicAccess: (shareCode) => {
+    return server.get(`/api/share/public/${shareCode}`)
   }
 }
 
@@ -205,6 +230,11 @@ export const userAPI = {
   // 获取操作日志
   getOperationLogs: (params) => {
     return server.get('/api/user/logs', { params })
+  },
+  
+  // 获取存储信息
+  getStorageInfo: () => {
+    return server.get('/api/user/storage')
   }
 }
 

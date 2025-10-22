@@ -344,7 +344,7 @@ import {
     Files,
     DataLine
 } from '@element-plus/icons-vue'
-import { mockApiService } from '@/utils/mockApiService'
+import { fileAPI, folderAPI } from '@/utils/api'
 
 const router = useRouter()
 
@@ -464,13 +464,14 @@ const loadFiles = async () => {
     try {
         const path = currentPath.value.join('/')
         // 添加分页参数
-        const response = await mockApiService.getFiles(path, {
+        const response = await fileAPI.getFiles({
+            path,
             page: currentPage.value,
             pageSize: pageSize.value
         })
         if (response.success) {
-            files.value = response.data.files || []
-            totalFiles.value = response.data.total || 0
+            files.value = response.data.content || response.data.files || []
+            totalFiles.value = response.data.totalElements || response.data.total || 0
         } else {
             ElMessage.error('加载文件列表失败')
         }
@@ -522,8 +523,29 @@ const confirmUpload = async () => {
 
     uploading.value = true
     try {
-        // 模拟上传
-        await new Promise(resolve => setTimeout(resolve, 1500))
+        const path = currentPath.value.join('/')
+        const formData = new FormData()
+        
+        // 添加所有选中的文件
+        fileList.value.forEach(file => {
+            formData.append('files', file.raw || file)
+        })
+        
+        // 添加路径参数
+        if (path) {
+            formData.append('path', path)
+        }
+        
+        await fileAPI.upload(formData, {
+            onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total
+                )
+                // 这里可以更新上传进度显示
+                console.log(`上传进度: ${percentCompleted}%`)
+            }
+        })
+        
         ElMessage.success(`成功上传 ${fileList.value.length} 个文件`)
         uploadDialogVisible.value = false
         // 重新加载数据
@@ -550,8 +572,12 @@ const confirmCreateFolder = async () => {
         if (valid) {
             creatingFolder.value = true
             try {
-                const path = currentPath.value.join('/')
-                await mockApiService.createFolder(path, folderForm.name)
+                const parentId = currentPath.value.length > 0 ? 
+                    currentPath.value[currentPath.value.length - 1] : 1
+                await folderAPI.create({
+                    name: folderForm.name,
+                    parentId: parentId
+                })
                 ElMessage.success('文件夹创建成功')
                 folderDialogVisible.value = false
                 await loadFiles()
@@ -571,10 +597,22 @@ const handleFileCommand = async (command, item) => {
 
     switch (command) {
         case 'download':
-            ElMessage.info(`开始下载: ${item.name}`)
-            // 模拟下载
-            await new Promise(resolve => setTimeout(resolve, 1500))
-            ElMessage.success(`下载完成: ${item.name}`)
+            try {
+                const response = await fileAPI.download(item.id)
+                // 创建下载链接
+                const url = window.URL.createObjectURL(new Blob([response]))
+                const link = document.createElement('a')
+                link.href = url
+                link.setAttribute('download', item.name)
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                window.URL.revokeObjectURL(url)
+                ElMessage.success(`下载完成: ${item.name}`)
+            } catch (error) {
+                console.error('下载失败:', error)
+                ElMessage.error('下载失败')
+            }
             break
 
         case 'share':
@@ -614,13 +652,20 @@ const handleFileCommand = async (command, item) => {
                         type: 'warning',
                     }
                 )
-                // 模拟删除
-                await new Promise(resolve => setTimeout(resolve, 1000))
+                // 删除文件或文件夹
+                if (item.type === 'folder') {
+                    await folderAPI.delete(item.id)
+                } else {
+                    await fileAPI.delete(item.id)
+                }
                 ElMessage.success('删除成功')
                 // 重新加载数据
                 await loadFiles()
-            } catch {
-                // 用户取消删除
+            } catch (error) {
+                if (error !== 'cancel') {
+                    console.error('删除失败:', error)
+                    ElMessage.error('删除失败')
+                }
             }
             break
     }
@@ -634,8 +679,12 @@ const confirmRename = async () => {
         if (valid) {
             renaming.value = true
             try {
-                // 模拟重命名
-                await new Promise(resolve => setTimeout(resolve, 1000))
+                const item = selectedItem.value
+                if (item.type === 'folder') {
+                    await folderAPI.rename(item.id, renameForm.name)
+                } else {
+                    await fileAPI.rename(item.id, renameForm.name)
+                }
                 ElMessage.success('重命名成功')
                 renameDialogVisible.value = false
                 // 重新加载数据
@@ -741,7 +790,7 @@ const handleCurrentChange = (newPage) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     background: white;
     padding: 20px;
     border-radius: 12px;
@@ -852,7 +901,7 @@ const handleCurrentChange = (newPage) => {
 }
 
 .breadcrumb-container {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     background: white;
     padding: 16px 20px;
     border-radius: 12px;
