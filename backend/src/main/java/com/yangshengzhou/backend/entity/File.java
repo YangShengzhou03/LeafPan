@@ -188,12 +188,14 @@ public class File {
     }
 
     public void setContentType(String contentType) {
+        this.mimeType = contentType;
     }
 
     public void setPath(String fileName) {
+        this.storageKey = fileName;
     }
 
     public void setUploadTime(Date date) {
-
+        this.createdTime = date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
     }
 }

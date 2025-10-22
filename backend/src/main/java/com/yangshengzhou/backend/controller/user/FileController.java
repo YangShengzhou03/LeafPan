@@ -59,25 +59,24 @@ public class FileController {
                 folderId = 1L; // 根目录ID
             }
             
-            // 生成存储键
-            String storageKey = "user_" + currentUser.getId() + "/" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            
             // 上传文件到存储服务
-            fileStorageService.uploadFile(file, storageKey);
+            String fileName = fileStorageService.uploadFile(file, currentUser.getId(), folderId);
             
             // 保存文件信息到数据库
-            File uploadedFile = fileService.uploadFile(file, currentUser.getId(), folderId, storageKey);
+            File uploadedFile = fileService.uploadFile(file, currentUser.getId(), folderId, fileName);
             
             if (uploadedFile != null) {
                 // 记录上传日志
-                operationLogService.logOperation(
-                    currentUser.getId(), 
-                    "UPLOAD", 
-                    "FILE", 
-                    uploadedFile.getId(), 
-                    "上传文件: " + uploadedFile.getName(), 
-                    getClientIpAddress(request)
-                );
+            operationLogService.logOperation(
+                currentUser.getId(), 
+                "UPLOAD", 
+                "FILE", 
+                uploadedFile.getId(), 
+                "上传文件: " + uploadedFile.getName(), 
+                getClientIpAddress(request),
+                "",
+                ""
+            );
                 
                 return ResponseEntity.ok(ApiResponse.success("文件上传成功", uploadedFile));
             } else {
@@ -192,7 +191,9 @@ public class FileController {
                 "FILE", 
                 file.getId(), 
                 "下载文件: " + file.getName(), 
-                getClientIpAddress(request)
+                getClientIpAddress(request),
+                "",
+                ""
             );
             
             // 设置响应头
@@ -271,7 +272,9 @@ public class FileController {
                     "FILE", 
                     id, 
                     "重命名文件: " + newName, 
-                    getClientIpAddress(request)
+                    getClientIpAddress(request),
+                    "",
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("重命名成功", updatedFile));
@@ -317,7 +320,9 @@ public class FileController {
                     "FILE", 
                     id, 
                     "删除文件: " + file.getName(), 
-                    getClientIpAddress(request)
+                    getClientIpAddress(request),
+                    "",
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("文件删除成功"));
@@ -423,7 +428,9 @@ public class FileController {
                                     "FILE", 
                                     fileId, 
                                     "批量删除文件: " + file.getName(), 
-                                    getClientIpAddress(request)
+                                    getClientIpAddress(request),
+                                    "",
+                                    ""
                                 );
                             } else {
                                 failCount++;

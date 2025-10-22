@@ -3,7 +3,7 @@ import { getToken } from './utils.js'
 
 const server = axios.create({
   baseURL: process.env.VUE_APP_API_URL || '/api',
-  timeout: 10000,
+  timeout: 5000,
   headers: {
     'Content-Type': 'application/json'
   }

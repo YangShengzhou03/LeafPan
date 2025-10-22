@@ -88,7 +88,9 @@ public class AdminUserController {
                     "USER",
                     updatedUser.getId(),
                     "管理员更新用户信息: " + updatedUser.getUsername(),
-                    getClientIpAddress(request)
+                    getClientIpAddress(request),
+                    "",
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success(updatedUser));
@@ -127,7 +129,9 @@ public class AdminUserController {
                     "USER",
                     user.getId(),
                     "管理员删除用户: " + user.getUsername(),
-                    getClientIpAddress(request)
+                    getClientIpAddress(request),
+                    "",
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("用户删除成功"));
@@ -169,7 +173,9 @@ public class AdminUserController {
                     "USER",
                     user.getId(),
                     "管理员" + (enabled ? "启用" : "禁用") + "用户: " + user.getUsername(),
-                    getClientIpAddress(request)
+                    getClientIpAddress(request),
+                    "",
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("用户状态更新成功"));

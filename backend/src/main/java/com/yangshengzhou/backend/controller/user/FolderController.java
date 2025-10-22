@@ -47,7 +47,12 @@ public class FolderController {
                 return ResponseEntity.badRequest().body(ApiResponse.error("文件夹名不能为空"));
             }
             
-            Folder folder = folderService.createFolder(name, parentId, currentUser.getId());
+            // 创建文件夹请求对象
+            CreateFolderRequest createRequest = new CreateFolderRequest();
+            createRequest.setName(name);
+            createRequest.setParentId(parentId);
+            
+            Folder folder = folderService.createFolder(currentUser.getId(), createRequest);
             
             // 记录创建文件夹日志
             operationLogService.logOperation(
@@ -55,9 +60,9 @@ public class FolderController {
                 "CREATE_FOLDER", 
                 "文件夹", 
                 folder.getId(), 
-                name,
                 "创建文件夹: " + name, 
                 getClientIpAddress(request), 
+                "",
                 ""
             );
             
@@ -96,7 +101,7 @@ public class FolderController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            List<Folder> folders = folderService.getSubFolders(currentUser.getId(), parentId);
+            List<Folder> folders = folderService.getSubFolders(parentId);
             return ResponseEntity.ok(ApiResponse.success(folders));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取子文件夹列表失败: " + e.getMessage()));
@@ -114,7 +119,7 @@ public class FolderController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!folderService.isFolderOwnedByUser(id, currentUser.getId())) {
+            if (!folderService.hasPermission(currentUser.getId(), id)) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件夹"));
             }
             
@@ -189,9 +194,9 @@ public class FolderController {
                     "DELETE_FOLDER", 
                     "文件夹", 
                     folder.getId(), 
-                    folder.getName(),
                     "删除文件夹: " + folder.getName(), 
                     getClientIpAddress(request), 
+                    "",
                     ""
                 );
                 

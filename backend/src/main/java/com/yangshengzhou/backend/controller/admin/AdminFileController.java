@@ -94,7 +94,9 @@ public class AdminFileController {
                     "FILE",
                     file.getId(),
                     "管理员删除文件: " + file.getName(),
-                    getClientIpAddress(request)
+                    getClientIpAddress(request),
+                    "",
+                    ""
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("文件删除成功"));
