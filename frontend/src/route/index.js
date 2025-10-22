@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import IndexLayout from '@/components/IndexLayout.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import UserLayout from '@/components/UserLayout.vue';
-import HomePage from '@/views/user/HomePage.vue';
 import FilesPage from '@/views/user/FilesPage.vue';
 import DashboardPage from '@/views/user/DashboardPage.vue';
 import SharedPage from '@/views/user/SharedPage.vue';
@@ -40,15 +39,6 @@ const routes = [
         component: FilesPage,
         meta: {
           title: '枫叶网盘 - 我的文件',
-          requiresAuth: true
-        }
-      },
-      {
-        path: 'home',
-        name: 'HomePage',
-        component: HomePage,
-        meta: {
-          title: '枫叶网盘 - 首页',
           requiresAuth: true
         }
       },
