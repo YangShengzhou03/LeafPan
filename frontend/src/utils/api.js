@@ -281,6 +281,95 @@ export const configAPI = {
   // 获取系统配置
   getSystemConfig: () => {
     return server.get('/config/system')
+  },
+  
+  // 更新系统配置
+  updateSystemConfig: (settings) => {
+    return server.put('/config/system', settings)
+  },
+  
+  // 上传Logo
+  uploadLogo: (formData) => {
+    return server.post('/config/upload/logo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+  
+  // 测试邮件发送
+  testEmail: (emailSettings) => {
+    return server.post('/config/test-email', emailSettings)
+  },
+  
+  // 创建备份
+  createBackup: () => {
+    return server.post('/config/backup')
+  },
+  
+  // 清理临时文件
+  cleanTempFiles: () => {
+    return server.post('/config/cleanup/temp')
+  },
+  
+  // 清理日志文件
+  cleanLogFiles: () => {
+    return server.post('/config/cleanup/logs')
+  },
+  
+  // 清理回收站
+  cleanTrash: () => {
+    return server.post('/config/cleanup/trash')
+  }
+}
+
+// 管理员相关API
+export const adminAPI = {
+  // 获取用户列表
+  getUserList: (params) => {
+    return server.get('/admin/user/list', { params })
+  },
+  
+  // 获取用户详情
+  getUser: (id) => {
+    return server.get(`/admin/user/${id}`)
+  },
+  
+  // 添加用户
+  addUser: (userData) => {
+    return server.post('/admin/user', userData)
+  },
+  
+  // 更新用户
+  updateUser: (id, userData) => {
+    return server.put(`/admin/user/${id}`, userData)
+  },
+  
+  // 删除用户
+  deleteUser: (id) => {
+    return server.delete(`/admin/user/${id}`)
+  },
+  
+  // 更新用户状态
+  updateUserStatus: (id, enabled) => {
+    return server.put(`/admin/user/${id}/status`, null, { 
+      params: { enabled } 
+    })
+  },
+  
+  // 获取系统统计信息
+  getSystemStats: () => {
+    return server.get('/admin/system/stats')
+  },
+  
+  // 获取操作日志
+  getOperationLogs: (params) => {
+    return server.get('/admin/logs', { params })
+  },
+  
+  // 获取文件统计信息
+  getFileStats: () => {
+    return server.get('/admin/file/statistics')
   }
 }
 

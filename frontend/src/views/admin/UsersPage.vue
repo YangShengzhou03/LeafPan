@@ -152,6 +152,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
+import { adminAPI } from '@/utils/api.js'
 
 // 数据状态
 const loading = ref(false)
@@ -236,25 +237,30 @@ const formatStorage = (sizeInGB) => {
 const loadUsers = async () => {
   loading.value = true
   try {
-    // 这里应该调用后端API获取真实数据
-    // 暂时使用模拟数据
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 调用后端API获取真实数据
+    const response = await adminAPI.getUserList({
+      page: currentPage.value - 1,
+      size: pageSize.value
+    })
     
-    users.value = [
-      { id: 1, username: 'admin', email: 'admin@example.com', role: 'admin', storageUsed: 5.2, status: 'active', createdAt: '2023-01-01' },
-      { id: 2, username: 'user001', email: 'user001@example.com', role: 'user', storageUsed: 2.8, status: 'active', createdAt: '2023-02-15' },
-      { id: 3, username: 'user002', email: 'user002@example.com', role: 'user', storageUsed: 1.5, status: 'active', createdAt: '2023-03-20' },
-      { id: 4, username: 'user003', email: 'user003@example.com', role: 'user', storageUsed: 3.7, status: 'disabled', createdAt: '2023-04-10' },
-      { id: 5, username: 'user004', email: 'user004@example.com', role: 'user', storageUsed: 0.8, status: 'active', createdAt: '2023-05-05' },
-      { id: 6, username: 'user005', email: 'user005@example.com', role: 'user', storageUsed: 4.2, status: 'active', createdAt: '2023-06-12' },
-      { id: 7, username: 'user006', email: 'user006@example.com', role: 'user', storageUsed: 1.9, status: 'active', createdAt: '2023-07-18' },
-      { id: 8, username: 'user007', email: 'user007@example.com', role: 'user', storageUsed: 2.3, status: 'active', createdAt: '2023-08-22' },
-    ]
-    
-    totalUsers.value = users.value.length
+    if (response.data.code === 200) {
+      const userData = response.data.data
+      users.value = userData.content.map(user => ({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role.toLowerCase(),
+        storageUsed: user.storageUsed || 0,
+        status: user.enabled ? 'active' : 'disabled',
+        createdAt: user.createdTime || user.createdAt
+      }))
+      totalUsers.value = userData.totalElements
+    } else {
+      throw new Error(response.data.message)
+    }
   } catch (error) {
     console.error('加载用户数据失败:', error)
-    ElMessage.error('加载用户数据失败')
+    ElMessage.error('加载用户数据失败: ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
   }
@@ -305,8 +311,22 @@ const saveUser = async () => {
   try {
     await userFormRef.value.validate()
     
-    // 这里应该调用后端API保存用户数据
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 调用后端API保存用户数据
+    const userData = {
+      username: userForm.username,
+      email: userForm.email,
+      password: userForm.password,
+      role: userForm.role.toUpperCase(),
+      enabled: userForm.status === 'active'
+    }
+    
+    if (editingUser.value) {
+      // 更新用户
+      await adminAPI.updateUser(editingUser.value.id, userData)
+    } else {
+      // 添加用户
+      await adminAPI.addUser(userData)
+    }
     
     ElMessage.success(editingUser.value ? '用户更新成功' : '用户添加成功')
     showAddUserDialog.value = false
@@ -316,7 +336,7 @@ const saveUser = async () => {
   } catch (error) {
     if (error !== false) { // 不是表单验证错误
       console.error('保存用户失败:', error)
-      ElMessage.error('保存用户失败')
+      ElMessage.error('保存用户失败: ' + (error.response?.data?.message || error.message))
     }
   }
 }
@@ -335,15 +355,15 @@ const toggleUserStatus = async (user) => {
       }
     )
     
-    // 这里应该调用后端API更新用户状态
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 调用后端API更新用户状态
+    await adminAPI.updateUserStatus(user.id, user.status !== 'active')
     
-    user.status = user.status === 'active' ? 'disabled' : 'active'
     ElMessage.success(`用户${action}成功`)
+    loadUsers() // 重新加载数据
   } catch (error) {
     if (error !== 'cancel') {
       console.error(`${action}用户失败:`, error)
-      ElMessage.error(`${action}用户失败`)
+      ElMessage.error(`${action}用户失败: ` + (error.response?.data?.message || error.message))
     }
   }
 }
@@ -361,20 +381,15 @@ const deleteUser = async (user) => {
       }
     )
     
-    // 这里应该调用后端API删除用户
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    const index = users.value.findIndex(u => u.id === user.id)
-    if (index !== -1) {
-      users.value.splice(index, 1)
-      totalUsers.value = users.value.length
-    }
+    // 调用后端API删除用户
+    await adminAPI.deleteUser(user.id)
     
     ElMessage.success('用户删除成功')
+    loadUsers() // 重新加载数据
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除用户失败:', error)
-      ElMessage.error('删除用户失败')
+      ElMessage.error('删除用户失败: ' + (error.response?.data?.message || error.message))
     }
   }
 }
@@ -398,11 +413,14 @@ onMounted(() => {
 
 <style scoped>
 .admin-users {
-  padding: 20px;
+  padding: 16px;
 }
 
 .users-card {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -410,15 +428,64 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .search-bar {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  padding: 0 16px;
 }
 
 .pagination-container {
-  margin-top: 20px;
+  margin-top: 16px;
   display: flex;
   justify-content: center;
+  padding: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 表格样式优化 */
+:deep(.el-table) {
+  border-radius: 0;
+}
+
+:deep(.el-table__header) {
+  background-color: #fafafa;
+}
+
+:deep(.el-table th) {
+  background-color: #fafafa;
+  color: #606266;
+  font-weight: 500;
+}
+
+:deep(.el-table td) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 按钮样式优化 */
+:deep(.el-button) {
+  border-radius: 3px;
+}
+
+:deep(.el-button--primary) {
+  background-color: #409EFF;
+  border-color: #409EFF;
+}
+
+:deep(.el-button--success) {
+  background-color: #67C23A;
+  border-color: #67C23A;
+}
+
+:deep(.el-button--warning) {
+  background-color: #E6A23C;
+  border-color: #E6A23C;
+}
+
+:deep(.el-button--danger) {
+  background-color: #F56C6C;
+  border-color: #F56C6C;
 }
 </style>

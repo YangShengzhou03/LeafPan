@@ -1,123 +1,208 @@
 <template>
   <div class="admin-logs">
-    <el-card class="logs-card">
+    <!-- 统计卡片 -->
+    <el-row :gutter="20" class="stats-row">
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-item">
+            <div class="stat-icon error">
+              <el-icon size="24"><Warning /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-title">错误日志</div>
+              <div class="stat-value">{{ stats.errorCount }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-item">
+            <div class="stat-icon warning">
+              <el-icon size="24"><InfoFilled /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-title">警告日志</div>
+              <div class="stat-value">{{ stats.warnCount }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-item">
+            <div class="stat-icon info">
+              <el-icon size="24"><Document /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-title">信息日志</div>
+              <div class="stat-value">{{ stats.infoCount }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-item">
+            <div class="stat-icon total">
+              <el-icon size="24"><List /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-title">总日志数</div>
+              <div class="stat-value">{{ stats.totalCount }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 筛选条件 -->
+    <el-card class="logs-card filter-card">
+      <template #header>
+        <div class="filter-header">
+          <span class="filter-title">筛选条件</span>
+          <div class="filter-actions">
+            <el-button type="primary" @click="handleFilter" :icon="Search">
+              搜索
+            </el-button>
+            <el-button @click="resetFilter">
+              重置
+            </el-button>
+          </div>
+        </div>
+      </template>
+      
+      <div class="filter-bar">
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <el-select v-model="filter.level" placeholder="日志级别" clearable>
+              <el-option label="全部" value="" />
+              <el-option label="错误" value="ERROR" />
+              <el-option label="警告" value="WARN" />
+              <el-option label="信息" value="INFO" />
+              <el-option label="调试" value="DEBUG" />
+            </el-select>
+          </el-col>
+          <el-col :span="6">
+            <el-select v-model="filter.module" placeholder="模块" clearable>
+              <el-option label="全部" value="" />
+              <el-option label="用户管理" value="USER" />
+              <el-option label="文件管理" value="FILE" />
+              <el-option label="系统管理" value="SYSTEM" />
+              <el-option label="认证授权" value="AUTH" />
+            </el-select>
+          </el-col>
+          <el-col :span="6">
+            <el-date-picker
+              v-model="filter.dateRange"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="YYYY-MM-DD"
+              clearable
+            />
+          </el-col>
+          <el-col :span="6">
+            <el-input
+              v-model="filter.keyword"
+              placeholder="搜索关键词"
+              clearable
+              @keyup.enter="handleFilter"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+          </el-col>
+        </el-row>
+      </div>
+    </el-card>
+
+    <!-- 日志列表 -->
+    <el-card>
       <template #header>
         <div class="card-header">
           <span>操作日志</span>
           <div class="header-actions">
-            <el-button type="primary" @click="exportLogs" :loading="exporting">
+            <el-button
+              type="primary"
+              :loading="exporting"
+              @click="exportLogs"
+            >
               <el-icon><Download /></el-icon>
               导出日志
             </el-button>
-            <el-button type="danger" @click="clearLogs" :loading="clearing">
+            <el-button
+              type="danger"
+              :loading="clearing"
+              @click="clearLogs"
+            >
               <el-icon><Delete /></el-icon>
               清空日志
             </el-button>
           </div>
         </div>
       </template>
-      
-      <div class="logs-content">
-        <!-- 筛选条件 -->
-        <div class="filter-bar">
-          <el-row :gutter="20">
-            <el-col :span="6">
-              <el-select v-model="filters.level" placeholder="日志级别" clearable @change="handleFilter">
-                <el-option label="全部" value="" />
-                <el-option label="信息" value="INFO" />
-                <el-option label="警告" value="WARN" />
-                <el-option label="错误" value="ERROR" />
-                <el-option label="调试" value="DEBUG" />
-              </el-select>
-            </el-col>
-            <el-col :span="6">
-              <el-select v-model="filters.module" placeholder="模块" clearable @change="handleFilter">
-                <el-option label="全部" value="" />
-                <el-option label="用户管理" value="USER" />
-                <el-option label="文件管理" value="FILE" />
-                <el-option label="系统管理" value="SYSTEM" />
-                <el-option label="认证授权" value="AUTH" />
-              </el-select>
-            </el-col>
-            <el-col :span="6">
-              <el-date-picker
-                v-model="filters.dateRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-                @change="handleFilter"
-              />
-            </el-col>
-            <el-col :span="6">
-              <el-input
-                v-model="filters.keyword"
-                placeholder="搜索关键词"
-                clearable
-                @clear="handleFilter"
-                @keyup.enter="handleFilter"
-              >
-                <template #append>
-                  <el-button @click="handleFilter">
-                    <el-icon><Search /></el-icon>
-                  </el-button>
-                </template>
-              </el-input>
-            </el-col>
-          </el-row>
-        </div>
-        
-        <!-- 日志表格 -->
-        <el-table :data="filteredLogs" style="width: 100%" v-loading="loading" height="500">
-          <el-table-column prop="id" label="ID" width="80" />
-          <el-table-column prop="level" label="级别" width="80">
-            <template #default="scope">
-              <el-tag :type="getLevelType(scope.row.level)">
-                {{ scope.row.level }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="module" label="模块" width="100">
-            <template #default="scope">
-              {{ getModuleName(scope.row.module) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
-          <el-table-column prop="user" label="用户" width="120" />
-          <el-table-column prop="ip" label="IP地址" width="130" />
-          <el-table-column prop="createdAt" label="时间" width="180" />
-          <el-table-column label="操作" width="100">
-            <template #default="scope">
-              <el-button size="small" @click="viewLogDetail(scope.row)">详情</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        
-        <!-- 分页 -->
-        <div class="pagination-container">
-          <el-pagination
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
-            :page-sizes="[20, 50, 100, 200]"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="totalLogs"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
+
+      <el-table
+        v-loading="loading"
+        :data="filteredLogs"
+        style="width: 100%"
+        stripe
+      >
+        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="level" label="级别" width="100">
+          <template #default="{ row }">
+            <el-tag :type="getLevelType(row.level)" size="small">
+              {{ row.level }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="module" label="模块" width="120">
+          <template #default="{ row }">
+            {{ getModuleName(row.module) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="user" label="用户" width="120" />
+        <el-table-column prop="ip" label="IP地址" width="130" />
+        <el-table-column prop="createdAt" label="时间" width="160" />
+        <el-table-column label="操作" width="100" fixed="right">
+          <template #default="{ row }">
+            <el-button
+              type="primary"
+              size="small"
+              @click="viewLogDetail(row)"
+            >
+              详情
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="totalLogs"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </div>
     </el-card>
-    
+
     <!-- 日志详情对话框 -->
     <el-dialog
       v-model="showLogDetail"
       title="日志详情"
-      width="700px"
+      width="600px"
     >
-      <div class="log-detail" v-if="selectedLog">
-        <el-descriptions :column="2" border>
+      <div v-if="selectedLog">
+        <el-descriptions :column="1" border>
           <el-descriptions-item label="ID">{{ selectedLog.id }}</el-descriptions-item>
           <el-descriptions-item label="级别">
             <el-tag :type="getLevelType(selectedLog.level)">
@@ -128,11 +213,11 @@
           <el-descriptions-item label="用户">{{ selectedLog.user }}</el-descriptions-item>
           <el-descriptions-item label="IP地址">{{ selectedLog.ip }}</el-descriptions-item>
           <el-descriptions-item label="时间">{{ selectedLog.createdAt }}</el-descriptions-item>
-          <el-descriptions-item label="消息" :span="2">{{ selectedLog.message }}</el-descriptions-item>
-          <el-descriptions-item label="详细信息" :span="2">
-            <pre class="log-detail-content">{{ selectedLog.details || '无详细信息' }}</pre>
-          </el-descriptions-item>
+          <el-descriptions-item label="消息">{{ selectedLog.message }}</el-descriptions-item>
         </el-descriptions>
+        <el-divider />
+        <h4>详细信息</h4>
+        <div class="log-detail-content">{{ selectedLog.details }}</div>
       </div>
     </el-dialog>
   </div>
@@ -141,21 +226,30 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Download, Delete, Search } from '@element-plus/icons-vue'
+import { Search, Download, Delete, Warning, InfoFilled, Document, List } from '@element-plus/icons-vue'
+import { adminAPI } from '@/utils/api.js'
 
-// 数据状态
+// 响应式数据
 const loading = ref(false)
 const exporting = ref(false)
 const clearing = ref(false)
 const logs = ref([])
+const totalLogs = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(20)
-const totalLogs = ref(0)
 const showLogDetail = ref(false)
 const selectedLog = ref(null)
 
+// 统计数据
+const stats = ref({
+  errorCount: 0,
+  warnCount: 0,
+  infoCount: 0,
+  totalCount: 0
+})
+
 // 筛选条件
-const filters = reactive({
+const filter = reactive({
   level: '',
   module: '',
   dateRange: [],
@@ -164,33 +258,37 @@ const filters = reactive({
 
 // 过滤后的日志列表
 const filteredLogs = computed(() => {
-  let result = logs.value
+  let filtered = logs.value
   
-  if (filters.level) {
-    result = result.filter(log => log.level === filters.level)
+  if (filter.level) {
+    filtered = filtered.filter(log => log.level === filter.level)
   }
   
-  if (filters.module) {
-    result = result.filter(log => log.module === filters.module)
+  if (filter.module) {
+    filtered = filtered.filter(log => log.module === filter.module)
   }
   
-  if (filters.dateRange && filters.dateRange.length === 2) {
-    const [startDate, endDate] = filters.dateRange
-    result = result.filter(log => {
-      const logDate = log.createdAt.split(' ')[0]
+  if (filter.dateRange && filter.dateRange.length === 2) {
+    const [startDate, endDate] = filter.dateRange
+    filtered = filtered.filter(log => {
+      const logDate = log.createdAt.substring(0, 10)
       return logDate >= startDate && logDate <= endDate
     })
   }
   
-  if (filters.keyword) {
-    const keyword = filters.keyword.toLowerCase()
-    result = result.filter(log => 
-      log.message.toLowerCase().includes(keyword) || 
-      log.user.toLowerCase().includes(keyword)
+  if (filter.keyword) {
+    const keyword = filter.keyword.toLowerCase()
+    filtered = filtered.filter(log => 
+      log.message.toLowerCase().includes(keyword) ||
+      log.user.toLowerCase().includes(keyword) ||
+      log.ip.toLowerCase().includes(keyword) ||
+      log.details.toLowerCase().includes(keyword)
     )
   }
   
-  return result
+  // 分页处理
+  const startIndex = (currentPage.value - 1) * pageSize.value
+  return filtered.slice(startIndex, startIndex + pageSize.value)
 })
 
 // 获取日志级别对应的标签类型
@@ -215,69 +313,47 @@ const getModuleName = (module) => {
   }
 }
 
+// 重置筛选条件
+const resetFilter = () => {
+  filter.level = ''
+  filter.module = ''
+  filter.dateRange = []
+  filter.keyword = ''
+  currentPage.value = 1
+  loadLogs()
+}
+
+// 更新统计数据
+const updateStats = () => {
+  const errorCount = logs.value.filter(log => log.level === 'ERROR').length
+  const warnCount = logs.value.filter(log => log.level === 'WARN').length
+  const infoCount = logs.value.filter(log => log.level === 'INFO').length
+  
+  stats.value = {
+    errorCount,
+    warnCount,
+    infoCount,
+    totalCount: logs.value.length
+  }
+}
+
 // 加载日志数据
 const loadLogs = async () => {
   loading.value = true
   try {
-    // 这里应该调用后端API获取日志数据
-    // 暂时使用模拟数据
-    await new Promise(resolve => setTimeout(resolve, 500))
+    const response = await adminAPI.getOperationLogs({
+      page: currentPage.value,
+      size: pageSize.value,
+      level: filter.level,
+      module: filter.module,
+      startDate: filter.dateRange?.[0],
+      endDate: filter.dateRange?.[1],
+      keyword: filter.keyword
+    })
     
-    // 生成模拟日志数据
-    const mockLogs = []
-    const levels = ['INFO', 'WARN', 'ERROR', 'DEBUG']
-    const modules = ['USER', 'FILE', 'SYSTEM', 'AUTH']
-    const users = ['admin', 'user001', 'user002', 'user003', 'user004']
-    const ips = ['192.168.1.100', '192.168.1.101', '192.168.1.102', '192.168.1.103']
-    
-    for (let i = 1; i <= 200; i++) {
-      const level = levels[Math.floor(Math.random() * levels.length)]
-      const module = modules[Math.floor(Math.random() * modules.length)]
-      const user = users[Math.floor(Math.random() * users.length)]
-      const ip = ips[Math.floor(Math.random() * ips.length)]
-      
-      let message = ''
-      let details = ''
-      
-      switch (module) {
-        case 'USER':
-          message = `用户操作: ${user} ${getRandomUserAction()}`
-          details = `用户 ${user} 执行了相关操作，IP地址: ${ip}`
-          break
-        case 'FILE':
-          message = `文件操作: ${getRandomFileAction()}`
-          details = `文件操作详情，用户: ${user}，IP地址: ${ip}`
-          break
-        case 'SYSTEM':
-          message = `系统操作: ${getRandomSystemAction()}`
-          details = `系统操作详情，操作员: ${user}，IP地址: ${ip}`
-          break
-        case 'AUTH':
-          message = `认证操作: ${getRandomAuthAction(user)}`
-          details = `认证操作详情，用户: ${user}，IP地址: ${ip}`
-          break
-      }
-      
-      const date = new Date()
-      date.setDate(date.getDate() - Math.floor(Math.random() * 30))
-      
-      mockLogs.push({
-        id: i,
-        level,
-        module,
-        message,
-        user,
-        ip,
-        createdAt: date.toISOString().replace('T', ' ').substring(0, 19),
-        details
-      })
-    }
-    
-    // 按时间倒序排列
-    mockLogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    
-    logs.value = mockLogs
-    totalLogs.value = mockLogs.length
+    logs.value = response.data || []
+    totalLogs.value = response.total || 0
+    updateStats()
   } catch (error) {
     console.error('加载日志数据失败:', error)
     ElMessage.error('加载日志数据失败')
@@ -286,75 +362,16 @@ const loadLogs = async () => {
   }
 }
 
-// 获取随机用户操作
-const getRandomUserAction = () => {
-  const actions = [
-    '登录系统',
-    '修改个人信息',
-    '修改密码',
-    '查看用户列表',
-    '创建用户',
-    '更新用户信息',
-    '删除用户',
-    '禁用用户',
-    '启用用户'
-  ]
-  return actions[Math.floor(Math.random() * actions.length)]
-}
-
-// 获取随机文件操作
-const getRandomFileAction = () => {
-  const actions = [
-    '上传文件',
-    '下载文件',
-    '删除文件',
-    '移动文件',
-    '重命名文件',
-    '创建文件夹',
-    '删除文件夹',
-    '分享文件',
-    '取消分享',
-    '查看文件列表'
-  ]
-  return actions[Math.floor(Math.random() * actions.length)]
-}
-
-// 获取随机系统操作
-const getRandomSystemAction = () => {
-  const actions = [
-    '查看系统信息',
-    '修改系统设置',
-    '执行系统备份',
-    '清理临时文件',
-    '清理日志文件',
-    '查看系统监控',
-    '重启系统服务',
-    '更新系统配置'
-  ]
-  return actions[Math.floor(Math.random() * actions.length)]
-}
-
-// 获取随机认证操作
-const getRandomAuthAction = (user) => {
-  const actions = [
-    '用户登录',
-    '用户登出',
-    '刷新令牌',
-    '验证令牌',
-    '密码重置',
-    '双因素认证验证'
-  ]
-  return actions[Math.floor(Math.random() * actions.length)]
-}
-
 // 筛选处理
 const handleFilter = () => {
   currentPage.value = 1
+  loadLogs()
 }
 
 // 分页处理
 const handleSizeChange = (size) => {
   pageSize.value = size
+  currentPage.value = 1
   loadLogs()
 }
 
@@ -373,19 +390,22 @@ const viewLogDetail = (log) => {
 const exportLogs = async () => {
   exporting.value = true
   try {
-    // 这里应该调用后端API导出日志
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    const response = await adminAPI.exportLogs({
+      level: filter.level,
+      module: filter.module,
+      startDate: filter.dateRange?.[0],
+      endDate: filter.dateRange?.[1],
+      keyword: filter.keyword
+    })
     
-    // 模拟下载
-    const dataStr = JSON.stringify(filteredLogs.value, null, 2)
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
-    
-    const exportFileDefaultName = `logs_${new Date().toISOString().substring(0, 10)}.json`
-    
-    const linkElement = document.createElement('a')
-    linkElement.setAttribute('href', dataUri)
-    linkElement.setAttribute('download', exportFileDefaultName)
-    linkElement.click()
+    // 创建下载链接
+    const blob = new Blob([response], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `logs_${new Date().toISOString().substring(0, 10)}.json`
+    link.click()
+    window.URL.revokeObjectURL(url)
     
     ElMessage.success('日志导出成功')
   } catch (error) {
@@ -411,8 +431,7 @@ const clearLogs = async () => {
     
     clearing.value = true
     
-    // 这里应该调用后端API清空日志
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await adminAPI.clearLogs()
     
     logs.value = []
     totalLogs.value = 0
@@ -437,8 +456,87 @@ onMounted(() => {
   padding: 20px;
 }
 
-.logs-card {
+.stats-row {
   margin-bottom: 20px;
+}
+
+.stat-card {
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.stat-icon {
+  margin-right: 15px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.stat-icon.error {
+  background: linear-gradient(135deg, #f56c6c, #e74c3c);
+}
+
+.stat-icon.warning {
+  background: linear-gradient(135deg, #e6a23c, #f39c12);
+}
+
+.stat-icon.info {
+  background: linear-gradient(135deg, #409eff, #3498db);
+}
+
+.stat-icon.total {
+  background: linear-gradient(135deg, #67c23a, #27ae60);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-title {
+  font-size: 14px;
+  color: #909399;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 10px;
 }
 
 .card-header {
@@ -454,7 +552,7 @@ onMounted(() => {
 }
 
 .filter-bar {
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .pagination-container {
@@ -473,5 +571,29 @@ onMounted(() => {
   border-radius: 4px;
   font-family: monospace;
   font-size: 12px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .stats-row .el-col {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-logs {
+    padding: 10px;
+  }
+  
+  .filter-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .filter-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 </style>

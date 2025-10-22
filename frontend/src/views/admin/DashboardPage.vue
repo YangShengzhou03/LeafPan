@@ -67,20 +67,6 @@
         </el-row>
         
         <el-row :gutter="20" style="margin-top: 20px">
-          <el-col :span="12">
-            <el-card shadow="hover">
-              <template #header>
-                <div class="card-header">
-                  <span>最近注册用户</span>
-                </div>
-              </template>
-              <el-table :data="recentUsers" style="width: 100%">
-                <el-table-column prop="username" label="用户名" />
-                <el-table-column prop="email" label="邮箱" />
-                <el-table-column prop="createdAt" label="注册时间" />
-              </el-table>
-            </el-card>
-          </el-col>
           
           <el-col :span="12">
             <el-card shadow="hover">
@@ -114,6 +100,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { User, Folder, Document, Share } from '@element-plus/icons-vue'
+import { adminAPI } from '@/utils/api.js'
 
 // 统计数据
 const stats = ref({
@@ -140,22 +127,28 @@ const formatStorage = (sizeInGB) => {
 // 加载仪表盘数据
 const loadDashboardData = async () => {
   try {
-    // 这里应该调用后端API获取真实数据
-    // 暂时使用模拟数据
+    // 调用后端API获取真实数据
+    const response = await adminAPI.getSystemStats()
+    
+    // 更新统计数据
     stats.value = {
-      userCount: 128,
-      fileCount: 3542,
-      usedStorage: 156.78,
-      shareCount: 89
+      userCount: response.userCount || 0,
+      fileCount: response.fileCount || 0,
+      usedStorage: response.usedStorage || 0,
+      shareCount: response.shareCount || 0
     }
     
-    recentUsers.value = [
-      { username: 'user001', email: 'user001@example.com', createdAt: '2023-10-15' },
-      { username: 'user002', email: 'user002@example.com', createdAt: '2023-10-14' },
-      { username: 'user003', email: 'user003@example.com', createdAt: '2023-10-13' }
-    ]
+    // 获取最近注册用户
+    const usersResponse = await adminAPI.getUserList({ 
+      page: 1, 
+      size: 5,
+      sort: 'createdAt,desc'
+    })
     
-    uptime.value = '15天 8小时 32分钟'
+    recentUsers.value = usersResponse.content || []
+    
+    // 更新系统运行时间
+    uptime.value = response.uptime || ''
   } catch (error) {
     console.error('加载仪表盘数据失败:', error)
   }
@@ -168,7 +161,7 @@ onMounted(() => {
 
 <style scoped>
 .admin-dashboard {
-  padding: 20px;
+  padding: 0;
 }
 
 .dashboard-card {
@@ -182,18 +175,34 @@ onMounted(() => {
   font-weight: 600;
 }
 
+/* 统计卡片样式 - 朴素专业风格 */
 .stat-card {
   height: 100%;
+  border-radius: 4px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .stat-item {
   display: flex;
   align-items: center;
+  padding: 16px;
 }
 
 .stat-icon {
-  margin-right: 15px;
+  margin-right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+}
+
+.stat-icon .el-icon {
   color: #409EFF;
+  font-size: 20px;
 }
 
 .stat-content {
@@ -203,7 +212,8 @@ onMounted(() => {
 .stat-title {
   font-size: 14px;
   color: #909399;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  font-weight: 400;
 }
 
 .stat-value {
@@ -212,22 +222,62 @@ onMounted(() => {
   color: #303133;
 }
 
+/* 系统信息卡片样式 */
 .system-info {
-  padding: 10px 0;
+  padding: 12px 0;
 }
 
 .info-item {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   display: flex;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .info-label {
   width: 100px;
   color: #909399;
+  font-weight: 400;
+  font-size: 14px;
 }
 
 .info-value {
   color: #303133;
   font-weight: 500;
+  font-size: 14px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .stat-item {
+    flex-direction: column;
+    text-align: center;
+    padding: 12px;
+  }
+  
+  .stat-icon {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  
+  .stat-value {
+    font-size: 20px;
+  }
+  
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .info-label {
+    width: auto;
+    margin-bottom: 4px;
+  }
 }
 </style>

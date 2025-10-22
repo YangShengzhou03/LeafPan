@@ -395,16 +395,11 @@ const fetchAvailableFiles = async () => {
 // 获取可用用户列表
 const fetchAvailableUsers = async () => {
   try {
-    // 这个API可能需要根据实际后端实现调整
-    const response = await shareAPI.getUserShares()
-    // 模拟用户数据，实际应该从API获取
-    availableUsers.value = [
-      { id: 1, username: 'user1' },
-      { id: 2, username: 'user2' },
-      { id: 3, username: 'user3' }
-    ]
+    const response = await userAPI.getUserList()
+    availableUsers.value = response.data || []
   } catch (error) {
     console.error('获取用户列表失败:', error)
+    availableUsers.value = []
   }
 }
 

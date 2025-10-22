@@ -105,23 +105,25 @@ onMounted(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f5f5f5;
 }
 
 .admin-header {
   height: 60px;
-  background-color: #545c64;
+  background-color: #304156;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e6e6e6;
 }
 
 .header-left .logo {
   margin: 0;
   font-size: 18px;
   font-weight: 500;
+  color: #fff;
 }
 
 .header-right .user-info {
@@ -143,19 +145,82 @@ onMounted(() => {
 
 .admin-sidebar {
   width: 220px;
-  background-color: #f5f5f5;
+  background-color: #304156;
   border-right: 1px solid #e6e6e6;
 }
 
 .admin-menu {
   height: 100%;
   border-right: none;
+  background-color: transparent;
+}
+
+.admin-menu :deep(.el-menu-item) {
+  height: 46px;
+  line-height: 46px;
+  color: #bdc3c7;
+}
+
+.admin-menu :deep(.el-menu-item:hover) {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.admin-menu :deep(.el-menu-item.is-active) {
+  background-color: #409EFF;
+  color: #fff;
+}
+
+.admin-menu :deep(.el-menu-item .el-icon) {
+  font-size: 16px;
+  margin-right: 8px;
 }
 
 .admin-main {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
+}
+
+/* 卡片容器统一样式 */
+.admin-main :deep(.el-card) {
+  border-radius: 4px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.admin-main :deep(.el-card__header) {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #fafafa;
+}
+
+.admin-main :deep(.card-header) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #303133;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 200px;
+  }
+  
+  .admin-header {
+    padding: 0 16px;
+  }
+  
+  .header-left .logo {
+    font-size: 16px;
+  }
+  
+  .admin-main {
+    padding: 16px;
+  }
 }
 </style>
