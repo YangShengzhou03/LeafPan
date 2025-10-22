@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { authAPI } from './api.js'
+import { authAPI, userAPI } from './api.js'
 import * as utils from './utils.js'
 
 // 全局状态
@@ -8,8 +8,8 @@ const state = reactive({
   isAuthenticated: utils.isLoggedIn(),
   loading: false,
   storageInfo: {
-    totalStorageGB: 5,
-    usedStorageGB: 1.2
+    totalStorageGB: 0,
+    usedStorageGB: 0
   }
 })
 
@@ -32,10 +32,10 @@ const store = {
     state.user = null
     state.isAuthenticated = false
     utils.removeToken()
-    // 重置存储信息
+    // 重置存储信息为默认值
     state.storageInfo = {
-      totalStorageGB: 5,
-      usedStorageGB: 1.2
+      totalStorageGB: 0,
+      usedStorageGB: 0
     }
   },
 
@@ -116,7 +116,7 @@ const store = {
     }
 
     try {
-      const storageInfo = await authAPI.getStorageInfo()
+      const storageInfo = await userAPI.getStorageInfo()
       this.updateStorageInfo(storageInfo)
     } catch (error) {
       console.error('获取存储信息失败:', error)

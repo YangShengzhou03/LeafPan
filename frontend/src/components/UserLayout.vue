@@ -10,10 +10,11 @@
                 <div class="user-dropdown" :class="{ 'active': isDropdownOpen }">
                     <div class="user-info" @click="toggleDropdown" aria-haspopup="true" :aria-expanded="isDropdownOpen">
                         <div class="user-avatar">
-                            <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="avatar-image">
+                            <img :src="currentUser?.avatar || 'https://picsum.photos/id/1005/200/200'" alt="用户头像" class="avatar-image">
                         </div>
                         <div class="user-details">
                             <span class="username">{{ currentUser?.username || '用户名' }}</span>
+                            <span class="user-email">{{ currentUser?.email || '' }}</span>
                         </div>
                         <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" aria-hidden="true"></i>
                     </div>
@@ -77,7 +78,11 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import store from '@/utils/store.js'
+
+// 获取路由实例
+const router = useRouter()
 
 // 控制下拉菜单的显示状态
 const isDropdownOpen = ref(false)
@@ -123,9 +128,13 @@ const handleLogout = async () => {
   try {
     isDropdownOpen.value = false
     await store.logout()
+    // 使用路由跳转到首页
+    router.push('/')
   } catch (error) {
     console.error('退出登录失败:', error)
-    // 可以在这里添加用户提示，比如使用 toast 或 alert
+    // 即使退出失败也清除本地状态并跳转
+    store.clearUser()
+    router.push('/')
   }
 }
 
@@ -139,9 +148,13 @@ const refreshStorageInfo = async () => {
   }
 }
 
-// 组件挂载时刷新存储信息
+// 组件挂载时刷新存储信息和用户信息
 onMounted(() => {
   refreshStorageInfo()
+  // 获取用户信息
+  if (!store.state.user) {
+    store.fetchCurrentUser()
+  }
   // 添加全局点击事件监听器，用于关闭下拉菜单
   document.addEventListener('click', closeDropdown)
 })
