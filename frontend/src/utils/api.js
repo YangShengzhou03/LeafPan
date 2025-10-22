@@ -224,37 +224,37 @@ export const shareAPI = {
 export const userAPI = {
   // 获取用户信息
   getUserInfo: () => {
-    return server.get('/api/user/info')
+    return server.get('/user/info')
   },
   
   // 更新用户信息
   updateUserInfo: (userData) => {
-    return server.put('/api/user/info', userData)
+    return server.put('/user/info', userData)
   },
   
   // 更新个人资料
   updateProfile: (profileData) => {
-    return server.put('/api/user/profile', profileData)
+    return server.put('/user/profile', profileData)
   },
   
   // 获取当前用户信息
   getCurrentUser: () => {
-    return server.get('/api/user/me')
+    return server.get('/user/me')
   },
   
   // 获取操作日志
   getOperationLogs: (params) => {
-    return server.get('/api/user/logs', { params })
+    return server.get('/user/logs', { params })
   },
   
   // 获取存储信息
   getStorageInfo: () => {
-    return server.get('/api/user/storage')
+    return server.get('/user/storage')
   },
   
   // 获取仪表板统计数据
   getDashboardStats: () => {
-    return server.get('/api/user/dashboard/stats')
+    return server.get('/user/dashboard/stats')
   }
 }
 
@@ -262,22 +262,22 @@ export const userAPI = {
 export const trashAPI = {
   // 获取回收站文件
   getTrashFiles: () => {
-    return server.get('/api/user/trash')
+    return server.get('/user/trash')
   },
   
   // 恢复文件
   restoreFile: (id) => {
-    return server.put(`/api/user/trash/${id}/restore`)
+    return server.put(`/user/trash/${id}/restore`)
   },
   
   // 永久删除文件
   deleteFile: (id) => {
-    return server.delete(`/api/user/trash/${id}`)
+    return server.delete(`/user/trash/${id}`)
   },
   
   // 清空回收站
   clearTrash: () => {
-    return server.delete('/api/user/trash')
+    return server.delete('/user/trash')
   }
 }
 
@@ -285,17 +285,17 @@ export const trashAPI = {
 export const configAPI = {
   // 获取系统配置
   getSystemConfig: () => {
-    return server.get('/api/config/system')
+    return server.get('/config/system')
   },
   
   // 更新系统配置
   updateSystemConfig: (settings) => {
-    return server.put('/api/config/system', settings)
+    return server.put('/config/system', settings)
   },
   
   // 上传Logo
   uploadLogo: (formData) => {
-    return server.post('/api/config/upload/logo', formData, {
+    return server.post('/config/upload/logo', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -304,17 +304,17 @@ export const configAPI = {
   
   // 获取邮件配置
   getEmailConfig: () => {
-    return server.get('/api/config/email')
+    return server.get('/config/email')
   },
   
   // 更新邮件配置
   updateEmailConfig: (settings) => {
-    return server.put('/api/config/email', settings)
+    return server.put('/config/email', settings)
   },
   
   // 测试邮件配置
   testEmailConfig: () => {
-    return server.post('/api/config/email/test')
+    return server.post('/config/email/test')
   }
 }
 

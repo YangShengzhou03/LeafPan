@@ -27,6 +27,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+        
+        // 跳过公开接口的JWT认证
+        if (requestURI.startsWith("/api/auth/") || 
+            requestURI.startsWith("/api/public/") || 
+            requestURI.startsWith("/api/config/") || 
+            requestURI.startsWith("/api/verification/") || 
+            requestURI.startsWith("/verification/") ||
+            requestURI.equals("/error")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         final String requestTokenHeader = request.getHeader("Authorization");
 
         String username = null;
