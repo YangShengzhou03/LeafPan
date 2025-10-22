@@ -1,206 +1,107 @@
 <template>
   <div class="admin-logs">
-    <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stats-row">
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-item">
-            <div class="stat-icon error">
-              <el-icon size="24"><Warning /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-title">错误日志</div>
-              <div class="stat-value">{{ stats.errorCount }}</div>
-            </div>
+    <!-- 统计卡片 - 更简洁的设计 -->
+    <div class="stats-container">
+      <el-card class="stat-card" shadow="never">
+        <div class="stat-item">
+          <div class="stat-icon error">
+            <el-icon size="20">
+              <Warning />
+            </el-icon>
           </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-item">
-            <div class="stat-icon warning">
-              <el-icon size="24"><InfoFilled /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-title">警告日志</div>
-              <div class="stat-value">{{ stats.warnCount }}</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-item">
-            <div class="stat-icon info">
-              <el-icon size="24"><Document /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-title">信息日志</div>
-              <div class="stat-value">{{ stats.infoCount }}</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-item">
-            <div class="stat-icon total">
-              <el-icon size="24"><List /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-title">总日志数</div>
-              <div class="stat-value">{{ stats.totalCount }}</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
-    <!-- 筛选条件 -->
-    <el-card class="logs-card filter-card">
-      <template #header>
-        <div class="filter-header">
-          <span class="filter-title">筛选条件</span>
-          <div class="filter-actions">
-            <el-button type="primary" @click="handleFilter" :icon="Search">
-              搜索
-            </el-button>
-            <el-button @click="resetFilter">
-              重置
-            </el-button>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.errorCount }}</div>
+            <div class="stat-title">错误</div>
           </div>
         </div>
-      </template>
-      
-      <div class="filter-bar">
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-select v-model="filter.level" placeholder="日志级别" clearable>
-              <el-option label="全部" value="" />
-              <el-option label="错误" value="ERROR" />
-              <el-option label="警告" value="WARN" />
-              <el-option label="信息" value="INFO" />
-              <el-option label="调试" value="DEBUG" />
-            </el-select>
-          </el-col>
-          <el-col :span="6">
-            <el-select v-model="filter.module" placeholder="模块" clearable>
-              <el-option label="全部" value="" />
-              <el-option label="用户管理" value="USER" />
-              <el-option label="文件管理" value="FILE" />
-              <el-option label="系统管理" value="SYSTEM" />
-              <el-option label="认证授权" value="AUTH" />
-            </el-select>
-          </el-col>
-          <el-col :span="6">
-            <el-date-picker
-              v-model="filter.dateRange"
-              type="daterange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              value-format="YYYY-MM-DD"
-              clearable
-            />
-          </el-col>
-          <el-col :span="6">
-            <el-input
-              v-model="filter.keyword"
-              placeholder="搜索关键词"
-              clearable
-              @keyup.enter="handleFilter"
-            >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
-          </el-col>
-        </el-row>
-      </div>
-    </el-card>
+      </el-card>
 
-    <!-- 日志列表 -->
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>操作日志</span>
-          <div class="header-actions">
-            <el-button
-              type="primary"
-              :loading="exporting"
-              @click="exportLogs"
-            >
-              <el-icon><Download /></el-icon>
-              导出日志
-            </el-button>
-            <el-button
-              type="danger"
-              :loading="clearing"
-              @click="clearLogs"
-            >
-              <el-icon><Delete /></el-icon>
-              清空日志
-            </el-button>
+      <el-card class="stat-card" shadow="never">
+        <div class="stat-item">
+          <div class="stat-icon warning">
+            <el-icon size="20">
+              <InfoFilled />
+            </el-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.warnCount }}</div>
+            <div class="stat-title">警告</div>
           </div>
         </div>
-      </template>
+      </el-card>
 
-      <el-table
-        v-loading="loading"
-        :data="filteredLogs"
-        style="width: 100%"
-        stripe
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="level" label="级别" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getLevelType(row.level)" size="small">
-              {{ row.level }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="module" label="模块" width="120">
-          <template #default="{ row }">
-            {{ getModuleName(row.module) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="user" label="用户" width="120" />
-        <el-table-column prop="ip" label="IP地址" width="130" />
-        <el-table-column prop="createdAt" label="时间" width="160" />
-        <el-table-column label="操作" width="100" fixed="right">
-          <template #default="{ row }">
-            <el-button
-              type="primary"
-              size="small"
-              @click="viewLogDetail(row)"
-            >
-              详情
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-card class="stat-card" shadow="never">
+        <div class="stat-item">
+          <div class="stat-icon info">
+            <el-icon size="20">
+              <Document />
+            </el-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.infoCount }}</div>
+            <div class="stat-title">信息</div>
+          </div>
+        </div>
+      </el-card>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="totalLogs"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
+      <el-card class="stat-card" shadow="never">
+        <div class="stat-item">
+          <div class="stat-icon total">
+            <el-icon size="20">
+              <List />
+            </el-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalCount }}</div>
+            <div class="stat-title">总计</div>
+          </div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 主内容卡片 - 整合筛选和表格 -->
+    <el-card class="main-card" shadow="never">
+
+      <!-- 日志列表 -->
+      <div class="table-section">
+        <el-table v-loading="loading" :data="filteredLogs" style="width: 100%" stripe empty-text="暂无数据">
+          <el-table-column prop="id" label="ID" width="80" />
+          <el-table-column prop="level" label="级别" width="100">
+            <template #default="{ row }">
+              <el-tag :type="getLevelType(row.level)" size="small">
+                {{ row.level }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="module" label="模块" width="120">
+            <template #default="{ row }">
+              {{ getModuleName(row.module) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="user" label="用户" width="120" />
+          <el-table-column prop="ip" label="IP地址" width="130" />
+          <el-table-column prop="createdAt" label="时间" width="160" />
+          <el-table-column label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" size="small" @click="viewLogDetail(row)">
+                详情
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 分页 -->
+        <div class="pagination-container">
+          <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
+            :total="totalLogs" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+            @current-change="handleCurrentChange" />
+        </div>
       </div>
     </el-card>
 
     <!-- 日志详情对话框 -->
-    <el-dialog
-      v-model="showLogDetail"
-      title="日志详情"
-      width="600px"
-    >
+    <el-dialog v-model="showLogDetail" title="日志详情" width="600px">
       <div v-if="selectedLog">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="ID">{{ selectedLog.id }}</el-descriptions-item>
@@ -252,22 +153,21 @@ const stats = ref({
 const filter = reactive({
   level: '',
   module: '',
-  dateRange: [],
-  keyword: ''
+  dateRange: []
 })
 
 // 过滤后的日志列表
 const filteredLogs = computed(() => {
   let filtered = logs.value
-  
+
   if (filter.level) {
     filtered = filtered.filter(log => log.level === filter.level)
   }
-  
+
   if (filter.module) {
     filtered = filtered.filter(log => log.module === filter.module)
   }
-  
+
   if (filter.dateRange && filter.dateRange.length === 2) {
     const [startDate, endDate] = filter.dateRange
     filtered = filtered.filter(log => {
@@ -275,17 +175,7 @@ const filteredLogs = computed(() => {
       return logDate >= startDate && logDate <= endDate
     })
   }
-  
-  if (filter.keyword) {
-    const keyword = filter.keyword.toLowerCase()
-    filtered = filtered.filter(log => 
-      log.message.toLowerCase().includes(keyword) ||
-      log.user.toLowerCase().includes(keyword) ||
-      log.ip.toLowerCase().includes(keyword) ||
-      log.details.toLowerCase().includes(keyword)
-    )
-  }
-  
+
   // 分页处理
   const startIndex = (currentPage.value - 1) * pageSize.value
   return filtered.slice(startIndex, startIndex + pageSize.value)
@@ -318,7 +208,6 @@ const resetFilter = () => {
   filter.level = ''
   filter.module = ''
   filter.dateRange = []
-  filter.keyword = ''
   currentPage.value = 1
   loadLogs()
 }
@@ -328,7 +217,7 @@ const updateStats = () => {
   const errorCount = logs.value.filter(log => log.level === 'ERROR').length
   const warnCount = logs.value.filter(log => log.level === 'WARN').length
   const infoCount = logs.value.filter(log => log.level === 'INFO').length
-  
+
   stats.value = {
     errorCount,
     warnCount,
@@ -347,10 +236,9 @@ const loadLogs = async () => {
       level: filter.level,
       module: filter.module,
       startDate: filter.dateRange?.[0],
-      endDate: filter.dateRange?.[1],
-      keyword: filter.keyword
+      endDate: filter.dateRange?.[1]
     })
-    
+
     logs.value = response.data || []
     totalLogs.value = response.total || 0
     updateStats()
@@ -394,10 +282,9 @@ const exportLogs = async () => {
       level: filter.level,
       module: filter.module,
       startDate: filter.dateRange?.[0],
-      endDate: filter.dateRange?.[1],
-      keyword: filter.keyword
+      endDate: filter.dateRange?.[1]
     })
-    
+
     // 创建下载链接
     const blob = new Blob([response], { type: 'application/json' })
     const url = window.URL.createObjectURL(blob)
@@ -406,7 +293,7 @@ const exportLogs = async () => {
     link.download = `logs_${new Date().toISOString().substring(0, 10)}.json`
     link.click()
     window.URL.revokeObjectURL(url)
-    
+
     ElMessage.success('日志导出成功')
   } catch (error) {
     console.error('导出日志失败:', error)
@@ -428,11 +315,11 @@ const clearLogs = async () => {
         type: 'warning'
       }
     )
-    
+
     clearing.value = true
-    
+
     await adminAPI.clearLogs()
-    
+
     logs.value = []
     totalLogs.value = 0
     ElMessage.success('日志清空成功')
@@ -453,38 +340,47 @@ onMounted(() => {
 
 <style scoped>
 .admin-logs {
-  padding: 20px;
+  padding: 0px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
 }
 
-.stats-row {
+/* 统计卡片容器 */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
   margin-bottom: 20px;
 }
 
 .stat-card {
-  height: 100%;
+  border-radius: 8px;
+  border: 1px solid #e4e7ed;
+  background: white;
   transition: all 0.3s ease;
 }
 
 .stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  padding: 10px 0;
+  padding: 16px;
 }
 
 .stat-icon {
-  margin-right: 15px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  margin-right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  flex-shrink: 0;
 }
 
 .stat-icon.error {
@@ -505,60 +401,88 @@ onMounted(() => {
 
 .stat-content {
   flex: 1;
-}
-
-.stat-title {
-  font-size: 14px;
-  color: #909399;
-  margin-bottom: 5px;
+  text-align: center;
 }
 
 .stat-value {
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
   color: #303133;
+  line-height: 1;
+  margin-bottom: 4px;
 }
 
-.filter-card {
-  margin-bottom: 20px;
+.stat-title {
+  font-size: 12px;
+  color: #909399;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.filter-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.filter-title {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.filter-actions {
-  display: flex;
-  gap: 10px;
+/* 主内容卡片 */
+.main-card {
+  border-radius: 12px;
+  border: 1px solid #e4e7ed;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.card-title {
+  font-size: 18px;
   font-weight: 600;
+  color: #303133;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
-.filter-bar {
-  margin-bottom: 0;
+/* 筛选区域 */
+.filter-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f2f5;
+  background: #fafbfc;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-row>* {
+  flex: 1;
+  min-width: 120px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 表格区域 */
+.table-section {
+  padding: 0;
 }
 
 .pagination-container {
-  margin-top: 20px;
+  padding: 16px 24px;
+  border-top: 1px solid #f0f2f5;
   display: flex;
   justify-content: center;
+  background: #fafbfc;
 }
 
 .log-detail-content {
@@ -566,34 +490,106 @@ onMounted(() => {
   word-break: break-all;
   max-height: 300px;
   overflow-y: auto;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 12px;
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 13px;
+  border: 1px solid #e9ecef;
+  line-height: 1.5;
+}
+
+/* 表格样式优化 */
+:deep(.el-table) {
+  border-radius: 0;
+}
+
+:deep(.el-table__header) {
+  background-color: #fafbfc;
+}
+
+:deep(.el-table th) {
+  background-color: #fafbfc;
+  color: #606266;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+:deep(.el-table td) {
+  border-bottom: 1px solid #f0f2f5;
+  font-size: 13px;
+}
+
+:deep(.el-table .cell) {
+  line-height: 1.4;
 }
 
 /* 响应式设计 */
-@media (max-width: 1200px) {
-  .stats-row .el-col {
-    margin-bottom: 20px;
+@media (max-width: 1024px) {
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .admin-logs {
-    padding: 10px;
+    padding: 16px;
   }
-  
-  .filter-header {
+
+  .stats-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card-header {
     flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+    gap: 16px;
+    align-items: stretch;
   }
-  
+
+  .header-actions {
+    justify-content: flex-start;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .filter-row>* {
+    width: 100%;
+    min-width: auto;
+  }
+
   .filter-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-logs {
+    padding: 12px;
+  }
+
+  .stat-item {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .card-header {
+    padding: 16px;
+  }
+
+  .filter-section {
+    padding: 16px;
+  }
+
+  .pagination-container {
+    padding: 12px 16px;
   }
 }
 </style>

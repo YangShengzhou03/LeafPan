@@ -413,7 +413,7 @@ onMounted(() => {
 
 <style scoped>
 .admin-users {
-  padding: 16px;
+  padding: 0px;
 }
 
 .users-card {

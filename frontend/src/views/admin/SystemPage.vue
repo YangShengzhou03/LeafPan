@@ -305,11 +305,14 @@ onMounted(() => {
 
 <style scoped>
 .admin-system {
-  padding: 20px;
+  padding: 0px;
 }
 
 .system-card {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -317,18 +320,23 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .system-content {
-  margin-top: 20px;
+  margin-top: 16px;
+  padding: 0 16px 16px;
 }
 
 .setting-card {
-  margin-top: 20px;
-  min-height: 300px;
+  margin-top: 16px;
+  min-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 4px;
+  border: 1px solid #e6e6e6;
 }
 
 .placeholder-content {
@@ -337,38 +345,41 @@ onMounted(() => {
 }
 
 .placeholder-content p {
-  margin-top: 16px;
-  font-size: 16px;
+  margin-top: 12px;
+  font-size: 14px;
 }
 
 .maintenance-section {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 16px;
 }
 
 .maintenance-card {
   flex: 1;
-  min-width: 300px;
+  min-width: 280px;
+  border-radius: 4px;
+  border: 1px solid #e6e6e6;
 }
 
 .backup-content,
 .cleanup-content {
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .system-info {
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .info-item {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   display: flex;
 }
 
 .info-label {
-  width: 120px;
+  width: 100px;
   color: #909399;
+  font-weight: 400;
 }
 
 .info-value {
@@ -377,30 +388,42 @@ onMounted(() => {
 }
 
 .logo-uploader .logo {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   display: block;
 }
 
 .logo-uploader :deep(.el-upload) {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 4px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: var(--el-transition-duration-fast);
 }
 
 .logo-uploader :deep(.el-upload:hover) {
-  border-color: var(--el-color-primary);
+  border-color: #409EFF;
 }
 
 .logo-uploader-icon {
-  font-size: 28px;
+  font-size: 24px;
   color: #8c939d;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   text-align: center;
-  line-height: 100px;
+  line-height: 80px;
+}
+
+/* 标签页样式优化 */
+:deep(.el-tabs__item) {
+  font-weight: 500;
+}
+
+:deep(.el-tabs__nav) {
+  border-bottom: 1px solid #e6e6e6;
+}
+
+:deep(.el-tabs__content) {
+  padding: 16px 0;
 }
 </style>
