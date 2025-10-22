@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL COMMENT '加密后的密码',
     nickname VARCHAR(50) NULL COMMENT '昵称',
     avatar VARCHAR(255) NULL COMMENT '头像URL',
-    storage_quota BIGINT NOT NULL DEFAULT 10737418240 COMMENT '存储配额(字节)，默认10GB',
+    storage_quota BIGINT NOT NULL DEFAULT 1073741824 COMMENT '存储配额(字节)，默认1GB',
     used_storage BIGINT NOT NULL DEFAULT 0 COMMENT '已用存储空间(字节)',
     status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-正常',
     last_login_time DATETIME NULL COMMENT '最后登录时间',

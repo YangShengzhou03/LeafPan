@@ -1,6 +1,7 @@
 package com.yangshengzhou.backend.controller;
 
 import com.yangshengzhou.backend.dto.ApiResponse;
+import com.yangshengzhou.backend.dto.ChangePasswordRequest;
 import com.yangshengzhou.backend.dto.LoginRequest;
 import com.yangshengzhou.backend.dto.RegisterRequest;
 import com.yangshengzhou.backend.entity.User;
@@ -83,10 +84,10 @@ public class AuthController {
      * 修改密码
      */
     @PostMapping("/change-password")
-    public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody Map<String, String> passwordMap, 
-                                                            HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody ChangePasswordRequest request, 
+                                                            HttpServletRequest httpRequest) {
         try {
-            String ipAddress = getClientIpAddress(request);
+            String ipAddress = getClientIpAddress(httpRequest);
             User currentUser = authService.getCurrentUser();
             if (currentUser == null) {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
@@ -94,8 +95,8 @@ public class AuthController {
             
             boolean success = authService.changePassword(
                 currentUser.getId(), 
-                passwordMap.get("oldPassword"), 
-                passwordMap.get("newPassword"), 
+                request.getOldPassword(), 
+                request.getNewPassword(), 
                 ipAddress
             );
             
@@ -106,6 +107,91 @@ public class AuthController {
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("密码修改失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 刷新Token
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> refreshToken(@RequestBody Map<String, String> tokenMap) {
+        try {
+            String refreshToken = tokenMap.get("refreshToken");
+            Map<String, Object> result = authService.refreshToken(refreshToken);
+            return ResponseEntity.ok(ApiResponse.success("Token刷新成功", result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Token刷新失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 用户登出
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(@RequestBody Map<String, String> tokenMap) {
+        try {
+            String token = tokenMap.get("token");
+            authService.logout(token);
+            return ResponseEntity.ok(ApiResponse.success("登出成功"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("登出失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 忘记密码
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            authService.sendPasswordResetEmail(email);
+            return ResponseEntity.ok(ApiResponse.success("密码重置邮件已发送"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("发送密码重置邮件失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 重置密码
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            String newPassword = request.get("newPassword");
+            authService.resetPassword(token, newPassword);
+            return ResponseEntity.ok(ApiResponse.success("密码重置成功"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("密码重置失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 验证邮箱
+     */
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            authService.verifyEmail(token);
+            return ResponseEntity.ok(ApiResponse.success("邮箱验证成功"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("邮箱验证失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 重新发送验证邮件
+     */
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<String>> resendVerificationEmail(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            authService.resendVerificationEmail(email);
+            return ResponseEntity.ok(ApiResponse.success("验证邮件已重新发送"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("发送验证邮件失败: " + e.getMessage()));
         }
     }
     
