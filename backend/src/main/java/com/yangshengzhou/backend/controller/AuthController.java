@@ -6,11 +6,11 @@ import com.yangshengzhou.backend.dto.LoginRequest;
 import com.yangshengzhou.backend.dto.RegisterRequest;
 import com.yangshengzhou.backend.entity.User;
 import com.yangshengzhou.backend.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RestController
