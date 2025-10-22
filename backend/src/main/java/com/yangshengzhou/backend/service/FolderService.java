@@ -1,11 +1,12 @@
 package com.yangshengzhou.backend.service;
 
 import com.yangshengzhou.backend.entity.Folder;
+import com.yangshengzhou.backend.dto.CreateFolderRequest;
 import com.yangshengzhou.backend.repository.FolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,20 +15,6 @@ public class FolderService {
     
     @Autowired
     private FolderRepository folderRepository;
-    
-    /**
-     * 创建文件夹
-     */
-    public Folder createFolder(String name, Long parentId, Long userId) {
-        Folder folder = new Folder();
-        folder.setName(name);
-        folder.setParentId(parentId);
-        folder.setUserId(userId);
-        folder.setCreateTime(new Date());
-        folder.setUpdateTime(new Date());
-        
-        return folderRepository.save(folder);
-    }
     
     /**
      * 获取文件夹
@@ -44,21 +31,32 @@ public class FolderService {
     }
     
     /**
-     * 获取用户在指定父文件夹下的子文件夹
+     * 获取用户指定父文件夹下的子文件夹列表
      */
-    public List<Folder> getSubFolders(Long userId, Long parentId) {
+    public List<Folder> getUserFoldersByParentId(Long userId, Long parentId) {
         return folderRepository.findByUserIdAndParentId(userId, parentId);
     }
     
     /**
-     * 更新文件夹
+     * 创建文件夹
+     */
+    public Folder createFolder(Long userId, CreateFolderRequest request) {
+        Folder folder = new Folder();
+        folder.setName(request.getName());
+        folder.setParentId(request.getParentId());
+        folder.setUserId(userId);
+        
+        return folderRepository.save(folder);
+    }
+    
+    /**
+     * 更新文件夹信息
      */
     public Folder updateFolder(Long id, String name) {
         Optional<Folder> folderOptional = folderRepository.findById(id);
         if (folderOptional.isPresent()) {
             Folder folder = folderOptional.get();
             folder.setName(name);
-            folder.setUpdateTime(new Date());
             return folderRepository.save(folder);
         }
         return null;
@@ -67,8 +65,9 @@ public class FolderService {
     /**
      * 删除文件夹
      */
-    public boolean deleteFolder(Long id) {
-        if (folderRepository.existsById(id)) {
+    public boolean deleteFolder(Long id, Long userId) {
+        Optional<Folder> folderOptional = folderRepository.findById(id);
+        if (folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId)) {
             folderRepository.deleteById(id);
             return true;
         }
@@ -76,10 +75,45 @@ public class FolderService {
     }
     
     /**
-     * 检查文件夹是否属于用户
+     * 检查文件夹名称是否存在
      */
-    public boolean isFolderOwnedByUser(Long folderId, Long userId) {
-        Optional<Folder> folder = folderRepository.findById(folderId);
-        return folder.isPresent() && folder.get().getUserId().equals(userId);
+    public boolean existsByUserIdAndName(Long userId, String name) {
+        return folderRepository.existsByUserIdAndName(userId, name);
+    }
+    
+    /**
+     * 检查文件夹名称是否存在（排除指定ID）
+     */
+    public boolean existsByUserIdAndNameAndIdNot(Long userId, String name, Long id) {
+        return folderRepository.existsByUserIdAndNameAndIdNot(userId, name, id);
+    }
+    
+    /**
+     * 获取文件夹路径
+     */
+    public List<Folder> getFolderPath(Long folderId) {
+        List<Folder> path = new ArrayList<>();
+        Optional<Folder> folderOptional = folderRepository.findById(folderId);
+        
+        while (folderOptional.isPresent()) {
+            Folder folder = folderOptional.get();
+            path.add(0, folder); // 添加到列表开头
+            
+            if (folder.getParentId() == null || folder.getParentId() == 0) {
+                break;
+            }
+            
+            folderOptional = folderRepository.findById(folder.getParentId());
+        }
+        
+        return path;
+    }
+    
+    /**
+     * 检查用户是否有权限访问文件夹
+     */
+    public boolean hasPermission(Long userId, Long folderId) {
+        Optional<Folder> folderOptional = folderRepository.findById(folderId);
+        return folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId);
     }
 }

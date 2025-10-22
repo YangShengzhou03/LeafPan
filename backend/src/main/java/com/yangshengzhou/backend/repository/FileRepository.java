@@ -12,25 +12,20 @@ import java.util.Optional;
 @Repository
 public interface FileRepository extends JpaRepository<File, Long> {
     
-    List<File> findByUserIdAndIsDeletedFalse(Long userId);
+    List<File> findByUserId(Long userId);
     
-    List<File> findByUserIdAndFolderIdAndIsDeletedFalse(Long userId, Long folderId);
+    List<File> findByUserIdAndFolderId(Long userId, Long folderId);
     
-    Optional<File> findByUserIdAndStorageKeyAndIsDeletedFalse(Long userId, String storageKey);
+    List<File> findByUserIdAndNameContaining(Long userId, String name);
     
-    Optional<File> findByUserIdAndMd5AndIsDeletedFalse(Long userId, String md5);
-    
-    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.name LIKE %:name% AND f.isDeleted = false")
-    List<File> findByUserIdAndNameContaining(@Param("userId") Long userId, @Param("name") String name);
-    
-    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.extension = :extension AND f.isDeleted = false")
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.extension = :extension")
     List<File> findByUserIdAndExtension(@Param("userId") Long userId, @Param("extension") String extension);
     
-    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.folderId = :folderId AND f.isDeleted = false ORDER BY f.name")
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.folderId = :folderId ORDER BY f.name")
     List<File> findByUserIdAndFolderIdOrderByName(@Param("userId") Long userId, @Param("folderId") Long folderId);
     
-    @Query("SELECT SUM(f.size) FROM File f WHERE f.userId = :userId AND f.isDeleted = false")
+    @Query("SELECT SUM(f.size) FROM File f WHERE f.userId = :userId")
     Long sumSizeByUserId(@Param("userId") Long userId);
     
-    boolean existsByUserIdAndStorageKeyAndIsDeletedFalse(Long userId, String storageKey);
+    boolean existsByUserIdAndStorageKey(Long userId, String storageKey);
 }

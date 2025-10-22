@@ -44,7 +44,6 @@ public class FileService {
         if (fileOptional.isPresent()) {
             File file = fileOptional.get();
             file.setName(name);
-            file.setUpdateTime(new Date());
             return fileRepository.save(file);
         }
         return null;
