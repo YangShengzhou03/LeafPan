@@ -253,4 +253,27 @@ export const userAPI = {
   }
 }
 
+// 回收站相关API
+export const trashAPI = {
+  // 获取回收站文件
+  getTrashFiles: () => {
+    return server.get('/api/user/trash')
+  },
+  
+  // 恢复文件
+  restoreFile: (id) => {
+    return server.put(`/api/user/trash/${id}/restore`)
+  },
+  
+  // 永久删除文件
+  deleteFile: (id) => {
+    return server.delete(`/api/user/trash/${id}`)
+  },
+  
+  // 清空回收站
+  clearTrash: () => {
+    return server.delete('/api/user/trash')
+  }
+}
+
 export default server

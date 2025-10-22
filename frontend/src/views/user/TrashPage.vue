@@ -107,7 +107,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { fileAPI, folderAPI } from '@/utils/api.js'
+import { fileAPI, folderAPI, trashAPI } from '@/utils/api.js'
 import { formatFileSize, formatDate } from '@/utils/utils.js'
 
 // 数据
@@ -246,7 +246,7 @@ const handleSort = () => {
 // 恢复文件
 const restoreFile = async (file) => {
   try {
-    await mockApiService.restoreFromTrash(file.id)
+    await trashAPI.restoreFile(file.id)
     ElMessage.success(`"${file.name}" 已恢复`)
     await fetchTrashFiles()
   } catch (error) {
@@ -267,7 +267,7 @@ const deleteFile = (file) => {
     }
   ).then(async () => {
     try {
-      await mockApiService.deleteFromTrash(file.id)
+      await trashAPI.deleteFile(file.id)
       ElMessage.success('文件已永久删除')
       await fetchTrashFiles()
     } catch (error) {
@@ -327,12 +327,12 @@ const confirmBatchAction = async () => {
   try {
     if (action === 'restore') {
       await Promise.all(selectedFiles.value.map(file =>
-        mockApiService.restoreFromTrash(file.id)
+        trashAPI.restoreFile(file.id)
       ))
       ElMessage.success(`已恢复 ${selectedFiles.value.length} 个文件`)
     } else if (action === 'delete') {
       await Promise.all(selectedFiles.value.map(file =>
-        mockApiService.deleteFromTrash(file.id)
+        trashAPI.deleteFile(file.id)
       ))
       ElMessage.success(`已永久删除 ${selectedFiles.value.length} 个文件`)
     }
@@ -352,7 +352,7 @@ const confirmClearTrash = async () => {
   clearTrashDialog.value.loading = true
 
   try {
-    await mockApiService.clearTrash()
+    await trashAPI.clearTrash()
     ElMessage.success('回收站已清空')
     clearTrashDialog.value.visible = false
     await fetchTrashFiles()
@@ -367,8 +367,8 @@ const confirmClearTrash = async () => {
 // 获取回收站文件
 const fetchTrashFiles = async () => {
   try {
-    const response = await mockApiService.getTrashFiles()
-    trashFiles.value = response
+    const response = await trashAPI.getTrashFiles()
+    trashFiles.value = response.data || []
   } catch (error) {
     ElMessage.error('获取回收站文件失败')
     console.error('获取回收站文件失败:', error)
