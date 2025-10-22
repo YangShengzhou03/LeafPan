@@ -235,7 +235,7 @@ public class FileController {
             result.put("url", previewUrl);
             result.put("fileName", file.getName());
             result.put("fileSize", file.getSize());
-            result.put("contentType", file.getContentType());
+            result.put("contentType", file.getMimeType());
             
             return ResponseEntity.ok(ApiResponse.success(result));
         } catch (Exception e) {
@@ -247,7 +247,7 @@ public class FileController {
      * 重命名文件
      */
     @PutMapping("/{id}/rename")
-    public ResponseEntity<ApiResponse<File>> renameFile(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<ApiResponse<File>> renameFile(@PathVariable Long id, @RequestBody Map<String, String> requestBody, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null) {

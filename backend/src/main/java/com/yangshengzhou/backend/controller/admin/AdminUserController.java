@@ -58,9 +58,12 @@ public class AdminUserController {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            return userService.getUserById(id)
-                .map(user -> ResponseEntity.ok(ApiResponse.success(user)))
-                .orElse(ResponseEntity.badRequest().body(ApiResponse.error("用户不存在")));
+            try {
+                User user = userService.getUserById(id);
+                return ResponseEntity.ok(ApiResponse.success(user));
+            } catch (RuntimeException e) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取用户信息失败: " + e.getMessage()));
         }
@@ -113,14 +116,16 @@ public class AdminUserController {
             }
             
             // 获取用户信息用于日志
-            User user = userService.getUserById(id).orElse(null);
-            if (user == null) {
+            User user;
+            try {
+                user = userService.getUserById(id);
+            } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            boolean deleted = userService.deleteUser(id);
+            userService.deleteUser(id);
             
-            if (deleted) {
+            if (true) {
                 // 记录操作日志
                 operationLogService.logOperation(
                     currentUser.getId(),
@@ -157,14 +162,16 @@ public class AdminUserController {
             }
             
             // 获取用户信息用于日志
-            User user = userService.getUserById(id).orElse(null);
-            if (user == null) {
+            User user;
+            try {
+                user = userService.getUserById(id);
+            } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            boolean updated = userService.updateUserStatus(id, enabled);
+            userService.updateUserStatus(id, enabled);
             
-            if (updated) {
+            if (true) {
                 // 记录操作日志
                 operationLogService.logOperation(
                     currentUser.getId(),
@@ -220,14 +227,16 @@ public class AdminUserController {
             }
             
             // 获取用户信息用于日志
-            User user = userService.getUserById(id).orElse(null);
-            if (user == null) {
+            User user;
+            try {
+                user = userService.getUserById(id);
+            } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            boolean updated = userService.resetUserPassword(id, newPassword);
+            userService.resetUserPassword(id, newPassword);
             
-            if (updated) {
+            if (true) {
                 // 记录操作日志
                 operationLogService.logOperation(
                     currentUser.getId(),
