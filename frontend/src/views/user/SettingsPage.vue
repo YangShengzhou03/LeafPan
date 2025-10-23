@@ -499,16 +499,18 @@ const fetchUserInfo = async () => {
   try {
     const response = await Server.get('/user/profile')
     console.log('获取用户信息响应:', response)
-    if (response.data && response.data.data) {
-      // 更新用户信息 - 使用后端实际返回的字段名
+    if (response.data) {
+      // 更新用户信息 - Server.js响应拦截器已将后端响应包装为response.data
+      // 后端数据结构为{code: 200, message: "操作成功", data: {user: {...}}}
+      const userData = response.data.data || response.data
       Object.assign(userProfile, {
-        name: response.data.data.nickname || response.data.data.email || '--', // 优先使用nickname，如果没有则使用email
-        gender: response.data.data.gender || 0, // 使用后端返回的gender字段，默认为0(未知)
+        name: userData.nickname || userData.email || '--', // 优先使用nickname，如果没有则使用email
+        gender: userData.gender || 0, // 使用后端返回的gender字段，默认为0(未知)
         birthdate: '--', // 后端暂无birthdate字段
-        email: response.data.data.email || '--',
-        phone: response.data.data.phone || '--', // 使用后端返回的phone字段
-        lastLoginTime: response.data.data.lastLoginTime || '--',
-        avatarUrl: response.data.data.avatar || userProfile.avatarUrl
+        email: userData.email || '--',
+        phone: userData.phone || '--', // 使用后端返回的phone字段
+        lastLoginTime: userData.lastLoginTime || '--',
+        avatarUrl: userData.avatar || userProfile.avatarUrl
       })
       
       // 填充表单数据
