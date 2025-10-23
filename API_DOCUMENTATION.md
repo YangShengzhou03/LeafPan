@@ -6,10 +6,19 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
 
 ## 基础信息
 
-- **基础URL**: `http://localhost:8081`
+- **基础URL**: `http://localhost:8081/api`
 - **认证方式**: Bearer Token (JWT)
 - **数据格式**: JSON
 - **字符编码**: UTF-8
+
+### 重要说明
+
+**所有API接口路径均已配置全局`/api`前缀**，这是通过后端Spring Boot配置文件中的`server.servlet.context-path=/api`实现的。前端环境变量`VUE_APP_API_URL`已设置为`http://localhost:8081/api`，确保所有请求都包含`/api`前缀。
+
+这种配置方式的优势：
+1. 统一管理所有API路径，避免遗漏
+2. 前端代码中使用相对路径，更加简洁
+3. 便于后续API版本管理和路径调整
 
 ## 认证相关 API
 
