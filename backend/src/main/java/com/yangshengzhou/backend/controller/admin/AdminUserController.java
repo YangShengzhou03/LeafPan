@@ -89,8 +89,7 @@ public class AdminUserController {
                     "UPDATE_USER",
                     "USER",
                     updatedUser.getId(),
-                    updatedUser.getEmail(),
-                    "管理员更新用户信息",
+                        "管理员更新用户信息",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -132,8 +131,7 @@ public class AdminUserController {
                     "DELETE_USER",
                     "USER",
                     user.getId(),
-                    user.getEmail(),
-                    "管理员删除用户",
+                        "管理员删除用户",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -178,8 +176,7 @@ public class AdminUserController {
                     "UPDATE_USER_STATUS",
                     "USER",
                     user.getId(),
-                    user.getEmail(),
-                    "管理员" + (enabled ? "启用" : "禁用") + "用户",
+                        "管理员" + (enabled ? "启用" : "禁用") + "用户",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -243,8 +240,7 @@ public class AdminUserController {
                     "RESET_USER_PASSWORD",
                     "USER",
                     user.getId(),
-                    user.getEmail(),
-                    "管理员重置用户密码",
+                        "管理员重置用户密码",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );

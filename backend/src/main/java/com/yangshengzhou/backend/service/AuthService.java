@@ -2,7 +2,6 @@ package com.yangshengzhou.backend.service;
 
 import com.yangshengzhou.backend.entity.User;
 import com.yangshengzhou.backend.repository.UserRepository;
-import com.yangshengzhou.backend.service.OperationLogService;
 import com.yangshengzhou.backend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -61,7 +60,7 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getEmail());
         
         // 记录登录日志
-        operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), user.getEmail(), "用户登录", ipAddress, "");
+        operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), "用户登录", ipAddress, "");
         
         // 更新最后登录时间
         user.setLastLoginTime(LocalDateTime.now());
@@ -98,7 +97,7 @@ public class AuthService {
         user = userRepository.save(user);
         
         // 记录注册日志
-        operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), user.getEmail(), "用户注册", ipAddress, "");
+        operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), "用户注册", ipAddress, "");
         
         return user;
     }
@@ -141,7 +140,7 @@ public class AuthService {
         userRepository.save(user);
         
         // 记录修改密码日志
-        operationLogService.logOperation(userId, "CHANGE_PASSWORD", "用户", userId, user.getEmail(), "修改密码", ipAddress, "");
+        operationLogService.logOperation(userId, "CHANGE_PASSWORD", "用户", userId, "修改密码", ipAddress, "");
         
         return true;
     }
@@ -161,8 +160,8 @@ public class AuthService {
         userRepository.save(user);
         
         // 记录重置密码日志
-        operationLogService.logOperation(operatorId, "RESET_PASSWORD", "用户", userId, user.getEmail(), 
-            "重置用户密码: " + user.getEmail(), ipAddress, "");
+        operationLogService.logOperation(operatorId, "RESET_PASSWORD", "用户", userId,
+                "重置用户密码: " + user.getEmail(), ipAddress, "");
         
         return true;
     }
@@ -205,8 +204,8 @@ public class AuthService {
         // 暂时只记录日志
         User currentUser = getCurrentUser();
         if (currentUser != null) {
-            operationLogService.logOperation(currentUser.getId(), "LOGOUT", "用户", currentUser.getId(), 
-                currentUser.getEmail(), "用户登出", "", "");
+            operationLogService.logOperation(currentUser.getId(), "LOGOUT", "用户", currentUser.getId(),
+                    "用户登出", "", "");
         }
     }
     
@@ -250,7 +249,7 @@ public class AuthService {
             userRepository.save(user);
             
             // 记录操作日志
-            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "USER", user.getId(), user.getEmail(), "用户重置密码", "", "");
+            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "USER", user.getId(), "用户重置密码", "", "");
         } catch (Exception e) {
             throw new RuntimeException("重置密码失败: " + e.getMessage());
         }

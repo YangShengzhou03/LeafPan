@@ -71,9 +71,8 @@ public class FileController {
                     currentUser.getId(), 
                     "UPLOAD", 
                     "FILE", 
-                    uploadedFile.getId().toString(), 
-                    uploadedFile.getName(), 
-                    "上传文件",
+                    uploadedFile.getId().toString(),
+                        "上传文件",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -165,9 +164,8 @@ public class FileController {
                 currentUser.getId(), 
                 "DOWNLOAD", 
                 "FILE", 
-                id.toString(), 
-                file.getName(), 
-                "下载文件",
+                id.toString(),
+                    "下载文件",
                 getClientIpAddress(request),
                 request.getHeader("User-Agent")
             );
@@ -205,9 +203,8 @@ public class FileController {
                 currentUser.getId(), 
                 "DOWNLOAD", 
                 "FILE", 
-                file.getId().toString(), 
-                file.getName(), 
-                "下载文件",
+                file.getId().toString(),
+                    "下载文件",
                 getClientIpAddress(request),
                 request.getHeader("User-Agent")
             );
@@ -286,11 +283,10 @@ public class FileController {
                     currentUser.getId(), 
                     "RENAME", 
                     "FILE", 
-                    id.toString(), 
-                    "重命名文件: " + newName, 
+                    id.toString(),
+                        "重命名文件: " + newName,
                     getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
+                    request.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("重命名成功", updatedFile));
@@ -334,11 +330,9 @@ public class FileController {
                     currentUser.getId(), 
                     "DELETE", 
                     "FILE", 
-                    id.toString(), 
-                    "删除文件: " + file.getName(), 
-                    getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
+                    id.toString(),
+                        getClientIpAddress(request),
+                    request.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("文件删除成功"));
@@ -442,11 +436,9 @@ public class FileController {
                                     currentUser.getId(), 
                                     "DELETE", 
                                     "FILE", 
-                                    fileId.toString(), 
-                                    "批量删除文件: " + file.getName(), 
-                                    getClientIpAddress(request),
-                                    "",
-                                    ""
+                                    fileId.toString(),
+                                        getClientIpAddress(request),
+                                    request.getHeader("User-Agent")
                                 );
                             } else {
                                 failCount++;

@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -90,8 +89,7 @@ public class AdminLogController {
                 "CLEAR_LOGS",
                 "SYSTEM",
                 "",
-                "",
-                "管理员清空系统日志",
+                    "管理员清空系统日志",
                 request.getRemoteAddr(),
                 request.getHeader("User-Agent")
             );

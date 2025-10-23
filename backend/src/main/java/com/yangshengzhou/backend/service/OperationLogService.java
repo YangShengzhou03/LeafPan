@@ -32,7 +32,7 @@ public class OperationLogService {
     /**
      * 记录操作日志
      */
-    public void logOperation(String userId, String operationType, String targetType, String targetId, String targetName, String description, String ipAddress, String userAgent) {
+    public void logOperation(String userId, String operationType, String targetType, String targetId, String description, String ipAddress, String userAgent) {
 
         
         OperationLog log = new OperationLog();

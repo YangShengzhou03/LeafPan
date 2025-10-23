@@ -11,14 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @RestController
 @RequestMapping("/admin")
@@ -53,8 +47,7 @@ public class AdminSystemController {
                 "CREATE_BACKUP",
                 "SYSTEM",
                 "",
-                "管理员创建系统备份",
-                request.getRemoteAddr(),
+                    request.getRemoteAddr(),
                 request.getHeader("User-Agent"),
                 ""
             );
@@ -85,8 +78,7 @@ public class AdminSystemController {
                 "CLEAN_TEMP_FILES",
                 "SYSTEM",
                 "",
-                "管理员清理临时文件",
-                request.getRemoteAddr(),
+                    request.getRemoteAddr(),
                 request.getHeader("User-Agent"),
                 ""
             );
@@ -117,8 +109,7 @@ public class AdminSystemController {
                 "CLEAN_LOG_FILES",
                 "SYSTEM",
                 "",
-                "管理员清理日志文件",
-                request.getRemoteAddr(),
+                    request.getRemoteAddr(),
                 request.getHeader("User-Agent"),
                 ""
             );
@@ -149,8 +140,7 @@ public class AdminSystemController {
                 "CLEAN_TRASH",
                 "SYSTEM",
                 "",
-                "管理员清理回收站",
-                request.getRemoteAddr(),
+                    request.getRemoteAddr(),
                 request.getHeader("User-Agent"),
                 ""
             );
