@@ -32,8 +32,7 @@ public class StorageUpdateEventListener {
                 userRepository.save(user);
             }
         } catch (Exception e) {
-            // 记录错误日志，但不影响主流程
-            System.err.println("处理存储更新事件失败: " + e.getMessage());
+            // 处理存储更新事件失败，静默处理
         }
     }
 }

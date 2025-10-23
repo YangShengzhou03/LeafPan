@@ -305,22 +305,46 @@ const submitEditForm = async () => {
                            editForm.gender === 'female' ? 2 : 
                            0 // other映射为0(未知)
         
-        // 使用后端期望的字段名
+        // 使用后端期望的字段名，注意后端接收Map<String, String>，所有值必须是字符串
         const response = await Server.put('/user/profile', {
           nickname: editForm.name, // 前端的name对应后端的nickname
           email: editForm.email,
-          gender: genderValue, // 添加gender字段，使用数字类型
+          gender: genderValue.toString(), // 转换为字符串，因为后端接收Map<String, String>
           phone: editForm.phone // 添加phone字段
         })
         
-        if (response.data && response.data.code === 200) {
-          // 更新本地用户信息
-          userProfile.name = editForm.name
-          userProfile.email = editForm.email
-          userProfile.gender = genderValue
-          userProfile.phone = editForm.phone
-          editDialogVisible.value = false
-          ElMessage.success('个人信息更新成功')
+        console.log('更新个人信息响应:', response)
+        
+        // 检查响应结构，后端可能返回不同的数据结构
+        if (response && response.data) {
+          // 检查不同的响应格式
+          if (response.data.code === 200) {
+            // 格式1: {code: 200, message: "更新成功", data: {...}}
+            console.log('更新成功，响应格式1')
+            // 更新本地用户信息
+            userProfile.name = editForm.name
+            userProfile.email = editForm.email
+            userProfile.gender = genderValue
+            userProfile.phone = editForm.phone
+            editDialogVisible.value = false
+            ElMessage.success('个人信息更新成功')
+          } else if (response.status === 200) {
+            // 格式2: 直接返回用户数据，没有code字段
+            console.log('更新成功，响应格式2')
+            // 更新本地用户信息
+            userProfile.name = editForm.name
+            userProfile.email = editForm.email
+            userProfile.gender = genderValue
+            userProfile.phone = editForm.phone
+            editDialogVisible.value = false
+            ElMessage.success('个人信息更新成功')
+          } else {
+            console.log('响应状态码不是200:', response.data.code || response.status)
+            ElMessage.error('更新失败，请重试')
+          }
+        } else {
+          console.log('响应数据为空')
+          ElMessage.error('更新失败，请重试')
         }
       } catch (error) {
         console.error('更新个人信息失败:', error)

@@ -35,7 +35,6 @@ public class AuthController {
             );
             return ResponseEntity.ok(ApiResponse.success("登录成功", result));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body(ApiResponse.error("登录失败: " + e.getMessage()));
         }
     }

@@ -45,34 +45,20 @@ public class AuthService {
      * 用户登录
      */
     public Map<String, Object> login(String email, String password, String ipAddress) {
-        System.out.println("=== AuthService.login 开始 ===");
-        System.out.println("登录邮箱: " + email);
-        System.out.println("登录IP: " + ipAddress);
-        
         // 通过邮箱查找用户
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> {
-                System.out.println("用户不存在: " + email);
-                return new RuntimeException("邮箱或密码错误");
-            });
-        
-        System.out.println("找到用户: " + user.getEmail() + ", ID: " + user.getId());
-        System.out.println("用户状态: " + user.getStatus());
-        System.out.println("用户角色: " + user.getRole());
+            .orElseThrow(() -> new RuntimeException("邮箱或密码错误"));
         
         try {
             // 认证用户
-            System.out.println("开始认证用户...");
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), password)
             );
-            System.out.println("认证成功");
             
             SecurityContextHolder.getContext().setAuthentication(authentication);
             
             // 生成JWT令牌
             String token = jwtUtil.generateToken(user.getEmail());
-            System.out.println("JWT令牌生成成功");
             
             // 记录登录日志
             operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), "用户登录", ipAddress, "");
@@ -86,11 +72,8 @@ public class AuthService {
             result.put("token", token);
             result.put("user", user);
             
-            System.out.println("=== AuthService.login 成功 ===");
             return result;
         } catch (Exception e) {
-            System.out.println("认证失败: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
