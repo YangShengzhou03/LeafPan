@@ -11,7 +11,7 @@
             <el-avatar :size="32" :src="userAvatar">
               <el-icon><User /></el-icon>
             </el-avatar>
-            <span class="username">{{ store.user?.username || '管理员' }}</span>
+            <span class="username">{{ store.user?.nickname || store.user?.username || '管理员' }}</span>
             <el-icon class="el-icon--right"><arrow-down /></el-icon>
           </span>
           <template #dropdown>

@@ -173,7 +173,7 @@ SET GLOBAL event_scheduler = ON;
 -- 插入默认管理员
 -- 插入默认管理员
 INSERT INTO users (id, email, password, nickname, gender, phone, role, storage_quota, status) 
-VALUES (UUID(), 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 0, '13800138000', 1, 107374182400, 1)
+VALUES (UUID(), 'admin@leaf.com', '$2a$10$Hm3FkpsV3hendfYpK7wfzOkHIa4rm2O4ymZ/qPU5gy8d0uOc7t2jm', '初始管理员', 0, '13397062330', 1, 1073741824, 1)
 ON DUPLICATE KEY UPDATE users.id = users.id; -- 明确指定users表的id
 
 -- 为管理员创建根目录
