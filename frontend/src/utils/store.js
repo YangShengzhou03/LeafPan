@@ -125,15 +125,19 @@ const store = {
     try {
       const response = await Server.get('/auth/me')
       console.log('获取用户信息响应:', response)
-      // 注意：Server.js的响应拦截器已经将后端返回的完整响应包装成了response.data
-      // 后端返回的数据结构是 {code: 200, message: "success", data: {user: {...}}}
-      const userData = response.data || response
-      console.log('解析后的用户数据:', userData)
-      this.setUser(userData)
       
-      // 如果用户信息中包含存储信息，更新存储信息
-      if (userData.storageInfo) {
-        this.updateStorageInfo(userData.storageInfo)
+      // 根据API响应结构，用户信息在response.data中
+      // 响应结构: {code: 200, message: "操作成功", data: {用户信息}}
+      if (response && response.code === 200 && response.data) {
+        console.log('解析后的用户数据:', response.data)
+        this.setUser(response.data)
+        
+        // 如果用户信息中包含存储信息，更新存储信息
+        if (response.data.storageInfo) {
+          this.updateStorageInfo(response.data.storageInfo)
+        }
+      } else {
+        console.error('获取用户信息失败: 响应格式不正确', response)
       }
     } catch (error) {
       console.error('获取用户信息失败:', error)

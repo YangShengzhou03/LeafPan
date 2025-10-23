@@ -1,5 +1,5 @@
 <template>
-  <el-watermark :content="watermarkContent" :font="watermarkFont">
+  <el-watermark v-bind="watermarkOptions">
     <div class="admin-layout">
       <!-- 顶部导航栏 -->
       <header class="admin-header">
@@ -14,7 +14,7 @@
                   <User />
                 </el-icon>
               </el-avatar>
-              <span class="username">{{ store.user?.nickname || store.user?.username || '管理员' }}</span>
+              <span class="username">{{ store.state.user?.nickname || store.state.user?.email || '管理员' }}</span>
               <el-icon class="el-icon--right"><arrow-down /></el-icon>
             </span>
             <template #dropdown>
@@ -71,11 +71,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted, reactive, nextTick, getCurrentInstance } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, ArrowDown, Monitor, Setting, Document } from '@element-plus/icons-vue'
 import store from '@/utils/store.js'
+
+// 获取当前实例以访问全局store
+const { proxy } = getCurrentInstance()
+
+// 控制水印显示
+const showWatermark = ref(false)
 
 const router = useRouter()
 const route = useRoute()
@@ -85,12 +91,17 @@ const activeMenu = computed(() => route.path)
 
 // 用户头像
 const userAvatar = computed(() => {
-  return store.user?.avatar || ''
+  return store.state.user?.avatar || ''
 })
 
 // 水印内容
 const watermarkContent = computed(() => {
-  return store.user?.nickname || store.user?.username || store.user?.email || '管理员'
+  console.log('store.state.user:', store.state.user)
+  console.log('nickname:', store.state.user?.nickname)
+  console.log('email:', store.state.user?.email)
+  const content = store.state.user?.email || store.state.user?.nickname || '管理员'
+  console.log('水印内容:', content)
+  return content
 })
 
 // 水印字体配置
@@ -98,6 +109,18 @@ const watermarkFont = reactive({
   color: 'rgba(0, 0, 0, 0.1)',
   fontSize: 16,
   fontWeight: 'normal'
+})
+
+// 水印配置选项
+const watermarkOptions = reactive({
+  content: watermarkContent,
+  font: watermarkFont,
+  width: 180,
+  height: 80,
+  rotate: -20,
+  gap: [60, 60],
+  offset: [30, 30],
+  zIndex: 9999
 })
 
 // 处理下拉菜单命令
@@ -114,8 +137,15 @@ const handleCommand = (command) => {
 }
 
 // 组件挂载时刷新存储信息
-onMounted(() => {
-  // 可以在这里添加管理员专属的初始化逻辑
+onMounted(async () => {
+  // 确保用户信息已加载
+  if (!store.state.user) {
+    await store.fetchCurrentUser()
+  }
+  
+  // 等待用户信息加载完成后显示水印
+  await nextTick()
+  showWatermark.value = true
 })
 </script>
 
