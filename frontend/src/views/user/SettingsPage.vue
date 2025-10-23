@@ -868,13 +868,13 @@ const fetchUserInfo = async () => {
 }
 
 .crop-container {
-  height: 400px;
+  height: 100%;
   width: 100%;
 }
 
 /* 覆盖cropperjs的默认样式，使其适应Element Plus的对话框 */
 :deep(.cropper-container) {
-  max-height: 400px;
+  max-height: 100%;
 }
 
 :deep(.cropper-view-box) {

@@ -259,6 +259,24 @@ public class UserService {
     }
     
     /**
+     * 更新用户已用存储容量
+     */
+    public User updateUsedStorage(String userId, Long fileSize) {
+        User user = getUserById(userId);
+        user.setUsedStorage(user.getUsedStorage() + fileSize);
+        return userRepository.save(user);
+    }
+    
+    /**
+     * 减少用户已用存储容量（用于文件删除）
+     */
+    public User decreaseUsedStorage(String userId, Long fileSize) {
+        User user = getUserById(userId);
+        user.setUsedStorage(Math.max(0, user.getUsedStorage() - fileSize));
+        return userRepository.save(user);
+    }
+    
+    /**
      * 检查用户是否为管理员
      */
     public boolean isAdmin(String userId) {

@@ -7,6 +7,7 @@ import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.FileService;
 import com.yangshengzhou.backend.service.FileStorageService;
 import com.yangshengzhou.backend.service.OperationLogService;
+import com.yangshengzhou.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -39,6 +40,9 @@ public class FileController {
     
     @Autowired
     private OperationLogService operationLogService;
+    
+    @Autowired
+    private UserService userService;
     
     /**
      * 上传文件
@@ -322,6 +326,9 @@ public class FileController {
             boolean deleted = fileService.deleteFile(id, currentUser.getId());
             
             if (deleted) {
+                // 减少用户已用存储容量
+                userService.decreaseUsedStorage(currentUser.getId(), file.getSize());
+                
                 // 记录删除日志
                 operationLogService.logOperation(
                     currentUser.getId(), 
@@ -428,6 +435,9 @@ public class FileController {
                             // 删除数据库记录
                             if (fileService.deleteFile(fileId, currentUser.getId())) {
                                 successCount++;
+                                
+                                // 减少用户已用存储容量
+                                userService.decreaseUsedStorage(currentUser.getId(), file.getSize());
                                 
                                 // 记录删除日志
                                 operationLogService.logOperation(
