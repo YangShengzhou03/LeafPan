@@ -315,36 +315,32 @@ const submitEditForm = async () => {
         
         console.log('更新个人信息响应:', response)
         
-        // 检查响应结构，后端可能返回不同的数据结构
-        if (response && response.data) {
-          // 检查不同的响应格式
-          if (response.data.code === 200) {
-            // 格式1: {code: 200, message: "更新成功", data: {...}}
-            console.log('更新成功，响应格式1')
-            // 更新本地用户信息
-            userProfile.name = editForm.name
-            userProfile.email = editForm.email
-            userProfile.gender = genderValue
-            userProfile.phone = editForm.phone
-            editDialogVisible.value = false
-            ElMessage.success('个人信息更新成功')
-          } else if (response.status === 200) {
-            // 格式2: 直接返回用户数据，没有code字段
-            console.log('更新成功，响应格式2')
-            // 更新本地用户信息
-            userProfile.name = editForm.name
-            userProfile.email = editForm.email
-            userProfile.gender = genderValue
-            userProfile.phone = editForm.phone
-            editDialogVisible.value = false
-            ElMessage.success('个人信息更新成功')
-          } else {
-            console.log('响应状态码不是200:', response.data.code || response.status)
-            ElMessage.error('更新失败，请重试')
-          }
+        // 检查响应结构，注意Server.js拦截器已经处理了响应
+        // 如果后端返回{code: 200, message: "更新成功", data: User对象}
+        // 拦截器会直接返回这个完整的响应对象
+        if (response && response.code === 200) {
+          console.log('更新成功，响应格式正确')
+          // 更新本地用户信息
+          userProfile.name = editForm.name
+          userProfile.email = editForm.email
+          userProfile.gender = genderValue
+          userProfile.phone = editForm.phone
+          editDialogVisible.value = false
+          ElMessage.success('个人信息更新成功')
+        } else if (response && response.status === 200) {
+          // 如果后端直接返回用户数据（没有code字段）
+          console.log('更新成功，直接返回用户数据')
+          // 更新本地用户信息
+          userProfile.name = editForm.name
+          userProfile.email = editForm.email
+          userProfile.gender = genderValue
+          userProfile.phone = editForm.phone
+          editDialogVisible.value = false
+          ElMessage.success('个人信息更新成功')
         } else {
-          console.log('响应数据为空')
-          ElMessage.error('更新失败，请重试')
+          console.log('更新失败，响应状态码:', response?.code || response?.status)
+          console.log('响应消息:', response?.message)
+          ElMessage.error(response?.message || '更新失败，请重试')
         }
       } catch (error) {
         console.error('更新个人信息失败:', error)
