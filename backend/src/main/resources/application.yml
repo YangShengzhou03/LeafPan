@@ -58,6 +58,9 @@ minio:
   access-key: minioadmin
   secret-key: minioadmin
   bucket-name: leafpan
+  # 两个桶配置
+  data-bucket: data
+  avatar-bucket: avatar
   
 # 邮件配置
 email:

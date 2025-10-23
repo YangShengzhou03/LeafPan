@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,9 @@ public class UserService {
     
     @Autowired
     private OperationLogService operationLogService;
+    
+    @Autowired
+    private AvatarService avatarService;
     
     /**
      * 创建用户
@@ -348,5 +352,26 @@ public class UserService {
         statistics.put("todayNewUsers", 0);
         
         return statistics;
+    }
+    
+    /**
+     * 上传用户头像
+     */
+    public String uploadUserAvatar(String userId, MultipartFile avatarFile) throws Exception {
+        return avatarService.uploadAvatar(avatarFile, userId);
+    }
+    
+    /**
+     * 删除用户头像
+     */
+    public void deleteUserAvatar(String userId) throws Exception {
+        avatarService.deleteAvatar(userId);
+    }
+    
+    /**
+     * 获取用户头像URL
+     */
+    public String getUserAvatar(String userId) {
+        return avatarService.getAvatarUrl(userId);
     }
 }

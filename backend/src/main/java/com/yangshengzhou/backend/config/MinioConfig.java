@@ -31,6 +31,12 @@ public class MinioConfig {
     @Value("${minio.bucket-name}")
     private String bucketName;
     
+    @Value("${minio.data-bucket}")
+    private String dataBucket;
+    
+    @Value("${minio.avatar-bucket}")
+    private String avatarBucket;
+    
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
@@ -48,28 +54,52 @@ public class MinioConfig {
                     .credentials(accessKey, secretKey)
                     .build();
             
-            boolean bucketExists = client.bucketExists(
-                io.minio.BucketExistsArgs.builder()
-                    .bucket(bucketName)
-                    .build()
-            );
+            // 创建并检查默认桶
+            createBucketIfNotExists(client, bucketName);
             
-            if (!bucketExists) {
-                client.makeBucket(
-                    MakeBucketArgs.builder()
-                        .bucket(bucketName)
-                        .build()
-                );
-                logger.info("MinIO bucket '{}' 创建成功", bucketName);
-            } else {
-                logger.info("MinIO bucket '{}' 已存在", bucketName);
-            }
+            // 创建并检查数据存储桶
+            createBucketIfNotExists(client, dataBucket);
+            
+            // 创建并检查头像存储桶
+            createBucketIfNotExists(client, avatarBucket);
+            
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
             logger.error("初始化MinIO失败: {}", e.getMessage());
         }
     }
     
+    /**
+     * 创建桶（如果不存在）
+     */
+    private void createBucketIfNotExists(MinioClient client, String bucketName) 
+            throws MinioException, IOException, InvalidKeyException, NoSuchAlgorithmException {
+        boolean bucketExists = client.bucketExists(
+            io.minio.BucketExistsArgs.builder()
+                .bucket(bucketName)
+                .build()
+        );
+        
+        if (!bucketExists) {
+            client.makeBucket(
+                MakeBucketArgs.builder()
+                    .bucket(bucketName)
+                    .build()
+            );
+            logger.info("MinIO bucket '{}' 创建成功", bucketName);
+        } else {
+            logger.info("MinIO bucket '{}' 已存在", bucketName);
+        }
+    }
+    
     public String getBucketName() {
         return bucketName;
+    }
+    
+    public String getDataBucket() {
+        return dataBucket;
+    }
+    
+    public String getAvatarBucket() {
+        return avatarBucket;
     }
 }

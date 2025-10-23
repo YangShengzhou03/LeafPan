@@ -366,6 +366,9 @@ const searchQuery = ref('')
 // 当前路径
 const currentPath = ref([])
 
+// 当前文件夹ID
+const currentFolderId = ref(1) // 默认为根目录ID
+
 // 文件列表
 const files = ref([])
 
@@ -490,6 +493,22 @@ const navigateToFolder = (path) => {
     } else {
         currentPath.value = path
     }
+    
+    // 查找目标文件夹的ID
+    if (currentPath.value.length === 0) {
+        // 根目录
+        currentFolderId.value = 1
+    } else {
+        // 查找匹配的文件夹ID
+        const folderName = currentPath.value[currentPath.value.length - 1]
+        const folder = files.value.find(f => f.name === folderName && f.type === 'folder')
+        if (folder) {
+            currentFolderId.value = folder.id
+        } else {
+            currentFolderId.value = 1 // 默认为根目录
+        }
+    }
+    
     loadFiles()
 }
 
@@ -498,6 +517,7 @@ const handleItemClick = (item) => {
     if (item.type === 'folder') {
         // 如果是文件夹，进入文件夹
         currentPath.value.push(item.name)
+        currentFolderId.value = item.id
         loadFiles()
     } else {
         // 如果是文件，打开文件（这里可以根据文件类型做不同处理）
@@ -524,34 +544,41 @@ const confirmUpload = async () => {
     }
 
     uploading.value = true
+    let successCount = 0
+    let failCount = 0
+    
     try {
-        const path = currentPath.value.join('/')
-        const formData = new FormData()
+        // 获取当前文件夹ID，如果没有指定则使用根目录ID(1)
+        const folderId = currentFolderId.value || 1
         
-        // 添加所有选中的文件
-        fileList.value.forEach(file => {
-            formData.append('files', file.raw || file)
-        })
-        
-        // 添加路径参数
-        if (path) {
-            formData.append('path', path)
+        // 逐个上传文件
+        for (const fileItem of fileList.value) {
+            try {
+                const formData = new FormData()
+                formData.append('file', fileItem.raw || fileItem)
+                formData.append('folderId', folderId)
+                
+                await Server.post('/file/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+                
+                successCount++
+            } catch (error) {
+                console.error(`上传文件 ${fileItem.name} 失败:`, error)
+                failCount++
+            }
         }
         
-        await Server.post('/file/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
-            onUploadProgress: (progressEvent) => {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total
-                )
-                // 这里可以更新上传进度显示
-                console.log(`上传进度: ${percentCompleted}%`)
-            }
-        })
+        if (failCount === 0) {
+            ElMessage.success(`成功上传 ${successCount} 个文件`)
+        } else if (successCount === 0) {
+            ElMessage.error(`上传失败，共 ${failCount} 个文件`)
+        } else {
+            ElMessage.warning(`上传完成，成功 ${successCount} 个，失败 ${failCount} 个`)
+        }
         
-        ElMessage.success(`成功上传 ${fileList.value.length} 个文件`)
         uploadDialogVisible.value = false
         // 重新加载数据
         await loadFiles()
