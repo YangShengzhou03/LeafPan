@@ -30,12 +30,12 @@ CREATE TABLE folders (
     name VARCHAR(255) NOT NULL COMMENT '文件夹名称',
     parent_id BIGINT NOT NULL DEFAULT 0 COMMENT '父文件夹ID，0为根目录',
     user_id CHAR(36) NOT NULL COMMENT '所属用户ID',
-    path VARCHAR(765) NOT NULL COMMENT '完整路径',
+    path VARCHAR(500) NOT NULL COMMENT '完整路径',
     is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除：0-否，1-是',
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_user_parent (user_id, parent_id),
-    INDEX idx_user_path (user_id, path),
+    INDEX idx_user_path (user_id, path(200)),
     INDEX idx_is_deleted (is_deleted),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件夹表';
@@ -91,7 +91,7 @@ CREATE TABLE operation_logs (
     user_id CHAR(36) NOT NULL COMMENT '用户ID',
     operation_type VARCHAR(50) NOT NULL COMMENT '操作类型',
     target_type VARCHAR(50) NOT NULL COMMENT '目标类型：file/folder/share',
-    target_id BIGINT NULL COMMENT '目标ID',
+    target_id VARCHAR(36) NULL COMMENT '目标ID',
     description VARCHAR(500) NULL COMMENT '操作描述',
     ip_address VARCHAR(45) NULL COMMENT 'IP地址',
     user_agent VARCHAR(500) NULL COMMENT '用户代理',
@@ -99,6 +99,7 @@ CREATE TABLE operation_logs (
     INDEX idx_user_id (user_id),
     INDEX idx_operation_type (operation_type),
     INDEX idx_created_time (created_time),
+    INDEX idx_target (target_type, target_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
 
@@ -170,8 +171,9 @@ DELIMITER ;
 SET GLOBAL event_scheduler = ON;
 
 -- 插入默认管理员
-INSERT INTO users (id, email, password, nickname, role, storage_quota, status) 
-VALUES (UUID(), 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 1, 107374182400, 1)
+-- 插入默认管理员
+INSERT INTO users (id, email, password, nickname, gender, phone, role, storage_quota, status) 
+VALUES (UUID(), 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 0, '13800138000', 1, 107374182400, 1)
 ON DUPLICATE KEY UPDATE users.id = users.id; -- 明确指定users表的id
 
 -- 为管理员创建根目录

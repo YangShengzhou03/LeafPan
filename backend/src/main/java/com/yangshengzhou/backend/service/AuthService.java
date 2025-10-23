@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -51,16 +52,16 @@ public class AuthService {
         
         // 认证用户
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(user.getUsername(), password)
+            new UsernamePasswordAuthenticationToken(user.getEmail(), password)
         );
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
         // 生成JWT令牌
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getEmail());
         
         // 记录登录日志
-        operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), user.getUsername(), "用户登录", ipAddress, "");
+        operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), user.getEmail(), "用户登录", ipAddress, "");
         
         // 更新最后登录时间
         user.setLastLoginTime(LocalDateTime.now());
@@ -77,12 +78,7 @@ public class AuthService {
     /**
      * 用户注册
      */
-    public User register(String username, String email, String password, String ipAddress) {
-        // 检查用户名是否已存在
-        if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("用户名已存在");
-        }
-        
+    public User register(String email, String password, String ipAddress) {
         // 检查邮箱是否已存在
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("邮箱已存在");
@@ -90,7 +86,7 @@ public class AuthService {
         
         // 创建新用户
         User user = new User();
-        user.setUsername(username);
+        user.setId(UUID.randomUUID().toString());
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setNickname("LeafBaby"); // 设置默认昵称
@@ -102,7 +98,7 @@ public class AuthService {
         user = userRepository.save(user);
         
         // 记录注册日志
-        operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), user.getUsername(), "用户注册", ipAddress, "");
+        operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), user.getEmail(), "用户注册", ipAddress, "");
         
         return user;
     }
@@ -113,8 +109,8 @@ public class AuthService {
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            return userRepository.findByUsername(username)
+            String email = authentication.getName();
+            return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
         }
         return null;
@@ -123,7 +119,7 @@ public class AuthService {
     /**
      * 修改密码
      */
-    public boolean changePassword(Long userId, String oldPassword, String newPassword, String ipAddress) {
+    public boolean changePassword(String userId, String oldPassword, String newPassword, String ipAddress) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
             return false;
@@ -142,7 +138,7 @@ public class AuthService {
         userRepository.save(user);
         
         // 记录修改密码日志
-        operationLogService.logOperation(userId, "CHANGE_PASSWORD", "用户", userId, user.getUsername(), "修改密码", ipAddress, "");
+        operationLogService.logOperation(userId, "CHANGE_PASSWORD", "用户", userId, user.getEmail(), "修改密码", ipAddress, "");
         
         return true;
     }
@@ -150,7 +146,7 @@ public class AuthService {
     /**
      * 重置密码（管理员功能）
      */
-    public boolean resetPassword(Long userId, String newPassword, Long operatorId, String ipAddress) {
+    public boolean resetPassword(String userId, String newPassword, String operatorId, String ipAddress) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
             return false;
@@ -162,8 +158,8 @@ public class AuthService {
         userRepository.save(user);
         
         // 记录重置密码日志
-        operationLogService.logOperation(operatorId, "RESET_PASSWORD", "用户", userId, user.getUsername(), 
-            "重置用户密码: " + user.getUsername(), ipAddress, "");
+        operationLogService.logOperation(operatorId, "RESET_PASSWORD", "用户", userId, user.getEmail(), 
+            "重置用户密码: " + user.getEmail(), ipAddress, "");
         
         return true;
     }
@@ -174,18 +170,18 @@ public class AuthService {
     public Map<String, Object> refreshToken(String token) {
         try {
             // 验证token是否有效
-            String username = jwtUtil.getUsernameFromToken(token);
+            String email = jwtUtil.getUsernameFromToken(token);
             
-            if (username == null) {
+            if (email == null) {
                 throw new RuntimeException("无效的token");
             }
             
             // 获取用户信息
-            User user = userRepository.findByUsername(username)
+            User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
             
             // 生成新的token
-            String newToken = jwtUtil.generateToken(username);
+            String newToken = jwtUtil.generateToken(email);
             
             // 返回新的token和用户信息
             Map<String, Object> result = new HashMap<>();
@@ -207,7 +203,7 @@ public class AuthService {
         User currentUser = getCurrentUser();
         if (currentUser != null) {
             operationLogService.logOperation(currentUser.getId(), "LOGOUT", "用户", currentUser.getId(), 
-                currentUser.getUsername(), "用户登出", "", "");
+                currentUser.getEmail(), "用户登出", "", "");
         }
     }
     
@@ -251,7 +247,7 @@ public class AuthService {
             userRepository.save(user);
             
             // 记录操作日志
-            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "USER", user.getId(), user.getUsername(), "用户重置密码", "", "");
+            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "USER", user.getId(), user.getEmail(), "用户重置密码", "", "");
         } catch (Exception e) {
             throw new RuntimeException("重置密码失败: " + e.getMessage());
         }

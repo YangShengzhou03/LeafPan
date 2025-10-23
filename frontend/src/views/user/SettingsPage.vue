@@ -294,17 +294,25 @@ const submitEditForm = async () => {
   await editFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        // 转换性别值
+        const genderValue = editForm.gender === 'male' ? 'MALE' : 
+                           editForm.gender === 'female' ? 'FEMALE' : 
+                           'NOT_SET'
+        
         // 使用后端期望的字段名
         const response = await Server.put('/user/profile', {
           nickname: editForm.name, // 前端的name对应后端的nickname
-          email: editForm.email
-          // phone和gender字段后端暂不支持
+          email: editForm.email,
+          gender: genderValue, // 添加gender字段
+          phone: editForm.phone // 添加phone字段
         })
         
         if (response.data && response.data.code === 200) {
           // 更新本地用户信息
           userProfile.name = editForm.name
           userProfile.email = editForm.email
+          userProfile.gender = genderValue
+          userProfile.phone = editForm.phone
           editDialogVisible.value = false
           ElMessage.success('个人信息更新成功')
         }
@@ -446,18 +454,20 @@ const fetchUserInfo = async () => {
     if (response.data && response.data.data) {
       // 更新用户信息 - 使用后端实际返回的字段名
       Object.assign(userProfile, {
-        name: response.data.data.username || response.data.data.nickname || '--', // 优先使用username，如果没有则使用nickname
-        gender: '--', // 后端暂无gender字段
+        name: response.data.data.email || '--', // 使用email作为显示名称
+        gender: response.data.data.gender || 'NOT_SET', // 使用后端返回的gender字段
         birthdate: '--', // 后端暂无birthdate字段
         email: response.data.data.email || '--',
-        phone: '--', // 后端暂无phone字段
+        phone: response.data.data.phone || '--', // 使用后端返回的phone字段
         lastLoginTime: response.data.data.lastLoginTime || '--',
         avatarUrl: response.data.data.avatar || userProfile.avatarUrl
       })
       
       // 填充表单数据
       editForm.name = userProfile.name
-      editForm.gender = userProfile.gender
+      editForm.gender = userProfile.gender === 'MALE' ? 'male' : 
+                      userProfile.gender === 'FEMALE' ? 'female' : 
+                      userProfile.gender === 'NOT_SET' ? 'other' : 'male'
       editForm.email = userProfile.email
       editForm.phone = userProfile.phone
     }
@@ -841,6 +851,8 @@ const fetchUserInfo = async () => {
   background-color: inherit;
 }
 </style>
+
+
 
 
 

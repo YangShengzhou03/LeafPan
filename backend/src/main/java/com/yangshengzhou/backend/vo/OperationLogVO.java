@@ -5,10 +5,10 @@ import java.util.Date;
 public class OperationLogVO {
     
     private Long id;
-    private Long userId;
+    private String userId;
     private String operationType;
     private String targetType;
-    private Long targetId;
+    private String targetId;
     private String targetName;
     private String description;
     private String ipAddress;
@@ -27,11 +27,11 @@ public class OperationLogVO {
         this.id = id;
     }
     
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
     
@@ -51,11 +51,11 @@ public class OperationLogVO {
         this.targetType = targetType;
     }
     
-    public Long getTargetId() {
+    public String getTargetId() {
         return targetId;
     }
     
-    public void setTargetId(Long targetId) {
+    public void setTargetId(String targetId) {
         this.targetId = targetId;
     }
     

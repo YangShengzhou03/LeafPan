@@ -84,7 +84,7 @@ public class AdminFileController {
                 return ResponseEntity.badRequest().body(ApiResponse.error("文件不存在"));
             }
             
-            boolean deleted = fileService.deleteFile(id, currentUser.getId());
+            boolean deleted = fileService.deleteFile(id, Long.parseLong(currentUser.getId()));
             
             if (deleted) {
                 // 记录操作日志
@@ -92,7 +92,7 @@ public class AdminFileController {
                     currentUser.getId(),
                     "DELETE_FILE",
                     "FILE",
-                    file.getId(),
+                    file.getId().toString(),
                     "管理员删除文件: " + file.getName(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent"),

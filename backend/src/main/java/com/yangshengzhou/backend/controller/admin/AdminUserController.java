@@ -59,7 +59,7 @@ public class AdminUserController {
             }
             
             try {
-                User user = userService.getUserById(id);
+                User user = userService.getUserById(id.toString());
                 return ResponseEntity.ok(ApiResponse.success(user));
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
@@ -80,7 +80,7 @@ public class AdminUserController {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            User updatedUser = userService.updateUser(id, updateData);
+            User updatedUser = userService.updateUser(id.toString(), updateData);
             
             if (updatedUser != null) {
                 // 记录操作日志
@@ -89,7 +89,7 @@ public class AdminUserController {
                     "UPDATE_USER",
                     "USER",
                     updatedUser.getId(),
-                    "管理员更新用户信息: " + updatedUser.getUsername(),
+                    "管理员更新用户信息: " + updatedUser.getEmail(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent"),
                     ""
@@ -118,12 +118,12 @@ public class AdminUserController {
             // 获取用户信息用于日志
             User user;
             try {
-                user = userService.getUserById(id);
+                user = userService.getUserById(id.toString());
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            userService.deleteUser(id);
+            userService.deleteUser(id.toString());
             
             if (true) {
                 // 记录操作日志
@@ -132,7 +132,7 @@ public class AdminUserController {
                     "DELETE_USER",
                     "USER",
                     user.getId(),
-                    "管理员删除用户: " + user.getUsername(),
+                    "管理员删除用户: " + user.getEmail(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent"),
                     ""
@@ -164,12 +164,12 @@ public class AdminUserController {
             // 获取用户信息用于日志
             User user;
             try {
-                user = userService.getUserById(id);
+                user = userService.getUserById(id.toString());
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            userService.updateUserStatus(id, enabled);
+            userService.updateUserStatus(id.toString(), enabled);
             
             if (true) {
                 // 记录操作日志
@@ -178,7 +178,7 @@ public class AdminUserController {
                     "UPDATE_USER_STATUS",
                     "USER",
                     user.getId(),
-                    "管理员" + (enabled ? "启用" : "禁用") + "用户: " + user.getUsername(),
+                    "管理员" + (enabled ? "启用" : "禁用") + "用户: " + user.getEmail(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent"),
                     ""
@@ -229,12 +229,12 @@ public class AdminUserController {
             // 获取用户信息用于日志
             User user;
             try {
-                user = userService.getUserById(id);
+                user = userService.getUserById(id.toString());
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            userService.resetUserPassword(id, newPassword);
+            userService.resetUserPassword(id.toString(), newPassword);
             
             if (true) {
                 // 记录操作日志
@@ -243,7 +243,7 @@ public class AdminUserController {
                     "RESET_USER_PASSWORD",
                     "USER",
                     user.getId(),
-                    "管理员重置用户密码: " + user.getUsername(),
+                    "管理员重置用户密码: " + user.getEmail(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent"),
                     ""

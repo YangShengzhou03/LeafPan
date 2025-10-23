@@ -10,8 +10,8 @@ public class OperationLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_id", nullable = false, length = 36)
+    private String userId;
     
     @Column(name = "operation_type", nullable = false, length = 50)
     private String operationType;
@@ -19,8 +19,8 @@ public class OperationLog {
     @Column(name = "target_type", nullable = false, length = 50)
     private String targetType;
     
-    @Column(name = "target_id")
-    private Long targetId;
+    @Column(name = "target_id", length = 36)
+    private String targetId;
     
     @Column(length = 500)
     private String description;
@@ -37,7 +37,7 @@ public class OperationLog {
     // 构造函数
     public OperationLog() {}
     
-    public OperationLog(Long userId, String operationType, String targetType, Long targetId) {
+    public OperationLog(String userId, String operationType, String targetType, String targetId) {
         this.userId = userId;
         this.operationType = operationType;
         this.targetType = targetType;
@@ -59,11 +59,11 @@ public class OperationLog {
         this.id = id;
     }
     
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
     
@@ -83,11 +83,11 @@ public class OperationLog {
         this.targetType = targetType;
     }
     
-    public Long getTargetId() {
+    public String getTargetId() {
         return targetId;
     }
     
-    public void setTargetId(Long targetId) {
+    public void setTargetId(String targetId) {
         this.targetId = targetId;
     }
     

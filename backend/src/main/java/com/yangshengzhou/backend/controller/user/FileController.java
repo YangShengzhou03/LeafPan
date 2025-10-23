@@ -60,23 +60,24 @@ public class FileController {
             }
             
             // 上传文件到存储服务
-            String fileName = fileStorageService.uploadFile(file, currentUser.getId(), folderId);
+            String fileName = fileStorageService.uploadFile(file, Long.parseLong(currentUser.getId()), folderId);
             
             // 保存文件信息到数据库
-            File uploadedFile = fileService.uploadFile(file, currentUser.getId(), folderId, fileName);
+            File uploadedFile = fileService.uploadFile(file, Long.parseLong(currentUser.getId()), folderId, fileName);
             
             if (uploadedFile != null) {
                 // 记录上传日志
-            operationLogService.logOperation(
-                currentUser.getId(), 
-                "UPLOAD", 
-                "FILE", 
-                uploadedFile.getId(), 
-                "上传文件: " + uploadedFile.getName(), 
-                getClientIpAddress(request),
-                request.getHeader("User-Agent"),
-                ""
-            );
+                // 记录上传日志
+                operationLogService.logOperation(
+                    currentUser.getId(), 
+                    "UPLOAD", 
+                    "FILE", 
+                    uploadedFile.getId().toString(), 
+                    "上传文件: " + uploadedFile.getName(), 
+                    getClientIpAddress(request),
+                    request.getHeader("User-Agent"),
+                    ""
+                );
                 
                 return ResponseEntity.ok(ApiResponse.success("文件上传成功", uploadedFile));
             } else {
@@ -101,9 +102,9 @@ public class FileController {
             
             List<File> files;
             if (folderId != null) {
-                files = fileService.getUserFilesByFolderId(currentUser.getId(), folderId);
+                files = fileService.getUserFilesByFolderId(Long.parseLong(currentUser.getId()), folderId);
             } else {
-                files = fileService.getUserFiles(currentUser.getId());
+                files = fileService.getUserFiles(Long.parseLong(currentUser.getId()));
             }
             
             return ResponseEntity.ok(ApiResponse.success(files));
@@ -128,9 +129,9 @@ public class FileController {
             
             Page<File> files;
             if (folderId != null) {
-                files = fileService.getUserFilesByFolderId(currentUser.getId(), folderId, page, size);
+                files = fileService.getUserFilesByFolderId(Long.parseLong(currentUser.getId()), folderId, page, size);
             } else {
-                files = fileService.getUserFiles(currentUser.getId(), page, size);
+                files = fileService.getUserFiles(Long.parseLong(currentUser.getId()), page, size);
             }
             
             return ResponseEntity.ok(ApiResponse.success(files));
@@ -143,20 +144,35 @@ public class FileController {
      * 获取文件详情
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<File>> getFile(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<File>> getFile(@PathVariable Long id, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null) {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!fileService.hasPermission(currentUser.getId(), id)) {
+            if (!fileService.hasPermission(Long.parseLong(currentUser.getId()), id)) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件"));
             }
             
-            return fileService.getFile(id)
-                .map(file -> ResponseEntity.ok(ApiResponse.success(file)))
-                .orElse(ResponseEntity.badRequest().body(ApiResponse.error("文件不存在")));
+            File file = fileService.getFile(id).orElse(null);
+            if (file == null) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("文件不存在"));
+            }
+            
+            // 记录下载日志
+            operationLogService.logOperation(
+                currentUser.getId(), 
+                "DOWNLOAD", 
+                "FILE", 
+                id.toString(), 
+                "下载文件: " + file.getName(), 
+                getClientIpAddress(request),
+                request.getHeader("User-Agent"),
+                ""
+            );
+            
+            return ResponseEntity.ok(ApiResponse.success(file));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取文件信息失败: " + e.getMessage()));
         }
@@ -173,7 +189,7 @@ public class FileController {
                 return ResponseEntity.status(401).build();
             }
             
-            if (!fileService.hasPermission(currentUser.getId(), id)) {
+            if (!fileService.hasPermission(Long.parseLong(currentUser.getId()), id)) {
                 return ResponseEntity.status(403).build();
             }
             
@@ -189,7 +205,7 @@ public class FileController {
                 currentUser.getId(), 
                 "DOWNLOAD", 
                 "FILE", 
-                file.getId(), 
+                file.getId().toString(), 
                 "下载文件: " + file.getName(), 
                 getClientIpAddress(request),
                 request.getHeader("User-Agent"),
@@ -220,7 +236,7 @@ public class FileController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!fileService.hasPermission(currentUser.getId(), id)) {
+            if (!fileService.hasPermission(Long.parseLong(currentUser.getId()), id)) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件"));
             }
             
@@ -254,7 +270,7 @@ public class FileController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!fileService.hasPermission(currentUser.getId(), id)) {
+            if (!fileService.hasPermission(Long.parseLong(currentUser.getId()), id)) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权修改此文件"));
             }
             
@@ -270,7 +286,7 @@ public class FileController {
                     currentUser.getId(), 
                     "RENAME", 
                     "FILE", 
-                    id, 
+                    id.toString(), 
                     "重命名文件: " + newName, 
                     getClientIpAddress(request),
                     request.getHeader("User-Agent"),
@@ -297,7 +313,7 @@ public class FileController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!fileService.hasPermission(currentUser.getId(), id)) {
+            if (!fileService.hasPermission(Long.parseLong(currentUser.getId()), id)) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权删除此文件"));
             }
             
@@ -310,7 +326,7 @@ public class FileController {
             fileStorageService.deleteFile(file.getStorageKey());
             
             // 删除数据库记录
-            boolean deleted = fileService.deleteFile(id, currentUser.getId());
+            boolean deleted = fileService.deleteFile(id, Long.parseLong(currentUser.getId()));
             
             if (deleted) {
                 // 记录删除日志
@@ -318,7 +334,7 @@ public class FileController {
                     currentUser.getId(), 
                     "DELETE", 
                     "FILE", 
-                    id, 
+                    id.toString(), 
                     "删除文件: " + file.getName(), 
                     getClientIpAddress(request),
                     request.getHeader("User-Agent"),
@@ -345,7 +361,7 @@ public class FileController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            List<File> files = fileService.searchFilesByName(currentUser.getId(), name);
+            List<File> files = fileService.searchFilesByName(Long.parseLong(currentUser.getId()), name);
             return ResponseEntity.ok(ApiResponse.success(files));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("搜索文件失败: " + e.getMessage()));
@@ -363,7 +379,7 @@ public class FileController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            List<File> files = fileService.getFilesByExtension(currentUser.getId(), extension);
+            List<File> files = fileService.getFilesByExtension(Long.parseLong(currentUser.getId()), extension);
             return ResponseEntity.ok(ApiResponse.success(files));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取文件失败: " + e.getMessage()));
@@ -381,7 +397,7 @@ public class FileController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            Long totalSize = fileService.getUserTotalFileSize(currentUser.getId());
+            Long totalSize = fileService.getUserTotalFileSize(Long.parseLong(currentUser.getId()));
             Long quota = currentUser.getStorageQuota();
             
             Map<String, Object> result = new HashMap<>();
@@ -411,14 +427,14 @@ public class FileController {
             
             for (Long fileId : fileIds) {
                 try {
-                    if (fileService.hasPermission(currentUser.getId(), fileId)) {
+                    if (fileService.hasPermission(Long.parseLong(currentUser.getId()), fileId)) {
                         File file = fileService.getFile(fileId).orElse(null);
                         if (file != null) {
                             // 删除存储中的文件
                             fileStorageService.deleteFile(file.getStorageKey());
                             
                             // 删除数据库记录
-                            if (fileService.deleteFile(fileId, currentUser.getId())) {
+                            if (fileService.deleteFile(fileId, Long.parseLong(currentUser.getId()))) {
                                 successCount++;
                                 
                                 // 记录删除日志
@@ -426,7 +442,7 @@ public class FileController {
                                     currentUser.getId(), 
                                     "DELETE", 
                                     "FILE", 
-                                    fileId, 
+                                    fileId.toString(), 
                                     "批量删除文件: " + file.getName(), 
                                     getClientIpAddress(request),
                                     "",

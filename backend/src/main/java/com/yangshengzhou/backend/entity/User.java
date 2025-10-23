@@ -2,16 +2,14 @@ package com.yangshengzhou.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(unique = true, nullable = false, length = 50)
-    private String username;
+    @Column(columnDefinition = "CHAR(36)")
+    private String id = UUID.randomUUID().toString();
     
     @Column(unique = true, nullable = false, length = 100)
     private String email;
@@ -24,6 +22,12 @@ public class User {
     
     @Column(length = 255)
     private String avatar;
+    
+    @Column
+    private Byte gender; // 0-未知，1-男，2-女
+    
+    @Column(length = 20)
+    private String phone;
     
     @Column(nullable = false)
     private Byte role = 0; // 0-普通用户，1-管理员
@@ -52,8 +56,7 @@ public class User {
     // 构造函数
     public User() {}
     
-    public User(String username, String email, String password) {
-        this.username = username;
+    public User(String email, String password) {
         this.email = email;
         this.password = password;
     }
@@ -61,6 +64,9 @@ public class User {
     // JPA生命周期回调
     @PrePersist
     protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
         createdTime = LocalDateTime.now();
         updatedTime = LocalDateTime.now();
     }
@@ -70,21 +76,13 @@ public class User {
         updatedTime = LocalDateTime.now();
     }
     
-    // Getter和Setter方法
-    public Long getId() {
+    // Getters and Setters
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
-    }
-    
-    public String getUsername() {
-        return username;
-    }
-    
-    public void setUsername(String username) {
-        this.username = username;
     }
     
     public String getEmail() {
@@ -117,6 +115,22 @@ public class User {
     
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+    
+    public Byte getGender() {
+        return gender;
+    }
+    
+    public void setGender(Byte gender) {
+        this.gender = gender;
+    }
+    
+    public String getPhone() {
+        return phone;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
     
     public Byte getRole() {

@@ -13,7 +13,7 @@
         <div class="user-info" v-else>
           <span class="welcome-text">
             您好，
-            <span class="username-link" @click="goToUserLayout">{{ currentUser?.username || '枫叶用户' }}</span>
+            <span class="username-link" @click="goToUserLayout">{{ currentUser?.email || '枫叶用户' }}</span>
           </span>
 
         </div>

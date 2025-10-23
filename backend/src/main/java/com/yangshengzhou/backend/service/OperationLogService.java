@@ -32,7 +32,7 @@ public class OperationLogService {
     /**
      * 记录操作日志
      */
-    public void logOperation(Long userId, String operationType, String targetType, Long targetId, String targetName, String description, String ipAddress, String userAgent) {
+    public void logOperation(String userId, String operationType, String targetType, String targetId, String targetName, String description, String ipAddress, String userAgent) {
         OperationLog log = new OperationLog();
         log.setUserId(userId);
         log.setOperationType(operationType);
@@ -48,7 +48,7 @@ public class OperationLogService {
     /**
      * 获取用户的操作日志
      */
-    public List<OperationLogVO> getUserOperationLogs(Long userId) {
+    public List<OperationLogVO> getUserOperationLogs(String userId) {
         List<OperationLog> logs = operationLogRepository.findByUserId(userId);
         return convertToVOs(logs);
     }
@@ -56,7 +56,7 @@ public class OperationLogService {
     /**
      * 根据操作类型获取用户的操作日志
      */
-    public List<OperationLogVO> getUserOperationLogsByType(Long userId, String operationType) {
+    public List<OperationLogVO> getUserOperationLogsByType(String userId, String operationType) {
         List<OperationLog> logs = operationLogRepository.findByUserIdAndOperationType(userId, operationType);
         return convertToVOs(logs);
     }
@@ -64,11 +64,41 @@ public class OperationLogService {
     /**
      * 获取指定时间范围内的用户操作日志
      */
-    public List<OperationLogVO> getUserOperationLogsByTimeRange(Long userId, Date startTime, Date endTime) {
+    public List<OperationLogVO> getUserOperationLogsByTimeRange(String userId, Date startTime, Date endTime) {
         LocalDateTime startDateTime = startTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime endDateTime = endTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         List<OperationLog> logs = operationLogRepository.findByUserIdAndCreatedTimeBetween(userId, startDateTime, endDateTime);
         return convertToVOs(logs);
+    }
+    
+    /**
+     * 统计用户操作次数
+     */
+    public Long countUserOperations(String userId) {
+        return operationLogRepository.countByUserId(userId);
+    }
+    
+    /**
+     * 统计用户指定操作类型的次数
+     */
+    public Long countUserOperationsByType(String userId, String operationType) {
+        return operationLogRepository.countByUserIdAndOperationType(userId, operationType);
+    }
+    
+    /**
+     * 分页获取用户的操作日志
+     */
+    public Page<OperationLog> getUserOperationLogs(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+        return operationLogRepository.findByUserId(userId, pageable);
+    }
+    
+    /**
+     * 分页获取用户指定类型的操作日志
+     */
+    public Page<OperationLog> getUserOperationLogsByType(String userId, String operationType, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+        return operationLogRepository.findByUserIdAndOperationType(userId, operationType, pageable);
     }
     
     /**
@@ -98,20 +128,6 @@ public class OperationLogService {
     }
     
     /**
-     * 统计用户操作次数
-     */
-    public Long countUserOperations(Long userId) {
-        return operationLogRepository.countByUserId(userId);
-    }
-    
-    /**
-     * 统计用户指定操作类型的次数
-     */
-    public Long countUserOperationsByType(Long userId, String operationType) {
-        return operationLogRepository.countByUserIdAndOperationType(userId, operationType);
-    }
-    
-    /**
      * 清理过期日志
      */
     public int cleanExpiredLogs(int daysToKeep) {
@@ -124,22 +140,6 @@ public class OperationLogService {
         operationLogRepository.deleteAll(expiredLogs);
         
         return expiredLogs.size();
-    }
-    
-    /**
-     * 分页获取用户的操作日志
-     */
-    public Page<OperationLog> getUserOperationLogs(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
-        return operationLogRepository.findByUserId(userId, pageable);
-    }
-    
-    /**
-     * 分页获取用户指定类型的操作日志
-     */
-    public Page<OperationLog> getUserOperationLogsByType(Long userId, String operationType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
-        return operationLogRepository.findByUserIdAndOperationType(userId, operationType, pageable);
     }
     
     /**
@@ -176,10 +176,10 @@ public class OperationLogService {
             vo.setUserAgent(log.getUserAgent());
             vo.setCreateTime(Date.from(log.getCreatedTime().atZone(ZoneId.systemDefault()).toInstant()));
             
-            // 获取用户名
+            // 获取用户邮箱
             Optional<User> userOptional = userRepository.findById(log.getUserId());
             if (userOptional.isPresent()) {
-                vo.setUsername(userOptional.get().getUsername());
+                vo.setUsername(userOptional.get().getEmail());
             }
             
             // 根据目标类型和ID获取目标名称
@@ -197,12 +197,12 @@ public class OperationLogService {
     /**
      * 根据目标类型和ID获取目标名称
      */
-    private String getTargetName(String targetType, Long targetId) {
+    private String getTargetName(String targetType, String targetId) {
         try {
             switch (targetType) {
                 case "USER":
                     Optional<User> userOptional = userRepository.findById(targetId);
-                    return userOptional.map(User::getUsername).orElse("未知用户");
+                    return userOptional.map(User::getEmail).orElse("未知用户");
                 case "FILE":
                     // 这里需要根据实际的文件服务来获取文件名
                     // 由于没有文件仓库，暂时返回默认值

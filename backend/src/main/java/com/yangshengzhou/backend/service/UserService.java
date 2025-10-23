@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -35,12 +36,14 @@ public class UserService {
      * 创建用户
      */
     public User createUser(User user) {
-        // 检查用户名和邮箱是否已存在
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("用户名已存在");
-        }
+        // 检查邮箱是否已存在
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("邮箱已存在");
+        }
+        
+        // 设置UUID作为ID
+        if (user.getId() == null || user.getId().isEmpty()) {
+            user.setId(UUID.randomUUID().toString());
         }
         
         // 加密密码
@@ -52,17 +55,10 @@ public class UserService {
     /**
      * 更新用户信息
      */
-    public User updateUser(Long id, User userDetails) {
+    public User updateUser(String id, User userDetails) {
         User user = getUserById(id);
         
         // 更新用户信息
-        if (userDetails.getUsername() != null && !userDetails.getUsername().equals(user.getUsername())) {
-            if (userRepository.existsByUsername(userDetails.getUsername())) {
-                throw new RuntimeException("用户名已存在");
-            }
-            user.setUsername(userDetails.getUsername());
-        }
-        
         if (userDetails.getEmail() != null && !userDetails.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(userDetails.getEmail())) {
                 throw new RuntimeException("邮箱已存在");
@@ -86,13 +82,21 @@ public class UserService {
             user.setStatus(userDetails.getStatus());
         }
         
+        if (userDetails.getGender() != null) {
+            user.setGender(userDetails.getGender());
+        }
+        
+        if (userDetails.getPhone() != null) {
+            user.setPhone(userDetails.getPhone());
+        }
+        
         return userRepository.save(user);
     }
     
     /**
      * 更新用户信息（从Map中获取数据）
      */
-    public User updateUser(Long id, java.util.Map<String, String> updateData) {
+    public User updateUser(String id, java.util.Map<String, String> updateData) {
         User user = getUserById(id);
         
         // 更新用户信息
@@ -113,29 +117,30 @@ public class UserService {
             user.setAvatar(updateData.get("avatar"));
         }
         
+        if (updateData.containsKey("gender")) {
+            user.setGender(Byte.valueOf(updateData.get("gender")));
+        }
+        
+        if (updateData.containsKey("phone")) {
+            user.setPhone(updateData.get("phone"));
+        }
+        
         return userRepository.save(user);
     }
     
     /**
      * 删除用户
      */
-    public void deleteUser(Long id) {
+    public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
     
     /**
      * 根据ID获取用户
      */
-    public User getUserById(Long id) {
+    public User getUserById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
-    }
-    
-    /**
-     * 根据用户名获取用户
-     */
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
     }
     
     /**
@@ -143,13 +148,6 @@ public class UserService {
      */
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
-    }
-    
-    /**
-     * 根据用户名或邮箱获取用户
-     */
-    public Optional<User> findByUsernameOrEmail(String usernameOrEmail) {
-        return userRepository.findByUsernameOrEmail(usernameOrEmail);
     }
     
     /**
@@ -165,13 +163,6 @@ public class UserService {
     public Page<User> getAllUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
         return userRepository.findAll(pageable);
-    }
-    
-    /**
-     * 检查用户名是否存在
-     */
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
     }
     
     /**
@@ -191,7 +182,7 @@ public class UserService {
     /**
      * 更新用户最后登录信息
      */
-    public User updateLastLogin(Long userId, String ipAddress) {
+    public User updateLastLogin(String userId, String ipAddress) {
         User user = getUserById(userId);
         user.setLastLoginTime(LocalDateTime.now());
         user.setLastLoginIp(ipAddress);
@@ -215,7 +206,7 @@ public class UserService {
     /**
      * 修改密码
      */
-    public boolean changePassword(Long userId, ChangePasswordRequest request) {
+    public boolean changePassword(String userId, ChangePasswordRequest request) {
         User user = getUserById(userId);
         
         // 验证原密码
@@ -238,7 +229,7 @@ public class UserService {
     /**
      * 重置密码
      */
-    public boolean resetPassword(Long userId, String newPassword) {
+    public boolean resetPassword(String userId, String newPassword) {
         User user = getUserById(userId);
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
@@ -248,7 +239,7 @@ public class UserService {
     /**
      * 更新用户状态
      */
-    public User updateUserStatus(Long userId, Byte status) {
+    public User updateUserStatus(String userId, Byte status) {
         User user = getUserById(userId);
         user.setStatus(status);
         return userRepository.save(user);
@@ -257,7 +248,7 @@ public class UserService {
     /**
      * 更新用户存储配额
      */
-    public User updateStorageQuota(Long userId, Long storageQuota) {
+    public User updateStorageQuota(String userId, Long storageQuota) {
         User user = getUserById(userId);
         user.setStorageQuota(storageQuota);
         return userRepository.save(user);
@@ -266,7 +257,7 @@ public class UserService {
     /**
      * 检查用户是否为管理员
      */
-    public boolean isAdmin(Long userId) {
+    public boolean isAdmin(String userId) {
         User user = getUserById(userId);
         return user.getRole() != null && user.getRole().equals("ADMIN");
     }
@@ -274,7 +265,7 @@ public class UserService {
     /**
      * 获取用户存储使用情况
      */
-    public java.util.Map<String, Object> getUserStorageUsage(Long userId) {
+    public java.util.Map<String, Object> getUserStorageUsage(String userId) {
         User user = getUserById(userId);
         java.util.Map<String, Object> result = new java.util.HashMap<>();
         result.put("storageQuota", user.getStorageQuota());
@@ -294,14 +285,14 @@ public class UserService {
     /**
      * 获取用户操作日志
      */
-    public Page getUserOperationLogs(Long userId, int page, int size) {
+    public Page getUserOperationLogs(String userId, int page, int size) {
         return operationLogService.getUserOperationLogs(userId, page, size);
     }
     
     /**
      * 根据类型获取用户操作日志
      */
-    public Page getUserOperationLogsByType(Long userId, String type, int page, int size) {
+    public Page getUserOperationLogsByType(String userId, String type, int page, int size) {
         return operationLogService.getUserOperationLogsByType(userId, type, page, size);
     }
     
@@ -315,7 +306,7 @@ public class UserService {
     /**
      * 更新用户状态（boolean版本）
      */
-    public boolean updateUserStatus(Long id, boolean enabled) {
+    public boolean updateUserStatus(String id, boolean enabled) {
         User user = getUserById(id);
         user.setStatus(enabled ? (byte) 1 : (byte) 0);
         userRepository.save(user);
@@ -325,7 +316,7 @@ public class UserService {
     /**
      * 重置用户密码
      */
-    public boolean resetUserPassword(Long id, String newPassword) {
+    public boolean resetUserPassword(String id, String newPassword) {
         User user = getUserById(id);
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);

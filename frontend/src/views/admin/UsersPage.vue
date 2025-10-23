@@ -18,7 +18,7 @@
             <el-col :span="8">
               <el-input
                 v-model="searchQuery"
-                placeholder="搜索用户名或邮箱"
+                placeholder="搜索邮箱"
                 clearable
                 @clear="handleSearch"
                 @keyup.enter="handleSearch"
@@ -52,9 +52,14 @@
         
         <!-- 用户表格 -->
         <el-table :data="filteredUsers" style="width: 100%" v-loading="loading">
-          <el-table-column prop="id" label="ID" width="80" />
-          <el-table-column prop="username" label="用户名" />
+          <el-table-column prop="id" label="ID" width="200" />
           <el-table-column prop="email" label="邮箱" />
+          <el-table-column prop="gender" label="性别" width="80">
+            <template #default="scope">
+              {{ scope.row.gender === 'MALE' ? '男' : scope.row.gender === 'FEMALE' ? '女' : '未设置' }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="phone" label="手机号" />
           <el-table-column prop="role" label="角色" width="100">
             <template #default="scope">
               <el-tag :type="scope.row.role === 'admin' ? 'danger' : 'primary'">
@@ -112,14 +117,21 @@
       width="500px"
     >
       <el-form :model="userForm" :rules="userRules" ref="userFormRef" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="userForm.username" :disabled="!!editingUser" />
-        </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="userForm.email" />
         </el-form-item>
         <el-form-item label="密码" prop="password" v-if="!editingUser">
           <el-input v-model="userForm.password" type="password" show-password />
+        </el-form-item>
+        <el-form-item label="性别" prop="gender">
+          <el-select v-model="userForm.gender" style="width: 100%">
+            <el-option label="男" value="MALE" />
+            <el-option label="女" value="FEMALE" />
+            <el-option label="未设置" value="NOT_SET" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="userForm.phone" />
         </el-form-item>
         <el-form-item label="角色" prop="role">
           <el-select v-model="userForm.role" style="width: 100%">
@@ -169,9 +181,10 @@ const userFormRef = ref(null)
 
 // 用户表单
 const userForm = reactive({
-  username: '',
   email: '',
   password: '',
+  gender: 'NOT_SET',
+  phone: '',
   role: 'user',
   status: 'active',
   storageQuota: 10
@@ -179,10 +192,6 @@ const userForm = reactive({
 
 // 表单验证规则
 const userRules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
-  ],
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
@@ -190,6 +199,12 @@ const userRules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+  ],
+  gender: [
+    { required: true, message: '请选择性别', trigger: 'change' }
+  ],
+  phone: [
+    { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
   role: [
     { required: true, message: '请选择用户角色', trigger: 'change' }
@@ -209,7 +224,6 @@ const filteredUsers = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(user => 
-      user.username.toLowerCase().includes(query) || 
       user.email.toLowerCase().includes(query)
     )
   }
@@ -249,8 +263,9 @@ const loadUsers = async () => {
       const userData = response.data.data
       users.value = userData.content.map(user => ({
         id: user.id,
-        username: user.username,
         email: user.email,
+        gender: user.gender || 'NOT_SET',
+        phone: user.phone || '',
         role: user.role.toLowerCase(),
         storageUsed: user.storageUsed || 0,
         status: user.enabled ? 'active' : 'disabled',
@@ -296,9 +311,10 @@ const handleCurrentChange = (page) => {
 const editUser = (user) => {
   editingUser.value = user
   Object.assign(userForm, {
-    username: user.username,
     email: user.email,
     password: '',
+    gender: user.gender || 'NOT_SET',
+    phone: user.phone || '',
     role: user.role,
     status: user.status,
     storageQuota: 10 // 假设默认配额，实际应该从用户数据中获取
@@ -315,9 +331,10 @@ const saveUser = async () => {
     
     // 调用后端API保存用户数据
     const userData = {
-      username: userForm.username,
       email: userForm.email,
       password: userForm.password,
+      gender: userForm.gender,
+      phone: userForm.phone,
       role: userForm.role.toUpperCase(),
       enabled: userForm.status === 'active'
     }
@@ -348,7 +365,7 @@ const toggleUserStatus = async (user) => {
   const action = user.status === 'active' ? '禁用' : '启用'
   try {
     await ElMessageBox.confirm(
-      `确定要${action}用户 ${user.username} 吗？`,
+      `确定要${action}用户 ${user.email} 吗？`,
       '确认操作',
       {
         confirmButtonText: '确定',
@@ -376,7 +393,7 @@ const toggleUserStatus = async (user) => {
 const deleteUser = async (user) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除用户 ${user.username} 吗？此操作不可恢复！`,
+      `确定要删除用户 ${user.email} 吗？此操作不可恢复！`,
       '确认删除',
       {
         confirmButtonText: '确定',
@@ -401,9 +418,10 @@ const deleteUser = async (user) => {
 // 重置用户表单
 const resetUserForm = () => {
   Object.assign(userForm, {
-    username: '',
     email: '',
     password: '',
+    gender: 'NOT_SET',
+    phone: '',
     role: 'user',
     status: 'active',
     storageQuota: 10

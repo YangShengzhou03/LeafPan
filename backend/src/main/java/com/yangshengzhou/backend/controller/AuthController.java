@@ -48,7 +48,6 @@ public class AuthController {
         try {
             String ipAddress = getClientIpAddress(request);
             User user = authService.register(
-                registerRequest.getUsername(), 
                 registerRequest.getEmail(), 
                 registerRequest.getPassword(), 
                 ipAddress

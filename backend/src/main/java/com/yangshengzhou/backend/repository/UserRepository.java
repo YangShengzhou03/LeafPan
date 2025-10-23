@@ -10,18 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    
-    Optional<User> findByUsername(String username);
+public interface UserRepository extends JpaRepository<User, String> {
     
     Optional<User> findByEmail(String email);
     
-    boolean existsByUsername(String username);
-    
     boolean existsByEmail(String email);
-    
-    @Query("SELECT u FROM User u WHERE u.username = :username OR u.email = :username")
-    Optional<User> findByUsernameOrEmail(@Param("username") String username);
     
     @Query("SELECT COUNT(u) FROM User u WHERE u.status = 1")
     long countActiveUsers();
