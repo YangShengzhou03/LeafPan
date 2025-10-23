@@ -90,10 +90,10 @@ public class AdminLogController {
                 "CLEAR_LOGS",
                 "SYSTEM",
                 "",
+                "",
                 "管理员清空系统日志",
                 request.getRemoteAddr(),
-                request.getHeader("User-Agent"),
-                ""
+                request.getHeader("User-Agent")
             );
             
             return ResponseEntity.ok(ApiResponse.success("日志清空成功"));

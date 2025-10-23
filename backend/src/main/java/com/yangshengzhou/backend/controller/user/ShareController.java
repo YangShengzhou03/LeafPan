@@ -42,10 +42,10 @@ public class ShareController {
                 "CREATE_SHARE",
                 "SHARE",
                 share.getId().toString(),
-                "创建分享: " + share.getShareCode(),
+                share.getShareCode(),
+                "创建分享",
                 getClientIpAddress(httpRequest),
-                httpRequest.getHeader("User-Agent"),
-                ""
+                httpRequest.getHeader("User-Agent")
             );
             
             return ResponseEntity.ok(ApiResponse.success(share));
@@ -101,10 +101,10 @@ public class ShareController {
                 "UPDATE_SHARE",
                 "SHARE",
                 share.getId().toString(),
-                "更新分享: " + share.getShareCode(),
+                share.getShareCode(),
+                "更新分享",
                 getClientIpAddress(httpRequest),
-                httpRequest.getHeader("User-Agent"),
-                ""
+                httpRequest.getHeader("User-Agent")
             );
             
             return ResponseEntity.ok(ApiResponse.success(share));
@@ -134,10 +134,10 @@ public class ShareController {
                     "DELETE_SHARE",
                     "SHARE",
                     id.toString(),
-                    "删除分享: " + shareCode,
+                    shareCode,
+                    "删除分享",
                     getClientIpAddress(httpRequest),
-                    httpRequest.getHeader("User-Agent"),
-                    ""
+                    httpRequest.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("分享删除成功"));

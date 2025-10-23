@@ -67,16 +67,15 @@ public class FileController {
             
             if (uploadedFile != null) {
                 // 记录上传日志
-                // 记录上传日志
                 operationLogService.logOperation(
                     currentUser.getId(), 
                     "UPLOAD", 
                     "FILE", 
                     uploadedFile.getId().toString(), 
-                    "上传文件: " + uploadedFile.getName(), 
+                    uploadedFile.getName(), 
+                    "上传文件",
                     getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
+                    request.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("文件上传成功", uploadedFile));
@@ -166,10 +165,10 @@ public class FileController {
                 "DOWNLOAD", 
                 "FILE", 
                 id.toString(), 
-                "下载文件: " + file.getName(), 
+                file.getName(), 
+                "下载文件",
                 getClientIpAddress(request),
-                request.getHeader("User-Agent"),
-                ""
+                request.getHeader("User-Agent")
             );
             
             return ResponseEntity.ok(ApiResponse.success(file));
@@ -206,10 +205,10 @@ public class FileController {
                 "DOWNLOAD", 
                 "FILE", 
                 file.getId().toString(), 
-                "下载文件: " + file.getName(), 
+                file.getName(), 
+                "下载文件",
                 getClientIpAddress(request),
-                request.getHeader("User-Agent"),
-                ""
+                request.getHeader("User-Agent")
             );
             
             // 设置响应头
