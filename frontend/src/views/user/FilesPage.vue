@@ -35,7 +35,7 @@
                         </el-icon>
                         上传文件
                     </el-button>
-                    <el-button disabled = "true" class="modern-btn" @click="handleNewFolder">
+                    <el-button :disabled="true" class="modern-btn" @click="handleNewFolder">
                         新建文件夹
                     </el-button>
                 </div>
@@ -560,15 +560,15 @@ const loadFiles = async () => {
         const filesData = filesResponse.data
         console.log('文件数据:', filesData)
         // 注意：Server.js响应拦截器已将后端响应包装为response.data
-        // 后端数据结构为{code: 200, message: "success", data: {content: [...], ...}}
-        const fileList = filesData && filesData.code === 200 ? filesData.data?.content || [] : []
+        // 根据控制台日志，实际数据结构是{content: Array(2), ...}，没有code字段，应该直接访问filesData.content
+        const fileList = filesData && filesData.content ? filesData.content : []
         console.log('解析后的文件列表:', fileList)
         
         // 处理文件夹数据
         const foldersData = foldersResponse.data
         console.log('文件夹数据:', foldersData)
         // 注意：Server.js响应拦截器已将后端响应包装为response.data
-        // 后端数据结构为{code: 200, message: "success", data: [...]}
+        // 根据控制台日志，文件夹数据结构是{code: 200, message: '操作成功', data: Array(0)}
         const folderList = foldersData && foldersData.code === 200 ? foldersData.data || [] : []
         console.log('解析后的文件夹列表:', folderList)
         
@@ -584,7 +584,8 @@ const loadFiles = async () => {
         
         // 合并文件夹和文件
         files.value = [...folderItems, ...fileList]
-        totalFiles.value = filesData && filesData.code === 200 ? filesData.data?.totalElements || 0 : 0
+        // 根据控制台日志，实际数据结构包含totalElements字段
+        totalFiles.value = filesData && filesData.totalElements ? filesData.totalElements : 0
     } catch (error) {
         console.error('加载文件列表失败:', error)
         ElMessage.error('加载文件列表失败')
