@@ -13,8 +13,8 @@
                             <img :src="currentUser?.avatar || 'https://picsum.photos/id/1005/200/200'" alt="用户头像" class="avatar-image">
                         </div>
                         <div class="user-details">
-                            <span class="username">{{ currentUser?.nickname || currentUser?.username || '用户名' }}</span>
-                            <span class="user-email">{{ currentUser?.email || '' }}</span>
+                            <span class="username" :title="currentUser?.nickname || currentUser?.username || '用户名'">{{ formatLongText(currentUser?.nickname || currentUser?.username || '用户名') }}</span>
+                            <span class="user-email" :title="currentUser?.email || ''">{{ formatLongText(currentUser?.email || '', 25) }}</span>
                         </div>
                         <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" aria-hidden="true"></i>
                     </div>
@@ -117,6 +117,16 @@ const totalStorage = computed(() => {
 const usedStorage = computed(() => {
   return `${(storageInfo.value.usedStorageGB || 0).toFixed(1)} GB`
 })
+
+// 格式化长文本，如果超过指定长度则显示为XXX****XXX形式
+const formatLongText = (text, maxLength = 15) => {
+  if (!text) return ''
+  if (text.length <= maxLength) return text
+  
+  const startLength = Math.floor(maxLength / 2)
+  const endLength = maxLength - startLength - 4 // 减去4是因为中间有4个星号
+  return text.substring(0, startLength) + '****' + text.substring(text.length - endLength)
+}
 
 // 获取用户信息
 const currentUser = computed(() => {
@@ -293,11 +303,51 @@ onUnmounted(() => {
     font-weight: 600;
     color: #303133;
     font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    position: relative;
+}
+
+.username:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: -30px;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .user-email {
     font-size: 12px;
     color: #909399;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    position: relative;
+}
+
+.user-email:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: -30px;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .dropdown-arrow {

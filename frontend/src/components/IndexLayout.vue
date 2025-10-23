@@ -11,8 +11,8 @@
           <ElButton type="primary" class="login-btn" @click="handleLogin">登录</ElButton>
         </div>
         <div class="user-info" v-else>
-          <span class="welcome-text">您好，{{ currentUser?.username || '用户' }}</span>
-          <ElButton type="text" class="logout-btn" @click="handleLogout">退出登录</ElButton>
+          <span class="welcome-text">您好，</span>
+          <span class="username-link" @click="goToUserLayout">{{ currentUser?.username || '用户' }}</span>
         </div>
       </div>
     </header>
@@ -167,6 +167,10 @@ export default {
     const currentUser = computed(() => store.state.user);
     const router = useRouter();
 
+    const goToUserLayout = () => {
+      router.push('/user');
+    };
+
     const handleLogin = () => {
       router.push('/login');
     };
@@ -202,6 +206,7 @@ export default {
     return {
       isAuthenticated,
       currentUser,
+      goToUserLayout,
       handleLogin,
       handleRegister,
       handleLogout,
@@ -278,7 +283,7 @@ export default {
 .user-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 5px;
 }
 
 .welcome-text {
@@ -286,13 +291,16 @@ export default {
   font-size: 14px;
 }
 
-.logout-btn {
-  color: #F56C6C;
+.username-link {
+  color: #409EFF;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-.logout-btn:hover {
-  color: #F56C6C;
-  background-color: rgba(245, 108, 108, 0.1);
+.username-link:hover {
+  color: #66b1ff;
+  text-decoration: underline;
 }
 
 /* Main Content */
