@@ -13,7 +13,7 @@
                             <img :src="currentUser?.avatar || 'https://picsum.photos/id/1005/200/200'" alt="用户头像" class="avatar-image">
                         </div>
                         <div class="user-details">
-                            <span class="username" :title="currentUser?.nickname || currentUser?.username || '用户名'">{{ formatLongText(currentUser?.nickname || currentUser?.username || '用户名') }}</span>
+                            <span class="username" :title="currentUser?.nickname || currentUser?.username || '枫叶用户'">{{ formatLongText(currentUser?.nickname || currentUser?.username || '枫叶用户') }}</span>
                             <span class="user-email" :title="currentUser?.email || ''">{{ formatLongText(currentUser?.email || '', 25) }}</span>
                         </div>
                         <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" aria-hidden="true"></i>

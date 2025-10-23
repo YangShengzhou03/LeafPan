@@ -226,7 +226,6 @@ const quickActions = [
 const userProfile = reactive({
   name: '--',
   gender: '--',
-  birthdate: '--',
   email: '--',
   phone: '--',
   lastLoginTime: '--',
@@ -263,22 +262,24 @@ const formatDateTime = (dateTimeString) => {
 
 // 获取性别的文本表示
 const getGenderText = (gender) => {
+  // 后端使用Byte类型：0-未知，1-男，2-女
   const genderMap = {
-    'male': '男',
-    'female': '女',
-    'other': '其他'
+    0: '未知',
+    1: '男',
+    2: '女'
   }
   return genderMap[gender] || '未知'
 }
 
 // 将英文性别转换为中文
 const convertGenderToChinese = (gender) => {
+  // 后端使用Byte类型：0-未知，1-男，2-女
   const genderMap = {
-    'male': '男',
-    'female': '女',
-    'other': '其他'
+    0: '未知',
+    1: '男',
+    2: '女'
   }
-  return genderMap[gender] || gender
+  return genderMap[gender] || '未知'
 }
 
 // 编辑对话框关闭处理
@@ -294,16 +295,16 @@ const submitEditForm = async () => {
   await editFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        // 转换性别值
-        const genderValue = editForm.gender === 'male' ? 'MALE' : 
-                           editForm.gender === 'female' ? 'FEMALE' : 
-                           'NOT_SET'
+        // 转换性别值：后端使用Byte类型，0-未知，1-男，2-女
+        const genderValue = editForm.gender === 'male' ? 1 : 
+                           editForm.gender === 'female' ? 2 : 
+                           0 // other映射为0(未知)
         
         // 使用后端期望的字段名
         const response = await Server.put('/user/profile', {
           nickname: editForm.name, // 前端的name对应后端的nickname
           email: editForm.email,
-          gender: genderValue, // 添加gender字段
+          gender: genderValue, // 添加gender字段，使用数字类型
           phone: editForm.phone // 添加phone字段
         })
         
@@ -454,8 +455,8 @@ const fetchUserInfo = async () => {
     if (response.data && response.data.data) {
       // 更新用户信息 - 使用后端实际返回的字段名
       Object.assign(userProfile, {
-        name: response.data.data.email || '--', // 使用email作为显示名称
-        gender: response.data.data.gender || 'NOT_SET', // 使用后端返回的gender字段
+        name: response.data.data.nickname || response.data.data.email || '--', // 优先使用nickname，如果没有则使用email
+        gender: response.data.data.gender || 0, // 使用后端返回的gender字段，默认为0(未知)
         birthdate: '--', // 后端暂无birthdate字段
         email: response.data.data.email || '--',
         phone: response.data.data.phone || '--', // 使用后端返回的phone字段
@@ -465,9 +466,9 @@ const fetchUserInfo = async () => {
       
       // 填充表单数据
       editForm.name = userProfile.name
-      editForm.gender = userProfile.gender === 'MALE' ? 'male' : 
-                      userProfile.gender === 'FEMALE' ? 'female' : 
-                      userProfile.gender === 'NOT_SET' ? 'other' : 'male'
+      editForm.gender = userProfile.gender === 1 ? 'male' : 
+                      userProfile.gender === 2 ? 'female' : 
+                      'other' // 0(未知)或其他值映射为other
       editForm.email = userProfile.email
       editForm.phone = userProfile.phone
     }
@@ -851,6 +852,11 @@ const fetchUserInfo = async () => {
   background-color: inherit;
 }
 </style>
+
+
+
+
+
 
 
 
