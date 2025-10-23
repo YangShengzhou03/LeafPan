@@ -465,11 +465,11 @@ onBeforeUnmount(() => {
 // 加载文件列表
 const loadFiles = async () => {
     try {
-        const path = currentPath.value.join('/')
-        // 添加分页参数
+        // 使用文件夹ID而不是路径
+        const folderId = currentFolderId.value || 1
         const response = await Server.get('/file/list', {
             params: {
-                path,
+                folderId,
                 page: currentPage.value,
                 pageSize: pageSize.value
             }
@@ -487,7 +487,7 @@ const loadFiles = async () => {
 }
 
 // 导航到文件夹
-const navigateToFolder = (path) => {
+const navigateToFolder = async (path) => {
     if (typeof path === 'string') {
         currentPath.value = path ? path.split('/') : []
     } else {
@@ -499,12 +499,35 @@ const navigateToFolder = (path) => {
         // 根目录
         currentFolderId.value = 1
     } else {
-        // 查找匹配的文件夹ID
-        const folderName = currentPath.value[currentPath.value.length - 1]
-        const folder = files.value.find(f => f.name === folderName && f.type === 'folder')
-        if (folder) {
-            currentFolderId.value = folder.id
-        } else {
+        // 需要从根目录开始逐级查找文件夹ID
+        try {
+            // 获取所有文件夹列表
+            const foldersResponse = await Server.get('/folder/list')
+            const allFolders = foldersResponse.data || []
+            
+            // 从根目录开始查找
+            let parentId = 1 // 根目录ID
+            let foundFolderId = 1
+            
+            for (const folderName of currentPath.value) {
+                const folder = allFolders.find(f => 
+                    f.name === folderName && 
+                    (f.parentId === parentId || (f.parentId === null && parentId === 1))
+                )
+                
+                if (folder) {
+                    foundFolderId = folder.id
+                    parentId = folder.id
+                } else {
+                    // 如果找不到文件夹，保持在根目录
+                    foundFolderId = 1
+                    break
+                }
+            }
+            
+            currentFolderId.value = foundFolderId
+        } catch (error) {
+            console.error('查找文件夹失败:', error)
             currentFolderId.value = 1 // 默认为根目录
         }
     }
@@ -556,7 +579,8 @@ const confirmUpload = async () => {
             try {
                 const formData = new FormData()
                 formData.append('file', fileItem.raw || fileItem)
-                formData.append('folderId', folderId)
+                // 确保folderId是数字类型
+                formData.append('folderId', folderId.toString())
                 
                 await Server.post('/file/upload', formData, {
                     headers: {

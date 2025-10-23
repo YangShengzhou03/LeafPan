@@ -133,6 +133,28 @@ public class FolderController {
     }
     
     /**
+     * 获取文件夹路径
+     */
+    @GetMapping("/{id}/path")
+    public ResponseEntity<ApiResponse<List<Folder>>> getFolderPath(@PathVariable Long id) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            if (!folderService.hasPermission(currentUser.getId(), id)) {
+                return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件夹"));
+            }
+            
+            List<Folder> path = folderService.getFolderPath(id);
+            return ResponseEntity.ok(ApiResponse.success(path));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("获取文件夹路径失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
      * 重命名文件夹
      */
     @PutMapping("/{id}/rename")
