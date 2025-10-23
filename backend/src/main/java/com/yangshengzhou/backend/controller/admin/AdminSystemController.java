@@ -2,10 +2,13 @@ package com.yangshengzhou.backend.controller.admin;
 
 import com.yangshengzhou.backend.dto.ApiResponse;
 import com.yangshengzhou.backend.entity.User;
+import com.yangshengzhou.backend.repository.UserRepository;
+import com.yangshengzhou.backend.repository.FileRepository;
 import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.OperationLogService;
 import com.yangshengzhou.backend.service.FileService;
 import com.yangshengzhou.backend.service.FileStorageService;
+import com.yangshengzhou.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +32,15 @@ public class AdminSystemController {
     
     @Autowired
     private FileStorageService fileStorageService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private FileRepository fileRepository;
     
     /**
      * 创建系统备份
@@ -178,6 +190,60 @@ public class AdminSystemController {
             return ResponseEntity.ok(ApiResponse.success(systemInfo));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取系统信息失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 获取仪表板统计数据
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<Object>> getDashboardStats(HttpServletRequest request) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+                return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
+            }
+            
+            // 获取用户统计
+            long totalUsers = userRepository.count();
+            long activeUsers = userService.countActiveUsers();
+            
+            // 获取文件统计
+            long totalFiles = fileRepository.count();
+            Long totalStorageUsed = fileRepository.sumSize();
+            if (totalStorageUsed == null) {
+                totalStorageUsed = 0L;
+            }
+            
+            // 获取分享统计（暂时使用模拟数据）
+            long totalShares = 0L; // fileService.getTotalShareCount(); // 需要实现分享统计方法
+            
+            // 获取系统运行时间（模拟数据）
+            String uptime = "7天12小时35分钟";
+            
+            // 构建统计数据
+            java.util.Map<String, Object> stats = new java.util.HashMap<>();
+            stats.put("userCount", totalUsers);
+            stats.put("activeUserCount", activeUsers);
+            stats.put("fileCount", totalFiles);
+            stats.put("usedStorage", totalStorageUsed / (1024.0 * 1024 * 1024)); // 转换为GB
+            stats.put("shareCount", totalShares);
+            stats.put("uptime", uptime);
+            
+            // 最近7天用户注册趋势（模拟数据）
+            java.util.Map<String, Integer> userTrend = new java.util.HashMap<>();
+            userTrend.put("今天", 5);
+            userTrend.put("昨天", 8);
+            userTrend.put("前天", 6);
+            userTrend.put("3天前", 4);
+            userTrend.put("4天前", 7);
+            userTrend.put("5天前", 9);
+            userTrend.put("6天前", 3);
+            stats.put("userTrend", userTrend);
+            
+            return ResponseEntity.ok(ApiResponse.success(stats));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("获取统计数据失败: " + e.getMessage()));
         }
     }
 }

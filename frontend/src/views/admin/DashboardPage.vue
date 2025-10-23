@@ -67,6 +67,26 @@
         </el-row>
         
         <el-row :gutter="20" style="margin-top: 20px">
+          <el-col :span="12">
+            <el-card shadow="hover">
+              <template #header>
+                <div class="card-header">
+                  <span>最近注册用户</span>
+                </div>
+              </template>
+              <div class="recent-users">
+                <el-table :data="recentUsers" style="width: 100%" size="small">
+                  <el-table-column prop="email" label="邮箱" min-width="120"></el-table-column>
+                  <el-table-column prop="nickname" label="昵称" min-width="80"></el-table-column>
+                  <el-table-column prop="createTime" label="注册时间" min-width="120">
+                    <template #default="{ row }">
+                      {{ formatDate(row.createTime) }}
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </el-card>
+          </el-col>
           
           <el-col :span="12">
             <el-card shadow="hover">
@@ -124,6 +144,13 @@ const formatStorage = (sizeInGB) => {
   return `${sizeInGB.toFixed(2)} GB`
 }
 
+// 格式化日期
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleString('zh-CN')
+}
+
 // 加载仪表盘数据
 const loadDashboardData = async () => {
   try {
@@ -139,53 +166,27 @@ const loadDashboardData = async () => {
     }
     
     // 获取最近注册用户
-    const usersResponse = await Server.get('/admin/users', { 
+    const usersResponse = await Server.get('/admin/user/list', { 
       params: {
         page: 0, 
         size: 5,
-        sort: 'createdAt,desc'
+        sort: 'createTime,desc'
       }
     })
     
-    recentUsers.value = usersResponse.data.data.content || []
+    recentUsers.value = usersResponse.data.content || []
     
     // 更新系统运行时间
     uptime.value = response.data.uptime || ''
   } catch (error) {
     console.error('加载仪表盘数据失败:', error)
+    ElMessage.error('加载仪表盘数据失败')
   }
 }
 
 onMounted(() => {
   loadDashboardData()
 })
-
-// 获取系统统计信息
-const fetchStats = async () => {
-  try {
-    const response = await Server.get('/admin/stats')
-    stats.value = response.data
-  } catch (error) {
-    console.error('获取系统统计信息失败:', error)
-    ElMessage.error('获取系统统计信息失败')
-  }
-}
-
-// 获取用户列表
-const fetchUsers = async () => {
-  try {
-    const response = await Server.get('/admin/user/list', {
-      params: {
-        page: 0,
-        size: 5
-      }
-    })
-    recentUsers.value = response.data.content || []
-  } catch (error) {
-    console.error('获取用户列表失败:', error)
-    ElMessage.error('获取用户列表失败')
-  }
-}
 </script>
 
 <style scoped>
