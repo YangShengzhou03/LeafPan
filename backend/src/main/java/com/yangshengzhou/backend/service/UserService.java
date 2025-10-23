@@ -100,6 +100,15 @@ public class UserService {
             user.setNickname(updateData.get("nickname"));
         }
         
+        if (updateData.containsKey("email")) {
+            String newEmail = updateData.get("email");
+            // 检查邮箱是否已被其他用户使用
+            if (!newEmail.equals(user.getEmail()) && userRepository.existsByEmail(newEmail)) {
+                throw new RuntimeException("邮箱已被使用");
+            }
+            user.setEmail(newEmail);
+        }
+        
         if (updateData.containsKey("avatar")) {
             user.setAvatar(updateData.get("avatar"));
         }

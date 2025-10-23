@@ -270,15 +270,17 @@ const submitEditForm = async () => {
   await editFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        // 使用后端期望的字段名
         const response = await Server.put('/user/profile', {
-          username: editForm.username,
-          email: editForm.email,
-          phone: editForm.phone,
-          bio: editForm.bio
+          nickname: editForm.name, // 前端的name对应后端的nickname
+          email: editForm.email
+          // phone和gender字段后端暂不支持
         })
         
-        if (response.data) {
-          user.value = response.data
+        if (response.data && response.data.code === 200) {
+          // 更新本地用户信息
+          userProfile.name = editForm.name
+          userProfile.email = editForm.email
           editDialogVisible.value = false
           ElMessage.success('个人信息更新成功')
         }
@@ -314,16 +316,17 @@ const beforeAvatarUpload = (file) => {
 const fetchUserInfo = async () => {
   try {
     const response = await Server.get('/user/profile')
-    if (response.data) {
-      // 更新用户信息
+    console.log('获取用户信息响应:', response)
+    if (response.data && response.data.data) {
+      // 更新用户信息 - 使用后端实际返回的字段名
       Object.assign(userProfile, {
-        name: response.data.name || '--',
-        gender: response.data.gender || '--',
-        birthdate: response.data.birthdate || '--',
-        email: response.data.email || '--',
-        phone: response.data.phone || '--',
-        lastLoginTime: response.data.lastLoginTime || '--',
-        avatarUrl: response.data.avatarUrl || userProfile.avatarUrl
+        name: response.data.data.username || response.data.data.nickname || '--', // 优先使用username，如果没有则使用nickname
+        gender: '--', // 后端暂无gender字段
+        birthdate: '--', // 后端暂无birthdate字段
+        email: response.data.data.email || '--',
+        phone: '--', // 后端暂无phone字段
+        lastLoginTime: response.data.data.lastLoginTime || '--',
+        avatarUrl: response.data.data.avatar || userProfile.avatarUrl
       })
       
       // 填充表单数据
@@ -676,6 +679,8 @@ const fetchUserInfo = async () => {
   }
 }
 </style>
+
+
 
 
 
