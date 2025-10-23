@@ -298,17 +298,6 @@ const getGenderText = (gender) => {
   return genderMap[gender] || '未知'
 }
 
-// 将英文性别转换为中文
-const convertGenderToChinese = (gender) => {
-  // 后端使用Byte类型：0-未知，1-男，2-女
-  const genderMap = {
-    0: '未知',
-    1: '男',
-    2: '女'
-  }
-  return genderMap[gender] || '未知'
-}
-
 // 编辑对话框关闭处理
 const handleDialogClose = () => {
   editDialogVisible.value = false
@@ -933,7 +922,3 @@ const fetchUserInfo = async () => {
   background-color: #409eff;
 }
 </style>
-
-
-
-
