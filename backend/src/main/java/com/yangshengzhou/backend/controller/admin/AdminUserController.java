@@ -89,10 +89,10 @@ public class AdminUserController {
                     "UPDATE_USER",
                     "USER",
                     updatedUser.getId(),
-                    "管理员更新用户信息: " + updatedUser.getEmail(),
+                    updatedUser.getEmail(),
+                    "管理员更新用户信息",
                     getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
+                    request.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success(updatedUser));
@@ -132,10 +132,10 @@ public class AdminUserController {
                     "DELETE_USER",
                     "USER",
                     user.getId(),
-                    "管理员删除用户: " + user.getEmail(),
+                    user.getEmail(),
+                    "管理员删除用户",
                     getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
+                    request.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("用户删除成功"));
@@ -178,10 +178,10 @@ public class AdminUserController {
                     "UPDATE_USER_STATUS",
                     "USER",
                     user.getId(),
-                    "管理员" + (enabled ? "启用" : "禁用") + "用户: " + user.getEmail(),
+                    user.getEmail(),
+                    "管理员" + (enabled ? "启用" : "禁用") + "用户",
                     getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
+                    request.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("用户状态更新成功"));
@@ -243,10 +243,10 @@ public class AdminUserController {
                     "RESET_USER_PASSWORD",
                     "USER",
                     user.getId(),
-                    "管理员重置用户密码: " + user.getEmail(),
+                    user.getEmail(),
+                    "管理员重置用户密码",
                     getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
+                    request.getHeader("User-Agent")
                 );
                 
                 return ResponseEntity.ok(ApiResponse.success("用户密码重置成功"));

@@ -33,6 +33,9 @@ public class OperationLogService {
      * 记录操作日志
      */
     public void logOperation(String userId, String operationType, String targetType, String targetId, String targetName, String description, String ipAddress, String userAgent) {
+        // 打印IP地址信息，用于调试
+        System.out.println("记录操作日志 - IP地址: [" + ipAddress + "], 长度: " + (ipAddress != null ? ipAddress.length() : 0));
+        
         OperationLog log = new OperationLog();
         log.setUserId(userId);
         log.setOperationType(operationType);

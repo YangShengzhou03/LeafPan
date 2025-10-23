@@ -25,7 +25,7 @@ public class OperationLog {
     @Column(length = 500)
     private String description;
     
-    @Column(name = "ip_address", length = 45)
+    @Column(name = "ip_address", length = 100)
     private String ipAddress;
     
     @Column(name = "user_agent", length = 500)
