@@ -536,12 +536,20 @@ const navigateToFolder = async (path) => {
 }
 
 // 处理文件/文件夹点击
-const handleItemClick = (item) => {
+const handleItemClick = async (item) => {
     if (item.type === 'folder') {
         // 如果是文件夹，进入文件夹
-        currentPath.value.push(item.name)
-        currentFolderId.value = item.id
-        loadFiles()
+        try {
+            // 更新当前路径
+            currentPath.value.push(item.name)
+            // 更新当前文件夹ID
+            currentFolderId.value = item.id
+            // 重新加载文件列表
+            await loadFiles()
+        } catch (error) {
+            console.error('进入文件夹失败:', error)
+            ElMessage.error('进入文件夹失败')
+        }
     } else {
         // 如果是文件，打开文件（这里可以根据文件类型做不同处理）
         ElMessage.info(`打开文件: ${item.name}`)
