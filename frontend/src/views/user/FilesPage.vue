@@ -76,7 +76,7 @@
                         <component :is="getFileIconComponent(item.type)" />
                     </el-icon>
                 </div>
-                <div class="file-name" :title="item.displayName || item.name">{{ truncateFileName(item.displayName || item.name) }}</div>
+                <div class="file-name" :title="item.originalName || item.name">{{ truncateFileName(item.originalName || item.name) }}</div>
                 <div class="file-meta">
                     {{ item.type === 'folder' ? '' : formatFileSize(item.size) }}
                 </div>
@@ -149,7 +149,7 @@
                 </el-table-column>
                 <el-table-column label="名称" min-width="300">
                     <template #default="{ row }">
-                        <span class="file-name" @click="handleItemClick(row)" :title="row.name">{{ truncateFileName(row.name) }}</span>
+                        <span class="file-name" @click="handleItemClick(row)" :title="row.originalName || row.name">{{ truncateFileName(row.originalName || row.name) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="大小" width="120">
@@ -889,7 +889,7 @@ const handleFileCommand = async (command, item) => {
 
         case 'rename':
             renameDialogVisible.value = true
-            renameForm.name = item.name
+            renameForm.name = item.originalName || item.name
             break
 
         case 'move':
@@ -1268,6 +1268,12 @@ const handleCurrentChange = (newPage) => {
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 100%;
+    text-align: center;
+    padding: 2px 0;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .file-meta {
