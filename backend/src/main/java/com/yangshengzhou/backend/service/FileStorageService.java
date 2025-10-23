@@ -55,14 +55,11 @@ public class FileStorageService {
         // 生成唯一文件名
         String fileName = UUID.randomUUID().toString() + "." + fileExtension;
         
+        // 确保存储桶存在
+        ensureBucketExists(bucketType);
+        
         // 根据桶类型选择桶名
         String bucketName = getBucketNameByType(bucketType);
-        
-        // 确保存储桶存在
-        boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
-        if (!isExist) {
-            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
-        }
         
         // 上传文件
         try (InputStream inputStream = multipartFile.getInputStream()) {
