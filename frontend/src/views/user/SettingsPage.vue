@@ -315,13 +315,10 @@ const submitEditForm = async () => {
           phone: editForm.phone // 添加phone字段
         })
         
-        console.log('更新个人信息响应:', response)
-        
         // 检查响应结构，注意Server.js拦截器已经处理了响应
         // 如果后端返回{code: 200, message: "更新成功", data: User对象}
         // 拦截器会直接返回这个完整的响应对象
         if (response && response.code === 200) {
-          console.log('更新成功，响应格式正确')
           // 更新本地用户信息
           userProfile.name = editForm.name
           userProfile.email = editForm.email
@@ -331,7 +328,6 @@ const submitEditForm = async () => {
           ElMessage.success('个人信息更新成功')
         } else if (response && response.status === 200) {
           // 如果后端直接返回用户数据（没有code字段）
-          console.log('更新成功，直接返回用户数据')
           // 更新本地用户信息
           userProfile.name = editForm.name
           userProfile.email = editForm.email
@@ -340,13 +336,10 @@ const submitEditForm = async () => {
           editDialogVisible.value = false
           ElMessage.success('个人信息更新成功')
         } else {
-          console.log('更新失败，响应状态码:', response?.code || response?.status)
-          console.log('响应消息:', response?.message)
           ElMessage.error(response?.message || '更新失败，请重试')
         }
       } catch (error) {
-        console.error('更新个人信息失败:', error)
-        ElMessage.error('更新个人信息失败')
+    ElMessage.error('更新个人信息失败')
       } finally {
         submitLoading.value = false
       }
@@ -513,7 +506,6 @@ const cropAndUploadAvatar = async () => {
       throw new Error(response.data?.message || '上传失败')
     }
   } catch (error) {
-    console.error('头像上传失败:', error)
     cropLoading.value = false
     ElMessage.error('头像上传失败: ' + (error.message || '请重试'))
   }
@@ -523,7 +515,6 @@ const cropAndUploadAvatar = async () => {
 const fetchUserInfo = async () => {
   try {
     const response = await Server.get('/user/profile')
-    console.log('获取用户信息响应:', response)
     if (response.data) {
       // 更新用户信息 - Server.js响应拦截器已将后端响应包装为response.data
       // 后端数据结构为{code: 200, message: "操作成功", data: {user: {...}}}
@@ -547,7 +538,6 @@ const fetchUserInfo = async () => {
       editForm.phone = userProfile.phone
     }
   } catch (error) {
-    console.error('获取用户信息失败:', error)
     ElMessage.error('获取用户信息失败')
   }
 }

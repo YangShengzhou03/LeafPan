@@ -151,7 +151,6 @@ watch(currentUser, async (newUser) => {
 // 监听用户信息变化，确保用户名和邮箱正确显示
 watch(() => store.state.user, (newUser) => {
   if (newUser) {
-    console.log('用户信息已更新:', newUser)
   }
 }, { deep: true, immediate: true })
 
@@ -163,7 +162,6 @@ const handleLogout = async () => {
     // 使用路由跳转到首页
     router.push('/')
   } catch (error) {
-    console.error('退出登录失败:', error)
     // 即使退出失败也清除本地状态并跳转
     store.clearUser()
     router.push('/')
@@ -175,7 +173,6 @@ const refreshStorageInfo = async () => {
   try {
     await store.fetchStorageInfo()
   } catch (error) {
-    console.error('刷新存储信息失败:', error)
     // 可以在这里添加用户提示，比如使用 toast 或 alert
   }
 }
@@ -186,16 +183,12 @@ onMounted(async () => {
   try {
     // 检查是否已有用户信息，如果没有则获取
     if (!store.state.user) {
-      console.log('组件挂载时获取用户信息')
       await store.fetchCurrentUser()
-    } else {
-      console.log('组件挂载时已有用户信息:', store.state.user)
     }
     
     // 然后获取存储信息
     await refreshStorageInfo()
   } catch (error) {
-    console.error('初始化用户信息失败:', error)
     // 如果获取失败，可能是token无效，尝试重新初始化
     await store.init()
   }

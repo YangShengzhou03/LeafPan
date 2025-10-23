@@ -507,9 +507,8 @@ const handleBreadcrumbClick = async (item) => {
         // 重新加载文件列表
         await loadFiles()
     } catch (error) {
-        console.error('导航失败:', error)
-        ElMessage.error('导航失败')
-    }
+            ElMessage.error('导航失败')
+        }
 }
 
 // 页面加载时获取数据
@@ -554,25 +553,17 @@ const loadFiles = async () => {
             Server.get(`/folder/${folderId}/subfolders`)
         ])
 
-        // 调试：打印原始响应数据
-        console.log('文件列表响应:', filesResponse)
-        console.log('文件夹列表响应:', foldersResponse)
-
         // 处理文件数据
         const filesData = filesResponse.data
-        console.log('文件数据:', filesData)
         // 注意：Server.js响应拦截器已将后端响应包装为response.data
         // 根据控制台日志，实际数据结构是{content: Array(2), ...}，没有code字段，应该直接访问filesData.content
         const fileList = filesData && filesData.content ? filesData.content : []
-        console.log('解析后的文件列表:', fileList)
 
         // 处理文件夹数据
         const foldersData = foldersResponse.data
-        console.log('文件夹数据:', foldersData)
         // 注意：Server.js响应拦截器已将后端响应包装为response.data
         // 根据控制台日志，文件夹数据结构是{code: 200, message: '操作成功', data: Array(0)}
         const folderList = foldersData && foldersData.code === 200 ? foldersData.data || [] : []
-        console.log('解析后的文件夹列表:', folderList)
 
         // 将文件夹转换为文件项格式，并添加到文件列表前面
         const folderItems = folderList.map(folder => ({
@@ -625,7 +616,6 @@ const navigateToFolder = async (path) => {
                 return
             }
         } catch (error) {
-            console.error('获取根目录失败:', error)
             currentFolderId.value = 1 // 默认为根目录
         }
     } else {
@@ -664,7 +654,6 @@ const navigateToFolder = async (path) => {
 
             currentFolderId.value = foundFolderId
         } catch (error) {
-            console.error('查找文件夹失败:', error)
             // 获取用户根目录作为默认值
             try {
                 const rootResponse = await Server.get('/folder/root')
@@ -672,7 +661,6 @@ const navigateToFolder = async (path) => {
                     currentFolderId.value = rootResponse.data.data.id
                 }
             } catch (rootError) {
-                console.error('获取根目录失败:', rootError)
                 currentFolderId.value = 1 // 默认为根目录
             }
         }
@@ -693,7 +681,6 @@ const handleItemClick = async (item) => {
             // 重新加载文件列表
             await loadFiles()
         } catch (error) {
-            console.error('进入文件夹失败:', error)
             ElMessage.error('进入文件夹失败')
         }
     } else {
@@ -761,7 +748,6 @@ const confirmUpload = async () => {
             // 检查是否已经上传过同名同大小的文件
             const fileKey = `${fileItem.name}_${fileItem.size}`
             if (uploadedFiles.has(fileKey)) {
-                console.log(`跳过重复文件: ${fileItem.name}`)
                 continue
             }
 
@@ -780,7 +766,6 @@ const confirmUpload = async () => {
                 successCount++
                 uploadedFiles.add(fileKey)
             } catch (error) {
-                console.error(`上传文件 ${fileItem.name} 失败:`, error)
                 failCount++
             }
         }
@@ -799,7 +784,6 @@ const confirmUpload = async () => {
         // 重新加载数据
         await loadFiles()
     } catch (error) {
-        console.error('上传失败:', error)
         ElMessage.error('上传失败')
     } finally {
         uploading.value = false
@@ -839,7 +823,6 @@ const confirmCreateFolder = async () => {
                 folderDialogVisible.value = false
                 await loadFiles()
             } catch (error) {
-                console.error('创建文件夹失败:', error)
                 ElMessage.error('创建文件夹失败')
             } finally {
                 creatingFolder.value = false
@@ -869,7 +852,6 @@ const handleFileCommand = async (command, item) => {
                 window.URL.revokeObjectURL(url)
                 ElMessage.success(`下载完成: ${item.name}`)
             } catch (error) {
-                console.error('下载失败:', error)
                 ElMessage.error('下载失败')
             }
             break

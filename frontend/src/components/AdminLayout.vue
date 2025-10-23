@@ -96,11 +96,7 @@ const userAvatar = computed(() => {
 
 // 水印内容
 const watermarkContent = computed(() => {
-  console.log('store.state.user:', store.state.user)
-  console.log('nickname:', store.state.user?.nickname)
-  console.log('email:', store.state.user?.email)
   const content = store.state.user?.email || store.state.user?.nickname || '管理员'
-  console.log('水印内容:', content)
   return content
 })
 

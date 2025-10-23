@@ -27,9 +27,7 @@ app.config.globalProperties.$store = store;
 
 // 初始化应用状态
 store.init().then(() => {
-  console.log('应用状态初始化完成');
 }).catch(error => {
-  console.error('应用状态初始化失败:', error);
 });
 
 // 立即挂载应用，不等待配置加载
@@ -37,7 +35,5 @@ app.mount('#app');
 
 // 异步加载配置（不影响页面渲染）
 loadConfig().then(config => {
-  console.log('系统配置加载成功:', config);
 }).catch(error => {
-  console.warn('系统配置加载失败，使用默认配置:', error);
 });

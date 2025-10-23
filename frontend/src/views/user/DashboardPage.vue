@@ -93,34 +93,20 @@ const fileStats = ref([
 const fetchStorageInfo = async () => {
   try {
     loading.value = true
-    console.log('开始获取存储信息...')
     const response = await Server.get('/user/storage')
-    console.log('存储信息API响应:', response)
-    console.log('响应数据:', response.data)
     
     if (response.data && response.data.data) {
       const data = response.data.data
-      console.log('存储数据详情:', data)
       // 后端返回的字段是storageQuota和usedStorage，单位是字节
       totalStorageGB.value = data.storageQuota / (1024 * 1024 * 1024) // 转换为GB
       usedStorageGB.value = data.usedStorage / (1024 * 1024 * 1024) // 转换为GB
     } else if (response.data && response.data.availableStorage) {
       // 如果数据直接位于response.data中（没有嵌套data字段）
       const data = response.data
-      console.log('存储数据详情（直接格式）:', data)
       totalStorageGB.value = data.storageQuota / (1024 * 1024 * 1024) // 转换为GB
       usedStorageGB.value = data.usedStorage / (1024 * 1024 * 1024) // 转换为GB
-      
-      console.log('转换后的存储信息:', {
-        totalStorageGB: totalStorageGB.value,
-        usedStorageGB: usedStorageGB.value
-      })
-    } else {
-      console.warn('存储信息响应数据格式异常:', response.data)
     }
   } catch (error) {
-    console.error('获取存储信息失败:', error)
-    console.error('错误详情:', error.response)
     // 设置默认值
     totalStorageGB.value = 1
     usedStorageGB.value = 0
@@ -132,8 +118,6 @@ const fetchStorageInfo = async () => {
 // 获取文件统计
 const fetchFileStats = async () => {
   try {
-    console.log('开始获取文件统计数据...')
-    
     // 使用正确的接口获取统计数据
     // /file/list/page 接口返回分页数据包含totalElements字段
     // /folder/list 接口返回文件夹数组
@@ -142,20 +126,12 @@ const fetchFileStats = async () => {
       Server.get('/folder/list')
     ])
     
-    console.log('文件列表API响应:', filesResponse)
-    console.log('文件夹列表API响应:', foldersResponse)
-    
     // 从响应中提取总数
     // 注意：Server.js响应拦截器已将后端响应包装为response.data
     // 文件列表数据结构是{content: Array, totalElements: number, ...}
     // 文件夹列表数据结构是{code: 200, message: '操作成功', data: Array}
     const fileCount = filesResponse.data?.totalElements || 0
     const folderCount = foldersResponse.data?.data?.length || 0
-    
-    console.log('文件统计数据详情:', {
-      fileCount,
-      folderCount
-    })
     
     // 更新文件统计
     fileStats.value = [
@@ -164,11 +140,7 @@ const fetchFileStats = async () => {
       { type: 'shared', label: '共享文件', count: 0 }, // 暂时使用默认值，需要后端实现共享统计
       { type: 'favorites', label: '收藏文件', count: 0 }  // 暂时使用默认值，需要后端实现收藏统计
     ]
-    
-    console.log('更新后的文件统计:', fileStats.value)
   } catch (error) {
-    console.error('获取文件统计失败:', error)
-    console.error('错误详情:', error.response)
     // 设置默认值
     fileStats.value = [
       { type: 'files', label: '文件总数', count: 0 },

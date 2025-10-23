@@ -42,7 +42,6 @@ export const loadConfig = async () => {
       return currentConfig
     }
   } catch (error) {
-    console.warn('加载系统配置失败，使用默认配置:', error)
   }
   
   // 如果加载失败，返回默认配置
@@ -66,7 +65,7 @@ export const resetConfig = () => {
 }
 
 // 初始化时加载配置
-loadConfig().catch(console.error)
+loadConfig().catch(() => {})
 
 export default {
   getConfig,

@@ -21,7 +21,6 @@ const store = {
   // 设置用户信息
   setUser(user) {
     if (user) {
-      console.log('设置用户信息:', user)
       state.user = user
       state.isAuthenticated = true
       // 检查用户角色，设置管理员标志
@@ -82,7 +81,6 @@ const store = {
       return { success: false, message: response?.message || '登录失败' }
     } catch (error) {
       this.clearUser()
-      console.error('登录失败:', error)
       return { success: false, message: error.response?.data?.message || '登录失败，请检查网络连接' }
     } finally {
       state.loading = false
@@ -124,23 +122,18 @@ const store = {
 
     try {
       const response = await Server.get('/auth/me')
-      console.log('获取用户信息响应:', response)
       
       // 根据API响应结构，用户信息在response.data中
       // 响应结构: {code: 200, message: "操作成功", data: {用户信息}}
       if (response && response.code === 200 && response.data) {
-        console.log('解析后的用户数据:', response.data)
         this.setUser(response.data)
         
         // 如果用户信息中包含存储信息，更新存储信息
         if (response.data.storageInfo) {
           this.updateStorageInfo(response.data.storageInfo)
         }
-      } else {
-        console.error('获取用户信息失败: 响应格式不正确', response)
       }
     } catch (error) {
-      console.error('获取用户信息失败:', error)
       // 只有在token无效或过期时才清除token
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
         this.clearUser()
@@ -156,11 +149,9 @@ const store = {
 
     try {
       const response = await Server.get('/user/storage')
-      console.log('获取存储信息响应:', response)
       // 注意：Server.js的响应拦截器已经将后端返回的完整响应包装成了response.data
       // 后端返回的数据结构是 {code: 200, message: "success", data: {storageQuota: 1073741824, usedStorage: 1048576, ...}}
       const storageData = response.data || response
-      console.log('解析后的存储数据:', storageData)
       
       // 将后端返回的字节转换为GB，并更新存储信息
       if (storageData) {
@@ -173,7 +164,6 @@ const store = {
       }
       return storageData
     } catch (error) {
-      console.error('获取存储信息失败:', error)
       return null
     }
   },
@@ -211,7 +201,6 @@ const store = {
       // 调用后端登出API
       await Server.post('/auth/logout')
     } catch (error) {
-      console.error('登出API调用失败:', error)
     } finally {
       // 无论API调用是否成功，都清除本地状态
       this.clearUser()
