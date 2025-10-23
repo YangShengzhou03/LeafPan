@@ -9,6 +9,7 @@ import SharedPage from '@/views/user/SharedPage.vue';
 import TrashPage from '@/views/user/TrashPage.vue';
 import SettingsPage from '@/views/user/SettingsPage.vue';
 import store from '@/utils/store.js';
+import * as utils from '@/utils/utils.js';
 
 const routes = [
   // 未登录布局（首页 + 登录/注册）
@@ -144,6 +145,57 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+});
+
+// 全局前置守卫
+router.beforeEach(async (to, from, next) => {
+  // 设置页面标题
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
+
+  // 检查是否需要认证
+  if (to.meta.requiresAuth) {
+    // 检查是否有token
+    if (!utils.isLoggedIn()) {
+      // 没有token，重定向到登录页
+      next('/login');
+      return;
+    }
+
+    // 如果有token但没有用户信息，尝试获取用户信息
+    if (!store.state.user) {
+      try {
+        await store.fetchCurrentUser();
+        await store.fetchStorageInfo();
+      } catch (error) {
+        console.error('获取用户信息失败:', error);
+        // 获取用户信息失败，清除token并重定向到登录页
+        utils.removeToken();
+        next('/login');
+        return;
+      }
+    }
+
+    // 检查是否需要管理员权限
+    if (to.meta.requiresAdmin && !store.state.isAdmin) {
+      // 需要管理员权限但用户不是管理员，重定向到用户首页
+      next('/user');
+      return;
+    }
+  }
+
+  // 如果已登录且访问登录页，重定向到对应的首页
+  if (to.path === '/login' && utils.isLoggedIn()) {
+    if (store.state.isAdmin) {
+      next('/admin');
+    } else {
+      next('/user');
+    }
+    return;
+  }
+
+  next();
 });
 
 export default router;

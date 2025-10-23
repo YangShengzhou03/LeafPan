@@ -155,47 +155,59 @@
 
 <script>
 import { ElButton, ElMessage } from 'element-plus';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import store from '@/utils/store.js';
 
 export default {
   name: 'IndexLayout',
-  data() {
-    return {
-      isLogin: false
-    }
-  },
-  computed: {
-    isAuthenticated() {
-      return store.state.isAuthenticated;
-    },
-    currentUser() {
-      return store.state.user;
-    }
-  },
-  methods: {
-    handleLogin() {
-      this.$router.push('/login');
-    },
-    handleRegister() {
-      this.$router.push('/login?mode=register');
-    },
-    handleLogout() {
+  setup() {
+    // 使用computed属性确保响应式
+    const isAuthenticated = computed(() => store.state.isAuthenticated);
+    const currentUser = computed(() => store.state.user);
+    const router = useRouter();
+
+    const handleLogin = () => {
+      router.push('/login');
+    };
+
+    const handleRegister = () => {
+      router.push('/login?mode=register');
+    };
+
+    const handleLogout = () => {
       store.logout();
       ElMessage.success('您已成功退出登录');
-      this.$router.push('/');
-    },
-    handleDemo() {
+      router.push('/');
+    };
+
+    const handleDemo = () => {
       window.open('https://www.bilibili.com/video/BV1qgfmYmEAa/?share_source=copy_web&vd_source=f4167f5d5733b1b3cbdcbb4f2caa2211', '_blank');
-    },
-    handleStart() {
-      if (this.isAuthenticated) {
-        // 已登录，跳转到文件管理页面
-        this.$router.push('/user');
+    };
+
+    const handleStart = () => {
+      if (isAuthenticated.value) {
+        // 已登录，根据用户角色跳转到对应页面
+        if (store.state.isAdmin) {
+          router.push('/admin');
+        } else {
+          router.push('/user');
+        }
       } else {
         // 未登录，跳转到登录页面
-        this.$router.push('/login');
+        router.push('/login');
       }
-    }
+    };
+
+    return {
+      isAuthenticated,
+      currentUser,
+      handleLogin,
+      handleRegister,
+      handleLogout,
+      handleDemo,
+      handleStart
+    };
   }
 }
 </script>

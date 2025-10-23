@@ -20,6 +20,77 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
 2. 前端代码中使用相对路径，更加简洁
 3. 便于后续API版本管理和路径调整
 
+## 接口测试方式
+
+### 1. 使用Postman测试
+
+Postman是一个强大的API测试工具，可以方便地测试RESTful API。以下是测试步骤：
+
+1. **下载并安装Postman**
+   - 访问 [Postman官网](https://www.postman.com/downloads/) 下载对应平台的版本
+   - 安装并启动Postman
+
+2. **创建请求**
+   - 点击左上角的"+"按钮创建新请求
+   - 选择请求方法（GET、POST、PUT、DELETE等）
+   - 输入完整的请求URL，例如：`http://localhost:8081/api/auth/login`
+
+3. **设置请求头**
+   - 对于需要认证的接口，需要在Headers中添加：
+     - Key: `Authorization`
+     - Value: `Bearer <your_token_here>`
+   - 对于POST/PUT请求，通常还需要添加：
+     - Key: `Content-Type`
+     - Value: `application/json`
+
+4. **设置请求体**
+   - 对于POST/PUT请求，切换到Body标签
+   - 选择"raw"和"JSON"格式
+   - 输入JSON格式的请求参数
+
+5. **发送请求**
+   - 点击"Send"按钮发送请求
+   - 在下方查看响应结果
+
+### 2. 使用curl命令测试
+
+curl是一个命令行工具，适用于快速测试API。以下是常用命令示例：
+
+```bash
+# 登录接口
+curl -X POST http://localhost:8081/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"your_email@example.com","password":"your_password"}'
+
+# 获取用户信息（需要先获取token）
+curl -X GET http://localhost:8081/api/auth/me \
+  -H "Authorization: Bearer your_token_here"
+
+# 上传文件
+curl -X POST http://localhost:8081/api/file/upload \
+  -H "Authorization: Bearer your_token_here" \
+  -F "file=@/path/to/your/file.jpg" \
+  -F "path=/documents"
+```
+
+### 3. 使用浏览器直接测试
+
+对于GET请求，可以直接在浏览器地址栏输入URL进行测试：
+
+```
+http://localhost:8081/api/public/config
+```
+
+注意：POST/PUT/DELETE请求和需要认证的接口不能直接通过浏览器测试。
+
+### 4. 前端开发环境测试
+
+在开发过程中，可以通过前端应用进行测试：
+
+1. 启动后端服务：`http://localhost:8081`
+2. 启动前端服务：`http://localhost:8080`
+3. 通过前端界面进行操作，使用浏览器开发者工具查看网络请求
+
 ## 认证相关 API
 
 ### 用户登录
@@ -58,6 +129,21 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
     }
   }
   ```
+
+**测试示例**:
+```bash
+# 使用curl测试
+curl -X POST http://localhost:8081/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"123456"}'
+
+# 使用Postman测试
+# 1. 选择POST方法
+# 2. 输入URL: http://localhost:8081/api/auth/login
+# 3. 在Headers中添加: Content-Type: application/json
+# 4. 在Body中选择raw和JSON，输入: {"email":"admin@example.com","password":"123456"}
+# 5. 点击Send
+```
 
 **用户角色说明**:
 - `role`: 0-普通用户，1-管理员
@@ -101,6 +187,21 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
   }
   ```
 
+**测试示例**:
+```bash
+# 使用curl测试
+curl -X POST http://localhost:8081/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","email":"test@example.com","password":"123456"}'
+
+# 使用Postman测试
+# 1. 选择POST方法
+# 2. 输入URL: http://localhost:8081/api/auth/register
+# 3. 在Headers中添加: Content-Type: application/json
+# 4. 在Body中选择raw和JSON，输入: {"username":"testuser","email":"test@example.com","password":"123456"}
+# 5. 点击Send
+```
+
 ### 获取当前用户信息
 
 - **接口地址**: `/api/auth/me`
@@ -128,6 +229,20 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
     }
   }
   ```
+
+**测试示例**:
+```bash
+# 使用curl测试（需要先获取token）
+TOKEN="your_token_here"
+curl -X GET http://localhost:8081/api/auth/me \
+  -H "Authorization: Bearer $TOKEN"
+
+# 使用Postman测试
+# 1. 选择GET方法
+# 2. 输入URL: http://localhost:8081/api/auth/me
+# 3. 在Headers中添加: Authorization: Bearer your_token_here
+# 4. 点击Send
+```
 
 ### 修改密码
 

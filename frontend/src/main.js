@@ -5,6 +5,7 @@ import 'element-plus/dist/index.css';
 import router from './route';
 import App from './App.vue';
 import { loadConfig } from './utils/config';
+import store from './utils/store.js';
 
 // 引入所有图标
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
@@ -20,6 +21,16 @@ app.use(router);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
+
+// 将store添加到全局属性，方便在组件中使用
+app.config.globalProperties.$store = store;
+
+// 初始化应用状态
+store.init().then(() => {
+  console.log('应用状态初始化完成');
+}).catch(error => {
+  console.error('应用状态初始化失败:', error);
+});
 
 // 立即挂载应用，不等待配置加载
 app.mount('#app');

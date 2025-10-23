@@ -20,13 +20,15 @@ const store = {
 
   // 设置用户信息
   setUser(user) {
-    state.user = user
-    state.isAuthenticated = true
-    // 设置管理员状态
-    state.isAdmin = user.role === 1
-    // 更新存储信息
-    if (user.storageInfo) {
-      state.storageInfo = user.storageInfo
+    if (user) {
+      state.user = user
+      state.isAuthenticated = true
+      // 检查用户角色，设置管理员标志
+      state.isAdmin = user.role === 1 || user.role === 'ADMIN' || user.role === 'admin'
+      // 更新存储信息
+      if (user.storageInfo) {
+        state.storageInfo = user.storageInfo
+      }
     }
   },
 
@@ -57,22 +59,29 @@ const store = {
       const response = await Server.post('/auth/login', credentials)
       
       // 后端返回的数据结构是 {code: 200, message: "登录成功", data: {token: "...", user: {...}}}
-      if (response.data.code === 200 && response.data.data && response.data.data.token) {
-        utils.saveToken(response.data.data.token)
+      if (response.data && response.data.code === 200 && response.data.data) {
+        const { token, user } = response.data.data
+        
+        if (token) {
+          utils.saveToken(token)
+        }
+        
         // 设置用户信息
-        if (response.data.data.user) {
-          this.setUser(response.data.data.user)
+        if (user) {
+          this.setUser(user)
         } else {
           // 如果没有返回用户信息，需要额外获取
           await this.fetchCurrentUser()
         }
-        return { success: true, message: response.data.message }
+        
+        return { success: true, message: response.data.message || '登录成功', user }
       }
       
-      return { success: false, message: response.data.message || '登录失败' }
+      return { success: false, message: response.data?.message || '登录失败' }
     } catch (error) {
       this.clearUser()
-      return { success: false, message: error.response?.data?.message || error.message }
+      console.error('登录失败:', error)
+      return { success: false, message: error.response?.data?.message || '登录失败，请检查网络连接' }
     } finally {
       state.loading = false
     }
@@ -166,10 +175,12 @@ const store = {
   // 登出
   async logout() {
     try {
-      await authAPI.logout()
+      // 调用后端登出API
+      await Server.post('/auth/logout')
     } catch (error) {
-      console.error('登出失败:', error)
+      console.error('登出API调用失败:', error)
     } finally {
+      // 无论API调用是否成功，都清除本地状态
       this.clearUser()
     }
   },
@@ -177,9 +188,17 @@ const store = {
   // 初始化应用时检查登录状态
   async init() {
     if (utils.isLoggedIn()) {
-      await this.fetchCurrentUser()
-      await this.fetchStorageInfo()
+      try {
+        await this.fetchCurrentUser()
+        await this.fetchStorageInfo()
+        return true
+      } catch (error) {
+        console.error('初始化用户状态失败:', error)
+        this.clearUser()
+        return false
+      }
     }
+    return false
   }
 }
 
