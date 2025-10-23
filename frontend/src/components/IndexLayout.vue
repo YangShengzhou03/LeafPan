@@ -11,8 +11,11 @@
           <ElButton type="primary" class="login-btn" @click="handleLogin">登录</ElButton>
         </div>
         <div class="user-info" v-else>
-          <span class="welcome-text">您好，</span>
-          <span class="username-link" @click="goToUserLayout">{{ currentUser?.username || '用户' }}</span>
+          <span class="welcome-text">
+            您好，
+            <span class="username-link" @click="goToUserLayout">{{ currentUser?.username || '枫叶用户' }}</span>
+          </span>
+
         </div>
       </div>
     </header>
@@ -295,7 +298,8 @@ export default {
   color: #409EFF;
   font-size: 14px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: normal;
+  line-height: 1;
 }
 
 .username-link:hover {
@@ -344,7 +348,8 @@ export default {
   gap: 15px;
 }
 
-.start-btn, .demo-btn {
+.start-btn,
+.demo-btn {
   padding: 12px 25px;
   font-size: 16px;
 }
@@ -515,7 +520,8 @@ export default {
   margin-bottom: 30px;
 }
 
-.footer-section h3, .footer-section h4 {
+.footer-section h3,
+.footer-section h4 {
   margin-bottom: 20px;
   color: #fff;
 }
@@ -552,24 +558,24 @@ export default {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .nav-menu {
     display: none;
   }
-  
+
   .hero-section .container {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .hero-content h1 {
     font-size: 36px;
   }
-  
+
   .cta-buttons {
     justify-content: center;
   }
-  
+
   .pricing-cards {
     grid-template-columns: 1fr;
   }
