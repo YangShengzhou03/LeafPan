@@ -51,7 +51,7 @@ public class AdminDashboardController {
             Map<String, Object> dashboardStats = new HashMap<>();
             dashboardStats.put("userCount", userStats.get("totalUsers") != null ? userStats.get("totalUsers") : 0);
             dashboardStats.put("fileCount", fileStats.get("totalFiles") != null ? fileStats.get("totalFiles") : 0);
-            dashboardStats.put("usedStorage", storageStats.get("totalUsedStorage") != null ? storageStats.get("totalUsedStorage") : 0);
+            dashboardStats.put("usedStorage", storageStats.get("totalUsed") != null ? storageStats.get("totalUsed") : 0);
             dashboardStats.put("shareCount", fileStats.get("totalShares") != null ? fileStats.get("totalShares") : 0);
             dashboardStats.put("uptime", "系统运行正常");
             

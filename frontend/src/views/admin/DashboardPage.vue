@@ -45,7 +45,7 @@
                 </div>
                 <div class="stat-content">
                   <div class="stat-title">存储使用</div>
-                  <div class="stat-value">{{ formatStorage(stats.usedStorage) }}</div>
+                  <div class="stat-value">{{ formatStorageSize(stats.usedStorage) }}</div>
                 </div>
               </div>
             </el-card>
@@ -113,12 +113,15 @@ const stats = ref({
 // 系统运行时间
 const uptime = ref('')
 
-// 格式化存储大小
-const formatStorage = (sizeInGB) => {
-  if (sizeInGB < 1) {
-    return `${(sizeInGB * 1024).toFixed(2)} MB`
-  }
-  return `${sizeInGB.toFixed(2)} GB`
+// 格式化存储大小（字节转换为可读格式）
+const formatStorageSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes'
+  
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // 格式化日期
