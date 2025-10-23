@@ -3,8 +3,7 @@ import Server from './Server'
 
 // 默认配置
 const defaultConfig = {
-  maxFileSize: 100, // MB
-  allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip', 'rar'],
+  maxFileSize: 150, // MB
   appName: 'LeafPan网盘系统',
   apiVersion: 'v1'
 }

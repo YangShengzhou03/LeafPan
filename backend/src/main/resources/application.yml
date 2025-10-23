@@ -29,8 +29,8 @@ spring:
   # 文件上传配置
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 150MB
+      max-request-size: 150MB
       
   # Redis配置
   redis:
@@ -79,8 +79,7 @@ app:
     
   # 文件存储配置
   storage:
-    max-file-size: 100MB
-    allowed-extensions: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar
+    max-file-size: 150MB
     
 # 日志配置
 #logging:

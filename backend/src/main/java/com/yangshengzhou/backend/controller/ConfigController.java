@@ -33,9 +33,6 @@ public class ConfigController {
     @Value("${app.storage.max-file-size}")
     private String maxFileSize;
     
-    @Value("${app.storage.allowed-extensions}")
-    private String allowedExtensions;
-    
     @Value("${app.jwt.expiration}")
     private long jwtExpiration;
     
@@ -51,7 +48,6 @@ public class ConfigController {
             // 文件上传配置
             Map<String, Object> fileConfig = new HashMap<>();
             fileConfig.put("maxFileSize", maxFileSize);
-            fileConfig.put("allowedExtensions", allowedExtensions.split(","));
             config.put("file", fileConfig);
             
             // MinIO配置
@@ -105,7 +101,6 @@ public class ConfigController {
             // 文件上传配置
             Map<String, Object> fileConfig = new HashMap<>();
             fileConfig.put("maxFileSize", maxFileSize);
-            fileConfig.put("allowedExtensions", allowedExtensions.split(","));
             config.put("file", fileConfig);
             
             // 应用信息

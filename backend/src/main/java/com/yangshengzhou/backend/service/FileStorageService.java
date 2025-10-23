@@ -32,9 +32,6 @@ public class FileStorageService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
     
-    @Value("${app.storage.allowed-extensions}")
-    private String allowedExtensions;
-    
     /**
      * 上传文件到MinIO
      */
@@ -61,16 +58,13 @@ public class FileStorageService {
      * 上传文件到MinIO并返回文件实体（指定桶类型）
      */
     public File uploadFileAndSaveInfo(MultipartFile multipartFile, String userId, Long folderId, BucketType bucketType) throws Exception {
-        // 验证文件扩展名
+        // 验证文件名
         String originalFilename = multipartFile.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {
             throw new IllegalArgumentException("文件名不能为空");
         }
         
         String fileExtension = getFileExtension(originalFilename);
-        if (!isAllowedExtension(fileExtension)) {
-            throw new IllegalArgumentException("不支持的文件类型: " + fileExtension);
-        }
         
         // 生成唯一文件名
         String fileName = UUID.randomUUID().toString() + "." + fileExtension;
@@ -220,20 +214,5 @@ public class FileStorageService {
         return filename.substring(lastDotIndex + 1).toLowerCase();
     }
     
-    /**
-     * 检查文件扩展名是否允许
-     */
-    private boolean isAllowedExtension(String extension) {
-        if (extension == null || extension.isEmpty()) {
-            return false;
-        }
-        
-        String[] allowedExts = allowedExtensions.split(",");
-        for (String allowedExt : allowedExts) {
-            if (extension.trim().equalsIgnoreCase(allowedExt.trim())) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 }
