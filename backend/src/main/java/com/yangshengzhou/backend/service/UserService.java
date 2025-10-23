@@ -281,7 +281,7 @@ public class UserService {
      */
     public boolean isAdmin(String userId) {
         User user = getUserById(userId);
-        return user.getRole() != null && user.getRole().equals("ADMIN");
+        return user.getRole() != null && user.getRole() == 1;
     }
     
     /**
@@ -301,7 +301,7 @@ public class UserService {
      * 根据状态获取用户列表
      */
     public List<User> getUsersByStatus(Integer status) {
-        return userRepository.findByStatus(status);
+        return userRepository.findByStatus(status.byteValue());
     }
     
     /**
@@ -322,7 +322,7 @@ public class UserService {
      * 根据角色获取用户列表
      */
     public List<User> getUsersByRole(String role) {
-        return userRepository.findByRole(Integer.valueOf(role));
+        return userRepository.findByRole(Byte.valueOf(role));
     }
     
     /**
@@ -360,7 +360,7 @@ public class UserService {
         statistics.put("activeUsers", activeUsers);
         
         // 管理员用户数
-        List<User> adminUsers = userRepository.findByRole(1);
+        List<User> adminUsers = userRepository.findByRole((byte) 1);
         statistics.put("adminUsers", adminUsers.size());
         
         // 普通用户数

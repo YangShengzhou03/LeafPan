@@ -20,8 +20,8 @@ public interface UserRepository extends JpaRepository<User, String> {
     long countActiveUsers();
     
     @Query("SELECT u FROM User u WHERE u.status = :status")
-    List<User> findByStatus(@Param("status") Integer status);
+    List<User> findByStatus(@Param("status") Byte status);
     
     @Query("SELECT u FROM User u WHERE u.role = :role")
-    List<User> findByRole(@Param("role") Integer role);
+    List<User> findByRole(@Param("role") Byte role);
 }

@@ -283,10 +283,8 @@ const loadUsers = async () => {
     })
     
     const response = await Server.get('/admin/user/list', {
-      params: {
-        page: currentPage.value - 1,
-        size: pageSize.value
-      }
+      page: currentPage.value - 1,
+      size: pageSize.value
     })
     
     console.log('API响应数据:', response.data)
