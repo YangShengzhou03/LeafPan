@@ -169,6 +169,7 @@ import {
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
 import Cropper from 'cropperjs'
+import 'cropperjs/dist/cropper.css'
 
 // 头像遮罩层显示状态
 const showAvatarOverlay = ref(false)
@@ -395,17 +396,25 @@ const beforeAvatarUpload = (file) => {
 }
 
 // 初始化裁剪器
-const initCropper = () => {
+const initCropper = async () => {
   if (cropper) {
     cropper.destroy()
     cropper = null
   }
 
+  // 等待DOM更新完成
+  await nextTick()
+  
   // 确保图片元素已经加载
-  if (cropImage.value && cropImage.value.complete) {
-    createCropper()
-  } else if (cropImage.value) {
+  if (cropImage.value) {
+    // 强制重新加载图片，确保onload触发
+    cropImage.value.src = cropImageUrl.value
     cropImage.value.onload = () => {
+      createCropper()
+    }
+    
+    // 如果图片已经加载完成，直接初始化
+    if (cropImage.value.complete) {
       createCropper()
     }
   }
@@ -975,3 +984,5 @@ const fetchUserInfo = async () => {
   background-color: #409eff;
 }
 </style>
+
+
