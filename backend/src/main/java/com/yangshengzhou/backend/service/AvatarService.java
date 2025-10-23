@@ -47,7 +47,7 @@ public class AvatarService {
                 }
             } catch (Exception e) {
                 // 删除失败不影响上传新头像，只记录日志
-                System.err.println("删除旧头像失败: " + e.getMessage());
+                // 删除旧头像失败，继续处理新头像上传
             }
         }
         
