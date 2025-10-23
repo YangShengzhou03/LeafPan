@@ -66,6 +66,15 @@
               label-width="0"
               class="form-content"
             >
+              <el-form-item prop="phone">
+                <el-input 
+                  v-model="registerForm.phone" 
+                  placeholder="手机号"
+                  prefix-icon="Phone"
+                  size="large"
+                />
+              </el-form-item>
+              
               <el-form-item prop="email">
                 <el-input 
                   v-model="registerForm.email" 
@@ -104,28 +113,6 @@
                   show-password
                   size="large"
                   @keyup.enter="handleRegister"
-                />
-              </el-form-item>
-              
-              <el-form-item prop="gender">
-                <el-select 
-                  v-model="registerForm.gender" 
-                  placeholder="选择性别"
-                  size="large"
-                  style="width: 100%"
-                >
-                  <el-option label="男" value="MALE" />
-                  <el-option label="女" value="FEMALE" />
-                  <el-option label="未设置" value="NOT_SET" />
-                </el-select>
-              </el-form-item>
-              
-              <el-form-item prop="phone">
-                <el-input 
-                  v-model="registerForm.phone" 
-                  placeholder="手机号（可选）"
-                  prefix-icon="Phone"
-                  size="large"
                 />
               </el-form-item>
               
@@ -177,11 +164,10 @@ const loginForm = reactive({
 // 注册表单
 const registerFormRef = ref()
 const registerForm = reactive({
+  phone: '',
   email: '',
   verificationCode: '',
   password: '',
-  gender: 'NOT_SET',
-  phone: '',
   agreeToTerms: false
 })
 
@@ -228,6 +214,10 @@ const loginRules = {
 
 // 注册表单验证规则
 const registerRules = {
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+  ],
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
@@ -239,12 +229,6 @@ const registerRules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
-  ],
-  gender: [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  phone: [
-    { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
   agreeToTerms: [
     {

@@ -16,7 +16,7 @@ const routes = [
   {
     path: '/',
     component: IndexLayout,
-    meta: { requiresAuth: false }
+    meta: { title: '枫叶网盘', requiresAuth: false }
   },
 
   // 登录页面
