@@ -42,7 +42,7 @@ public class ShareController {
                 "CREATE_SHARE",
                 "SHARE",
                 share.getId().toString(),
-                    "创建分享",
+                "创建分享",
                 getClientIpAddress(httpRequest),
                 httpRequest.getHeader("User-Agent")
             );
@@ -100,7 +100,7 @@ public class ShareController {
                 "UPDATE_SHARE",
                 "SHARE",
                 share.getId().toString(),
-                    "更新分享",
+                "更新分享",
                 getClientIpAddress(httpRequest),
                 httpRequest.getHeader("User-Agent")
             );
@@ -132,7 +132,7 @@ public class ShareController {
                     "DELETE_SHARE",
                     "SHARE",
                     id.toString(),
-                        "删除分享",
+                    "删除分享",
                     getClientIpAddress(httpRequest),
                     httpRequest.getHeader("User-Agent")
                 );

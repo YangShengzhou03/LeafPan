@@ -72,7 +72,7 @@ public class FileController {
                     "UPLOAD", 
                     "FILE", 
                     uploadedFile.getId().toString(),
-                        "上传文件",
+                    "上传文件",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -165,7 +165,7 @@ public class FileController {
                 "DOWNLOAD", 
                 "FILE", 
                 id.toString(),
-                    "下载文件",
+                "下载文件",
                 getClientIpAddress(request),
                 request.getHeader("User-Agent")
             );
@@ -204,7 +204,7 @@ public class FileController {
                 "DOWNLOAD", 
                 "FILE", 
                 file.getId().toString(),
-                    "下载文件",
+                "下载文件",
                 getClientIpAddress(request),
                 request.getHeader("User-Agent")
             );
@@ -284,7 +284,7 @@ public class FileController {
                     "RENAME", 
                     "FILE", 
                     id.toString(),
-                        "重命名文件: " + newName,
+                    "重命名文件: " + newName,
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -331,7 +331,8 @@ public class FileController {
                     "DELETE", 
                     "FILE", 
                     id.toString(),
-                        getClientIpAddress(request),
+                    "删除文件: " + file.getName(), 
+                    getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
                 
@@ -437,7 +438,8 @@ public class FileController {
                                     "DELETE", 
                                     "FILE", 
                                     fileId.toString(),
-                                        getClientIpAddress(request),
+                                    "批量删除文件: " + file.getName(),
+                                    getClientIpAddress(request),
                                     request.getHeader("User-Agent")
                                 );
                             } else {

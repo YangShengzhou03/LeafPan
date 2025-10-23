@@ -47,9 +47,9 @@ public class AdminSystemController {
                 "CREATE_BACKUP",
                 "SYSTEM",
                 "",
-                    request.getRemoteAddr(),
-                request.getHeader("User-Agent"),
-                ""
+                "创建系统备份",
+                request.getRemoteAddr(),
+                request.getHeader("User-Agent")
             );
             
             // TODO: 实现实际的备份逻辑
@@ -78,9 +78,9 @@ public class AdminSystemController {
                 "CLEAN_TEMP_FILES",
                 "SYSTEM",
                 "",
-                    request.getRemoteAddr(),
-                request.getHeader("User-Agent"),
-                ""
+                "清理临时文件",
+                request.getRemoteAddr(),
+                request.getHeader("User-Agent")
             );
             
             // TODO: 实现实际的临时文件清理逻辑

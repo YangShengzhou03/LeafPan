@@ -61,7 +61,7 @@ public class FolderController {
                 "CREATE_FOLDER", 
                 "文件夹", 
                 folder.getId().toString(),
-                    "创建文件夹",
+                "创建文件夹",
                 getClientIpAddress(request), 
                 request.getHeader("User-Agent")
             );
@@ -235,7 +235,7 @@ public class FolderController {
                     "DELETE_FOLDER", 
                     "文件夹", 
                     folder.getId().toString(),
-                        "删除文件夹",
+                    "删除文件夹",
                     getClientIpAddress(request), 
                     request.getHeader("User-Agent")
                 );
