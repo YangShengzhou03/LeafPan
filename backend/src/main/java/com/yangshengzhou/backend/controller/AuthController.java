@@ -158,9 +158,10 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> request) {
         try {
-            String token = request.get("token");
+            String email = request.get("email");
+            String code = request.get("code");
             String newPassword = request.get("newPassword");
-            authService.resetPassword(token, newPassword);
+            authService.resetPassword(email, code, newPassword);
             return ResponseEntity.ok(ApiResponse.success("密码重置成功"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("密码重置失败: " + e.getMessage()));

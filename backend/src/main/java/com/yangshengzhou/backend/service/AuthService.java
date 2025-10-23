@@ -250,7 +250,7 @@ public class AuthService {
             userRepository.save(user);
             
             // 记录操作日志
-            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "用户重置密码");
+            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "USER", user.getId(), user.getUsername(), "用户重置密码", "", "");
         } catch (Exception e) {
             throw new RuntimeException("重置密码失败: " + e.getMessage());
         }

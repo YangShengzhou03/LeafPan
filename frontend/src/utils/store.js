@@ -88,7 +88,7 @@ const store = {
   async sendVerificationCode(email) {
     state.loading = true
     try {
-      await Server.post('/api/auth/send-verification', { email })
+      await Server.post('/api/verification/send', { email })
       return { success: true, message: '验证码发送成功' }
     } catch (error) {
       return { success: false, message: error.response?.data?.message || error.message }
