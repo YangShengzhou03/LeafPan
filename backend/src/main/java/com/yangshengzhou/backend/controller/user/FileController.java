@@ -59,11 +59,8 @@ public class FileController {
                 folderId = 1L; // 根目录ID
             }
             
-            // 上传文件到存储服务
-            String fileName = fileStorageService.uploadFile(file, currentUser.getId(), folderId);
-            
-            // 保存文件信息到数据库
-            File uploadedFile = fileService.uploadFile(file, currentUser.getId(), folderId, fileName);
+            // 上传文件到存储服务并保存文件信息到数据库
+            File uploadedFile = fileStorageService.uploadFileAndSaveInfo(file, currentUser.getId(), folderId);
             
             if (uploadedFile != null) {
                 // 记录上传日志

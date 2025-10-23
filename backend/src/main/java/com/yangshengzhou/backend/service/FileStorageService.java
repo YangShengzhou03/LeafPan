@@ -38,9 +38,24 @@ public class FileStorageService {
     }
     
     /**
+     * 上传文件到MinIO并返回文件实体
+     */
+    public File uploadFileAndSaveInfo(MultipartFile multipartFile, String userId, Long folderId) throws Exception {
+        return uploadFileAndSaveInfo(multipartFile, userId, folderId, BucketType.DATA);
+    }
+    
+    /**
      * 上传文件到MinIO（指定桶类型）
      */
     public String uploadFile(MultipartFile multipartFile, String userId, Long folderId, BucketType bucketType) throws Exception {
+        File fileEntity = uploadFileAndSaveInfo(multipartFile, userId, folderId, bucketType);
+        return fileEntity.getName();
+    }
+    
+    /**
+     * 上传文件到MinIO并返回文件实体（指定桶类型）
+     */
+    public File uploadFileAndSaveInfo(MultipartFile multipartFile, String userId, Long folderId, BucketType bucketType) throws Exception {
         // 验证文件扩展名
         String originalFilename = multipartFile.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {
@@ -86,7 +101,7 @@ public class FileStorageService {
         
         fileRepository.save(fileEntity);
         
-        return fileName;
+        return fileEntity;
     }
     
     /**

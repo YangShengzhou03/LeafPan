@@ -680,7 +680,7 @@ const handleItemClick = async (item) => {
         }
     } else {
         // 如果是文件，打开文件（这里可以根据文件类型做不同处理）
-        ElMessage.info(`打开文件: ${item.name}`)
+        ElMessage.warning(`请下载后打开文件`)
     }
 }
 
