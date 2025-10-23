@@ -109,9 +109,9 @@ public class AdminSystemController {
                 "CLEAN_LOG_FILES",
                 "SYSTEM",
                 "",
-                    request.getRemoteAddr(),
-                request.getHeader("User-Agent"),
-                ""
+                "清理日志文件",
+                request.getRemoteAddr(),
+                request.getHeader("User-Agent")
             );
             
             // 调用OperationLogService清理过期日志
@@ -140,9 +140,9 @@ public class AdminSystemController {
                 "CLEAN_TRASH",
                 "SYSTEM",
                 "",
-                    request.getRemoteAddr(),
-                request.getHeader("User-Agent"),
-                ""
+                "清理回收站",
+                request.getRemoteAddr(),
+                request.getHeader("User-Agent")
             );
             
             // TODO: 实现实际的回收站清理逻辑
