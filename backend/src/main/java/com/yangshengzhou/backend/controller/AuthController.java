@@ -29,7 +29,7 @@ public class AuthController {
         try {
             String ipAddress = getClientIpAddress(request);
             Map<String, Object> result = authService.login(
-                loginRequest.getUsername(), 
+                loginRequest.getEmail(), 
                 loginRequest.getPassword(), 
                 ipAddress
             );

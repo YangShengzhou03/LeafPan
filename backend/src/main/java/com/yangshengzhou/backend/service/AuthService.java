@@ -44,20 +44,20 @@ public class AuthService {
     /**
      * 用户登录
      */
-    public Map<String, Object> login(String username, String password, String ipAddress) {
+    public Map<String, Object> login(String email, String password, String ipAddress) {
+        // 通过邮箱查找用户
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("邮箱不存在或密码错误"));
+        
         // 认证用户
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(username, password)
+            new UsernamePasswordAuthenticationToken(user.getUsername(), password)
         );
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
-        // 获取用户信息
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("用户不存在"));
-        
         // 生成JWT令牌
-        String token = jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(user.getUsername());
         
         // 记录登录日志
         operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), user.getUsername(), "用户登录", ipAddress, "");

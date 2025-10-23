@@ -45,13 +45,17 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // 公开访问的端点
+                .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/public/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/config/**").permitAll()
                 .requestMatchers("/api/config/**").permitAll()  // 配置API公开访问
+                .requestMatchers("/verification/**").permitAll()
                 .requestMatchers("/api/verification/**").permitAll()  // 验证码API公开访问
-                .requestMatchers("/verification/**").permitAll()  // 验证码API公开访问（兼容旧路径）
                 .requestMatchers("/error").permitAll()
                 // 管理员端点
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // 其他需要认证
                 .anyRequest().authenticated()

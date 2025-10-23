@@ -29,7 +29,7 @@ LeafPan 是一个基于云存储的文件管理系统，提供了完整的文件
 - **请求参数**:
   ```json
   {
-    "username": "string",
+    "email": "string",
     "password": "string"
   }
   ```

@@ -30,11 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         
         // 跳过公开接口的JWT认证
-        if (requestURI.startsWith("/api/auth/") || 
+        if (requestURI.startsWith("/auth/") || 
+            requestURI.startsWith("/api/auth/") || 
+            requestURI.startsWith("/public/") || 
             requestURI.startsWith("/api/public/") || 
+            requestURI.startsWith("/config/") || 
             requestURI.startsWith("/api/config/") || 
-            requestURI.startsWith("/api/verification/") || 
-            requestURI.startsWith("/verification/") ||
+            requestURI.startsWith("/verification/") || 
+            requestURI.startsWith("/api/verification/") ||
             requestURI.equals("/error")) {
             filterChain.doFilter(request, response);
             return;
