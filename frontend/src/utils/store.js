@@ -153,8 +153,9 @@ const store = {
     try {
       const response = await Server.get('/user/storage')
       console.log('获取存储信息响应:', response)
+      // 注意：Server.js的响应拦截器已经将后端返回的完整响应包装成了response.data
       // 后端返回的数据结构是 {code: 200, message: "success", data: {storageQuota: 1073741824, usedStorage: 1048576, ...}}
-      const storageData = response.data.data || response.data
+      const storageData = response.data || response
       console.log('解析后的存储数据:', storageData)
       
       // 将后端返回的字节转换为GB，并更新存储信息
