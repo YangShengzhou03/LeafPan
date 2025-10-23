@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/share")
+@RequestMapping("/share")
 public class ShareController {
     
     @Autowired

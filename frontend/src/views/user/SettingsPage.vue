@@ -270,7 +270,7 @@ const submitEditForm = async () => {
   await editFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        const response = await Server.put('/api/user/profile', {
+        const response = await Server.put('/user/profile', {
           username: editForm.username,
           email: editForm.email,
           phone: editForm.phone,
@@ -313,7 +313,7 @@ const beforeAvatarUpload = (file) => {
 // 获取用户信息
 const fetchUserInfo = async () => {
   try {
-    const response = await Server.get('/api/user/profile')
+    const response = await Server.get('/user/profile')
     if (response.data) {
       user.value = response.data
       // 填充表单数据

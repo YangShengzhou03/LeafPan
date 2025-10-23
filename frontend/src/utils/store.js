@@ -54,7 +54,7 @@ const store = {
   async login(credentials) {
     state.loading = true
     try {
-      const response = await Server.post('/api/auth/login', credentials)
+      const response = await Server.post('/auth/login', credentials)
       
       if (response.data.token) {
         utils.saveToken(response.data.token)
@@ -75,7 +75,7 @@ const store = {
   async register(userData) {
     state.loading = true
     try {
-      await Server.post('/api/auth/register', userData)
+      await Server.post('/auth/register', userData)
       return { success: true, message: '注册成功' }
     } catch (error) {
       return { success: false, message: error.response?.data?.message || error.message }
@@ -88,7 +88,7 @@ const store = {
   async sendVerificationCode(email) {
     state.loading = true
     try {
-      await Server.post('/api/verification/send', { email })
+      await Server.post('/verification/send', { email })
       return { success: true, message: '验证码发送成功' }
     } catch (error) {
       return { success: false, message: error.response?.data?.message || error.message }
@@ -105,7 +105,7 @@ const store = {
     }
 
     try {
-      const response = await Server.get('/api/auth/me')
+      const response = await Server.get('/auth/me')
       this.setUser(response.data)
     } catch (error) {
       this.clearUser()
@@ -120,7 +120,7 @@ const store = {
     }
 
     try {
-      const response = await Server.get('/api/user/storage')
+      const response = await Server.get('/user/storage')
       state.storageInfo = response.data
       return response.data
     } catch (error) {
@@ -133,7 +133,7 @@ const store = {
   async updateProfile(userData) {
     state.loading = true
     try {
-      const response = await Server.put('/api/user/profile', userData)
+      const response = await Server.put('/user/profile', userData)
       this.setUser(response.data)
       return { success: true, message: '更新成功' }
     } catch (error) {
@@ -147,7 +147,7 @@ const store = {
   async updatePassword(passwordData) {
     state.loading = true
     try {
-      await Server.put('/api/user/password', passwordData)
+      await Server.put('/user/password', passwordData)
       return { success: true, message: '密码更新成功' }
     } catch (error) {
       return { success: false, message: error.response?.data?.message || error.message }

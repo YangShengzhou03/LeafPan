@@ -93,7 +93,7 @@ const fileStats = ref([
 const fetchStorageInfo = async () => {
   try {
     loading.value = true
-    const response = await Server.get('/api/user/storage')
+    const response = await Server.get('/user/storage')
     if (response.data) {
       const data = response.data
       totalStorageGB.value = data.totalSpace / (1024 * 1024 * 1024) // 转换为GB
@@ -111,7 +111,7 @@ const fetchFileStats = async () => {
   try {
     // 这里假设有一个获取文件统计的API
     // 如果没有，可以使用获取文件列表的API来计算统计信息
-    const response = await Server.get('/api/user/dashboard-stats')
+    const response = await Server.get('/user/dashboard-stats')
     if (response.data) {
       const data = response.data
       fileStats.value = [

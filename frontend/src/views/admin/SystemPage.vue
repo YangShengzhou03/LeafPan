@@ -130,7 +130,7 @@ const emailSettings = reactive({
 const loadSettings = async () => {
   try {
     // 调用后端API获取系统设置
-    const response = await Server.get('/api/admin/config')
+    const response = await Server.get('/admin/config')
     
     // 更新基本设置
     Object.assign(basicSettings, response.data.basic || {})
@@ -174,7 +174,7 @@ const saveSettings = async () => {
       email: emailSettings
     }
     
-    await Server.post('/api/admin/config', settings)
+    await Server.post('/admin/config', settings)
     
     ElMessage.success('系统设置保存成功')
   } catch (error) {
@@ -206,7 +206,7 @@ const uploadLogo = async (options) => {
     const formData = new FormData()
     formData.append('file', options.file)
     
-    const response = await Server.post('/api/admin/logo', formData, {
+    const response = await Server.post('/admin/logo', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -224,7 +224,7 @@ const testEmail = async () => {
   testingEmail.value = true
   try {
     // 调用后端API测试邮件发送
-    await Server.post('/api/admin/test-email', emailSettings)
+    await Server.post('/admin/test-email', emailSettings)
     ElMessage.success('测试邮件发送成功，请检查收件箱')
   } catch (error) {
     console.error('测试邮件发送失败:', error)
@@ -239,7 +239,7 @@ const createBackup = async () => {
   backingUp.value = true
   try {
     // 调用后端API创建备份
-    await Server.post('/api/admin/backup')
+    await Server.post('/admin/backup')
     
     const now = new Date()
     lastBackupTime.value = now.toLocaleString()
@@ -262,7 +262,7 @@ const cleanTempFiles = async () => {
   cleaningTemp.value = true
   try {
     // 调用后端API清理临时文件
-    await Server.post('/api/admin/clean-temp')
+    await Server.post('/admin/clean-temp')
     ElMessage.success('临时文件清理完成')
   } catch (error) {
     console.error('清理临时文件失败:', error)
@@ -277,7 +277,7 @@ const cleanLogFiles = async () => {
   cleaningLogs.value = true
   try {
     // 调用后端API清理日志文件
-    await Server.post('/api/admin/clean-logs')
+    await Server.post('/admin/clean-logs')
     ElMessage.success('日志文件清理完成')
   } catch (error) {
     console.error('清理日志文件失败:', error)
@@ -292,7 +292,7 @@ const cleanTrash = async () => {
   cleaningTrash.value = true
   try {
     // 调用后端API清理回收站
-    await Server.post('/api/admin/clean-trash')
+    await Server.post('/admin/clean-trash')
     ElMessage.success('回收站清理完成')
   } catch (error) {
     console.error('清理回收站失败:', error)

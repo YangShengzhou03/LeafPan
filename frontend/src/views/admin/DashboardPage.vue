@@ -128,7 +128,7 @@ const formatStorage = (sizeInGB) => {
 const loadDashboardData = async () => {
   try {
     // 调用后端API获取真实数据
-    const response = await Server.get('/api/admin/stats')
+    const response = await Server.get('/admin/stats')
     
     // 更新统计数据
     stats.value = {
@@ -139,7 +139,7 @@ const loadDashboardData = async () => {
     }
     
     // 获取最近注册用户
-    const usersResponse = await Server.get('/api/admin/users', { 
+    const usersResponse = await Server.get('/admin/users', { 
       params: {
         page: 0, 
         size: 5,

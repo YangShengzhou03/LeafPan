@@ -246,7 +246,7 @@ const handleSort = () => {
 // 恢复文件
 const restoreFile = async (file) => {
   try {
-    await Server.post(`/api/trash/restore/${file.id}`)
+    await Server.post(`/trash/restore/${file.id}`)
     ElMessage.success(`"${file.name}" 已恢复`)
     await fetchTrashFiles()
   } catch (error) {
@@ -267,7 +267,7 @@ const deleteFile = (file) => {
     }
   ).then(async () => {
     try {
-      await Server.delete(`/api/trash/${file.id}`)
+      await Server.delete(`/trash/${file.id}`)
       ElMessage.success('文件已永久删除')
       await fetchTrashFiles()
     } catch (error) {
@@ -327,12 +327,12 @@ const confirmBatchAction = async () => {
   try {
     if (action === 'restore') {
       await Promise.all(selectedFiles.value.map(file =>
-        Server.post(`/api/trash/restore/${file.id}`)
+        Server.post(`/trash/restore/${file.id}`)
       ))
       ElMessage.success(`已恢复 ${selectedFiles.value.length} 个文件`)
     } else if (action === 'delete') {
       await Promise.all(selectedFiles.value.map(file =>
-        Server.delete(`/api/trash/${file.id}`)
+        Server.delete(`/trash/${file.id}`)
       ))
       ElMessage.success(`已永久删除 ${selectedFiles.value.length} 个文件`)
     }
@@ -352,7 +352,7 @@ const confirmClearTrash = async () => {
   clearTrashDialog.value.loading = true
 
   try {
-    await Server.delete('/api/trash/clear')
+    await Server.delete('/trash/clear')
     ElMessage.success('回收站已清空')
     clearTrashDialog.value.visible = false
     await fetchTrashFiles()
@@ -367,7 +367,7 @@ const confirmClearTrash = async () => {
 // 获取回收站文件
 const fetchTrashFiles = async () => {
   try {
-    const response = await Server.get('/api/trash/files')
+    const response = await Server.get('/trash/files')
     trashFiles.value = response.data || []
   } catch (error) {
     ElMessage.error('获取回收站文件失败')

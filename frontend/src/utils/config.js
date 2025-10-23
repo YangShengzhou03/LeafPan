@@ -36,7 +36,7 @@ export const getConfigItem = (key, defaultValue = null) => {
  */
 export const loadConfig = async () => {
   try {
-    const response = await Server.get('/api/admin/config')
+    const response = await Server.get('/config')
     if (response && response.data) {
       // 合并后端配置和默认配置
       currentConfig = { ...defaultConfig, ...response.data }

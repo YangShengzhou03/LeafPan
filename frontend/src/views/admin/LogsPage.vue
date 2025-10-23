@@ -230,7 +230,7 @@ const updateStats = () => {
 const loadLogs = async () => {
   loading.value = true
   try {
-    const response = await Server.get('/api/admin/logs', {
+    const response = await Server.get('/admin/logs', {
       params: {
         page: currentPage.value - 1,
         size: pageSize.value,
@@ -280,7 +280,7 @@ const viewLogDetail = (log) => {
 const exportLogs = async () => {
   exporting.value = true
   try {
-    const response = await Server.get('/api/admin/logs/export', {
+    const response = await Server.get('/admin/logs/export', {
       responseType: 'blob',
       params: {
         level: filter.level,
@@ -323,7 +323,7 @@ const clearLogs = async () => {
 
     clearing.value = true
 
-    await Server.delete('/api/admin/logs')
+    await Server.delete('/admin/logs')
 
     logs.value = []
     totalLogs.value = 0

@@ -238,7 +238,7 @@ const loadUsers = async () => {
   loading.value = true
   try {
     // 调用后端API获取真实数据
-    const response = await Server.get('/api/admin/users', {
+    const response = await Server.get('/admin/users', {
       params: {
         page: currentPage.value - 1,
         size: pageSize.value
@@ -324,10 +324,10 @@ const saveUser = async () => {
     
     if (editingUser.value) {
       // 更新用户
-      await Server.put(`/api/admin/users/${editingUser.value.id}`, userData)
+      await Server.put(`/admin/users/${editingUser.value.id}`, userData)
     } else {
       // 添加用户
-      await Server.post('/api/admin/users', userData)
+      await Server.post('/admin/users', userData)
     }
     
     ElMessage.success(editingUser.value ? '用户更新成功' : '用户添加成功')
@@ -358,7 +358,7 @@ const toggleUserStatus = async (user) => {
     )
     
     // 调用后端API更新用户状态
-    await Server.put(`/api/admin/users/${user.id}/status`, {
+    await Server.put(`/admin/users/${user.id}/status`, {
       enabled: user.status !== 'active'
     })
     
@@ -386,7 +386,7 @@ const deleteUser = async (user) => {
     )
     
     // 调用后端API删除用户
-    await Server.delete(`/api/admin/users/${user.id}`)
+    await Server.delete(`/admin/users/${user.id}`)
     
     ElMessage.success('用户删除成功')
     loadUsers() // 重新加载数据
