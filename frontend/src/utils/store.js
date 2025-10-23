@@ -215,7 +215,6 @@ const store = {
         await this.fetchStorageInfo()
         return true
       } catch (error) {
-        console.error('初始化用户状态失败:', error)
         // 只有在token无效或过期时才清除token
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
           this.clearUser()

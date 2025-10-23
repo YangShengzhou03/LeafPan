@@ -304,7 +304,6 @@ const loadUsers = async () => {
       throw new Error(response.message)
     }
   } catch (error) {
-    console.error('加载用户数据失败:', error)
     ElMessage.error('加载用户数据失败: ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
@@ -343,7 +342,6 @@ const resetPassword = async (user) => {
     ElMessage.success(`密码重置成功，新密码为：123456`)
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('重置密码失败:', error)
       ElMessage.error('重置密码失败: ' + (error.response?.data?.message || error.message))
     }
   }
@@ -421,7 +419,6 @@ const saveUser = async () => {
     loadUsers()
   } catch (error) {
     if (error !== false) { // 不是表单验证错误
-      console.error('保存用户失败:', error)
       ElMessage.error('保存用户失败: ' + (error.response?.data?.message || error.message))
     }
   }
@@ -436,7 +433,6 @@ const toggleUserStatus = async (user) => {
     ElMessage.success(`用户已${newStatus === 'active' ? '启用' : '禁用'}`)
     loadUsers()
   } catch (error) {
-    console.error('切换用户状态失败:', error)
     ElMessage.error('切换用户状态失败: ' + (error.response?.data?.message || error.message))
   }
 }
@@ -459,7 +455,6 @@ const deleteUser = async (user) => {
     loadUsers()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除用户失败:', error)
       ElMessage.error('删除用户失败: ' + (error.response?.data?.message || error.message))
     }
   }

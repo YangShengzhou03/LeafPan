@@ -587,7 +587,6 @@ const loadFiles = async () => {
         // 根据控制台日志，实际数据结构包含totalElements字段
         totalFiles.value = filesData && filesData.totalElements ? filesData.totalElements : 0
     } catch (error) {
-        console.error('加载文件列表失败:', error)
         ElMessage.error('加载文件列表失败')
     } finally {
         loading.value = false
@@ -912,7 +911,6 @@ const handleFileCommand = async (command, item) => {
                 await loadFiles()
             } catch (error) {
                 if (error !== 'cancel') {
-                    console.error('删除失败:', error)
                     ElMessage.error('删除失败')
                 }
             }
@@ -951,7 +949,6 @@ const confirmRename = async () => {
                 // 重新加载数据
                 await loadFiles()
             } catch (error) {
-                console.error('重命名失败:', error)
                 ElMessage.error('重命名失败')
             } finally {
                 renaming.value = false

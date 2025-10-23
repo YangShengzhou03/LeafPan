@@ -148,7 +148,6 @@ const loadDashboardData = async () => {
     // 更新系统运行时间
     uptime.value = response.data.uptime || ''
   } catch (error) {
-    console.error('加载仪表盘数据失败:', error)
     ElMessage.error('加载仪表盘数据失败: ' + (error.response?.data?.message || error.message))
   }
 }

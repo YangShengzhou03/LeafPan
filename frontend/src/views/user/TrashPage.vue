@@ -251,7 +251,6 @@ const restoreFile = async (file) => {
         await fetchTrashFiles()
     } catch (error) {
         ElMessage.error('文件恢复失败')
-        console.error('文件恢复失败:', error)
     }
 }
 
@@ -263,7 +262,6 @@ const deleteFile = async (file) => {
         await fetchTrashFiles()
     } catch (error) {
         ElMessage.error('删除文件失败')
-        console.error('删除文件失败:', error)
     }
 }
 
@@ -271,7 +269,6 @@ const deleteFile = async (file) => {
 const previewFile = (file) => {
   ElMessage.info(`预览文件 "${file.name}"`)
   // 这里应该实现文件预览逻辑
-  console.log('预览文件:', file)
 }
 
 // 恢复选中文件
@@ -329,7 +326,6 @@ const confirmBatchAction = async () => {
         await fetchTrashFiles()
     } catch (error) {
         ElMessage.error('操作失败')
-        console.error('批量操作失败:', error)
     } finally {
         batchActionDialog.value.loading = false
     }
@@ -346,7 +342,6 @@ const confirmClearTrash = async () => {
         await fetchTrashFiles()
     } catch (error) {
         ElMessage.error('清空回收站失败')
-        console.error('清空回收站失败:', error)
     } finally {
         clearTrashDialog.value.loading = false
     }
@@ -359,7 +354,6 @@ const fetchTrashFiles = async () => {
         trashFiles.value = response.data || []
     } catch (error) {
         ElMessage.error('获取回收站文件失败')
-        console.error('获取回收站文件失败:', error)
     }
 }
 

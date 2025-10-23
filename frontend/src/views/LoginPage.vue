@@ -319,7 +319,6 @@ const handleLogin = async () => {
     
     // 调用登录API
     const result = await store.login(loginForm)
-    console.log(result)
     
     if (result.success) {
       ElMessage.success('登录成功')

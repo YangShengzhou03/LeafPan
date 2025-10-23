@@ -10,7 +10,7 @@
       <div class="system-content">
         <el-empty description="系统设置功能正在开发中" />
         <div class="development-info">
-          <p>系统设置功能正在积极开发中，敬请期待！</p>
+          <p>这两年没时间做了，以后再说吧</p>
           <p>该功能将包含存储设置、安全设置、系统维护等管理功能。</p>
         </div>
       </div>

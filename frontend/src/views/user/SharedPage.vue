@@ -273,7 +273,6 @@ const stopShare = (file) => {
       await fetchSharedByMe()
     } catch (error) {
       ElMessage.error('停止共享失败')
-      console.error('停止共享失败:', error)
     }
   }).catch(() => {
     // 用户取消操作
@@ -297,7 +296,6 @@ const downloadFile = async (file) => {
         ElMessage.success(`开始下载 "${file.name}"`)
     } catch (error) {
         ElMessage.error('下载失败')
-        console.error('下载文件失败:', error)
     }
 }
 
@@ -305,7 +303,6 @@ const downloadFile = async (file) => {
 const viewFile = (file) => {
   ElMessage.info(`查看文件 "${file.name}"`)
   // 这里应该跳转到文件查看页面
-  console.log('查看文件:', file)
 }
 
 // 移除共享
@@ -325,7 +322,6 @@ const removeShare = (file) => {
       await fetchSharedWithMe()
     } catch (error) {
       ElMessage.error('移除共享失败')
-      console.error('移除共享失败:', error)
     }
   }).catch(() => {
     // 用户取消操作
@@ -356,7 +352,6 @@ const submitShare = async () => {
   } catch (error) {
     if (error !== false) { // 不是表单验证错误
       ElMessage.error(isEditing.value ? '更新共享失败' : '创建共享失败')
-      console.error('提交共享失败:', error)
     }
   } finally {
     submitting.value = false
@@ -369,7 +364,6 @@ const fetchSharedByMe = async () => {
     const response = await Server.get('/share/user')
     sharedByMe.value = response.data || []
   } catch (error) {
-    console.error('获取共享文件失败:', error)
   }
 }
 
@@ -380,7 +374,6 @@ const fetchSharedWithMe = async () => {
     const response = await Server.get('/share/shared-with-me')
     sharedWithMe.value = response.data || []
   } catch (error) {
-    console.error('获取共享文件失败:', error)
   }
 }
 
@@ -390,7 +383,6 @@ const fetchAvailableFiles = async () => {
     const response = await Server.get('/file/list')
     availableFiles.value = response.data || []
   } catch (error) {
-    console.error('获取文件列表失败:', error)
   }
 }
 
@@ -400,7 +392,6 @@ const fetchAvailableUsers = async () => {
     const response = await Server.get('/user/list')
     availableUsers.value = response.data || []
   } catch (error) {
-    console.error('获取用户列表失败:', error)
     availableUsers.value = []
   }
 }
