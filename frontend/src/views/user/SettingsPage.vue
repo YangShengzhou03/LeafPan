@@ -142,19 +142,33 @@
     </el-dialog>
 
     <!-- 图像裁剪对话框 -->
-    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose">
+    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="800px" :before-close="handleCropDialogClose">
       <div class="crop-container">
         <vue-cropper 
           ref="cropper" 
           :src="cropImageUrl" 
           :aspect-ratio="1"
-          :view-mode="2"
+          :view-mode="1"
           :auto-crop-area="0.8"
           :movable="true"
           :zoomable="true"
           :rotatable="true"
           :scalable="true"
-          style="width: 100%; height: 400px;"
+          :guides="true"
+          :background="true"
+          :responsive="true"
+          :restore="true"
+          :check-cross-origin="false"
+          :check-orientation="false"
+          :modal="true"
+          :highlight="true"
+          :center="true"
+          :min-container-width="300"
+          :min-container-height="300"
+          :min-crop-box-width="100"
+          :min-crop-box-height="100"
+          :ready="onCropperReady"
+          style="width: 100%; min-height: 500px;"
         ></vue-cropper>
       </div>
       <template #footer>
@@ -178,7 +192,8 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
-import VueCropper from 'vue-cropper'
+import 'vue-cropper/dist/index.css'
+import { VueCropper } from 'vue-cropper'
 
 // 头像遮罩层显示状态
 const showAvatarOverlay = ref(false)
@@ -400,6 +415,12 @@ const handleCropDialogClose = () => {
     cropImageUrl.value = ''
   }
   currentFile.value = null
+}
+
+// 裁剪器准备完成回调
+const onCropperReady = () => {
+  // 裁剪器准备完成后，可以执行一些初始化操作
+  console.log('Cropper is ready')
 }
 
 // 裁剪并上传头像
@@ -877,48 +898,78 @@ const fetchUserInfo = async () => {
 }
 
 .crop-container {
-  height: 100%;
   width: 100%;
+  min-height: 500px;
+  max-height: 600px;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #f5f5f5;
   border-radius: 8px;
   overflow: hidden;
+  position: relative;
 }
 
-.crop-container img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-/* 覆盖cropperjs的默认样式，使其适应Element Plus的对话框 */
+/* 确保裁剪容器正确显示 */
 :deep(.cropper-container) {
-  max-height: 400px;
-  max-width: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 600px !important;
+  min-height: 500px !important;
+}
+
+:deep(.cropper-canvas) {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+:deep(.cropper-crop-box) {
+  border-radius: 50% !important;
 }
 
 :deep(.cropper-view-box) {
-  outline: 2px solid #409eff;
-  outline-color: #409eff;
-  border-radius: 50%;
+  outline: 2px solid #409eff !important;
+  outline-color: #409eff !important;
+  border-radius: 50% !important;
 }
 
 :deep(.cropper-face) {
-  background-color: inherit;
+  background-color: transparent !important;
 }
 
 :deep(.cropper-modal) {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 :deep(.cropper-point) {
-  background-color: #409eff;
-  width: 8px;
-  height: 8px;
+  background-color: #409eff !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+:deep(.cropper-point.point-se) {
+  background-color: #409eff !important;
 }
 
 :deep(.cropper-line) {
-  background-color: #409eff;
+  background-color: #409eff !important;
+}
+
+/* 确保裁剪框可见 */
+:deep(.cropper-crop-box) {
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .crop-container {
+    min-height: 400px;
+    max-height: 500px;
+  }
+  
+  :deep(.cropper-container) {
+    min-height: 400px !important;
+    max-height: 500px !important;
+  }
 }
 </style>
