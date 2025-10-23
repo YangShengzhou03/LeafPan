@@ -37,7 +37,7 @@ public class AdminLogController {
             @RequestParam(required = false) String endDate) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -79,7 +79,7 @@ public class AdminLogController {
     public ResponseEntity<ApiResponse<String>> clearLogs(HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             

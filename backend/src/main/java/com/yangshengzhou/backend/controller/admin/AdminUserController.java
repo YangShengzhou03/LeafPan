@@ -35,7 +35,7 @@ public class AdminUserController {
             @RequestParam(defaultValue = "20") int size) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -54,7 +54,7 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable String id) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -76,7 +76,7 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable String id, @RequestBody Map<String, String> updateData, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -110,7 +110,7 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable String id, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -155,7 +155,7 @@ public class AdminUserController {
             HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -197,7 +197,7 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getUserStatistics() {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -219,7 +219,7 @@ public class AdminUserController {
             HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             

@@ -67,28 +67,7 @@
         </el-row>
         
         <el-row :gutter="20" style="margin-top: 20px">
-          <el-col :span="12">
-            <el-card shadow="hover">
-              <template #header>
-                <div class="card-header">
-                  <span>最近注册用户</span>
-                </div>
-              </template>
-              <div class="recent-users">
-                <el-table :data="recentUsers" style="width: 100%" size="small">
-                  <el-table-column prop="email" label="邮箱" min-width="120"></el-table-column>
-                  <el-table-column prop="nickname" label="昵称" min-width="80"></el-table-column>
-                  <el-table-column prop="createTime" label="注册时间" min-width="120">
-                    <template #default="{ row }">
-                      {{ formatDate(row.createTime) }}
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </div>
-            </el-card>
-          </el-col>
-          
-          <el-col :span="12">
+          <el-col :span="24">
             <el-card shadow="hover">
               <template #header>
                 <div class="card-header">
@@ -120,6 +99,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { User, Folder, Document, Share } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import Server from '@/utils/Server.js'
 
 // 统计数据
@@ -129,9 +109,6 @@ const stats = ref({
   usedStorage: 0,
   shareCount: 0
 })
-
-// 最近注册用户
-const recentUsers = ref([])
 
 // 系统运行时间
 const uptime = ref('')
@@ -155,32 +132,21 @@ const formatDate = (dateString) => {
 const loadDashboardData = async () => {
   try {
     // 调用后端API获取真实数据
-    const response = await Server.get('/admin/stats')
+    const response = await Server.get('/admin/system/statistics')
     
     // 更新统计数据
     stats.value = {
-      userCount: response.data.userCount || 0,
-      fileCount: response.data.fileCount || 0,
-      usedStorage: response.data.usedStorage || 0,
-      shareCount: response.data.shareCount || 0
+      userCount: response.data.totalUsers || 0,
+      fileCount: response.data.totalFiles || 0,
+      usedStorage: (response.data.totalStorageUsed || 0) / 1073741824, // 转换为GB
+      shareCount: response.data.totalShares || 0
     }
-    
-    // 获取最近注册用户
-    const usersResponse = await Server.get('/admin/user/list', { 
-      params: {
-        page: 0, 
-        size: 5,
-        sort: 'createTime,desc'
-      }
-    })
-    
-    recentUsers.value = usersResponse.data.content || []
     
     // 更新系统运行时间
     uptime.value = response.data.uptime || ''
   } catch (error) {
     console.error('加载仪表盘数据失败:', error)
-    ElMessage.error('加载仪表盘数据失败')
+    ElMessage.error('加载仪表盘数据失败: ' + (error.response?.data?.message || error.message))
   }
 }
 

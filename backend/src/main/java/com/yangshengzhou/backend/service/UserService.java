@@ -165,7 +165,7 @@ public class UserService {
      * 分页获取用户列表
      */
     public Page<User> getAllUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return userRepository.findAll(pageable);
     }
     

@@ -51,49 +51,66 @@
         </div>
         
         <!-- 用户表格 -->
-        <el-table :data="filteredUsers" style="width: 100%" v-loading="loading">
-          <el-table-column prop="id" label="ID" width="200" />
-          <el-table-column prop="email" label="邮箱" />
-          <el-table-column prop="gender" label="性别" width="80">
-            <template #default="scope">
-              {{ scope.row.gender === 'MALE' ? '男' : scope.row.gender === 'FEMALE' ? '女' : '未设置' }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="phone" label="手机号" />
-          <el-table-column prop="role" label="角色" width="100">
-            <template #default="scope">
-              <el-tag :type="scope.row.role === 'admin' ? 'danger' : 'primary'">
-                {{ scope.row.role === 'admin' ? '管理员' : '普通用户' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="storageUsed" label="已用存储" width="120">
-            <template #default="scope">
-              {{ formatStorage(scope.row.storageUsed) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="状态" width="100">
-            <template #default="scope">
-              <el-tag :type="scope.row.status === 'active' ? 'success' : 'danger'">
-                {{ scope.row.status === 'active' ? '正常' : '禁用' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="createdAt" label="注册时间" width="150" />
-          <el-table-column label="操作" width="200">
-            <template #default="scope">
-              <el-button size="small" @click="editUser(scope.row)">编辑</el-button>
-              <el-button 
-                size="small" 
-                :type="scope.row.status === 'active' ? 'warning' : 'success'"
-                @click="toggleUserStatus(scope.row)"
-              >
-                {{ scope.row.status === 'active' ? '禁用' : '启用' }}
-              </el-button>
-              <el-button size="small" type="danger" @click="deleteUser(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <div class="table-container">
+          <el-table :data="filteredUsers" style="width: 100%" v-loading="loading" :scroll="{ x: 1200 }">
+            <el-table-column prop="id" label="ID" width="180" :show-overflow-tooltip="true">
+              <template #default="scope">
+                <span class="truncate-id">{{ scope.row.id }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="email" label="邮箱" width="180" :show-overflow-tooltip="true" />
+            <el-table-column prop="gender" label="性别" width="80">
+              <template #default="scope">
+                {{ scope.row.gender === 'MALE' ? '男' : scope.row.gender === 'FEMALE' ? '女' : '未设置' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="phone" label="手机号" width="120" :show-overflow-tooltip="true" />
+            <el-table-column prop="role" label="角色" width="100">
+              <template #default="scope">
+                <el-tag :type="scope.row.role === 'admin' ? 'danger' : 'primary'">
+                  {{ scope.row.role === 'admin' ? '管理员' : '普通用户' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="storageQuota" label="总配额" width="100">
+              <template #default="scope">
+                {{ formatStorage(scope.row.storageQuota) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="storageUsed" label="已用存储" width="100">
+              <template #default="scope">
+                {{ formatStorage(scope.row.storageUsed) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="usagePercentage" label="使用率" width="80">
+              <template #default="scope">
+                {{ calculateUsagePercentage(scope.row.storageUsed, scope.row.storageQuota) }}%
+              </template>
+            </el-table-column>
+            <el-table-column prop="status" label="状态" width="100">
+              <template #default="scope">
+                <el-tag :type="scope.row.status === 'active' ? 'success' : 'danger'">
+                  {{ scope.row.status === 'active' ? '正常' : '禁用' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="createdAt" label="注册时间" width="150" />
+            <el-table-column label="操作" width="280" fixed="right">
+              <template #default="scope">
+                <el-button size="small" @click="editUser(scope.row)">编辑</el-button>
+                <el-button 
+                  size="small" 
+                  :type="scope.row.status === 'active' ? 'warning' : 'success'"
+                  @click="toggleUserStatus(scope.row)"
+                >
+                  {{ scope.row.status === 'active' ? '禁用' : '启用' }}
+                </el-button>
+                <el-button size="small" type="info" @click="resetPassword(scope.row)">重置密码</el-button>
+                <el-button size="small" type="danger" @click="deleteUser(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
         
         <!-- 分页 -->
         <div class="pagination-container">
@@ -240,11 +257,18 @@ const filteredUsers = computed(() => {
 })
 
 // 格式化存储大小
-const formatStorage = (sizeInGB) => {
-  if (sizeInGB < 1) {
-    return `${(sizeInGB * 1024).toFixed(2)} MB`
-  }
-  return `${sizeInGB.toFixed(2)} GB`
+const formatStorage = (bytes) => {
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+// 计算存储使用率
+const calculateUsagePercentage = (used, quota) => {
+  if (!quota || quota === 0) return 0
+  return Math.round((used / quota) * 100)
 }
 
 // 加载用户数据
@@ -252,28 +276,28 @@ const loadUsers = async () => {
   loading.value = true
   try {
     // 调用后端API获取真实数据
-    const response = await Server.get('/admin/users', {
+    const response = await Server.get('/admin/user/list', {
       params: {
         page: currentPage.value - 1,
         size: pageSize.value
       }
     })
     
-    if (response.data.code === 200) {
-      const userData = response.data.data
+    if (response.code === 200) {
+      const userData = response.data
       users.value = userData.content.map(user => ({
         id: user.id,
         email: user.email,
-        gender: user.gender || 'NOT_SET',
+        gender: user.gender === 1 ? 'MALE' : user.gender === 2 ? 'FEMALE' : 'NOT_SET',
         phone: user.phone || '',
-        role: user.role.toLowerCase(),
-        storageUsed: user.storageUsed || 0,
-        status: user.enabled ? 'active' : 'disabled',
-        createdAt: user.createdTime || user.createdAt
+        role: user.role === 1 ? 'admin' : 'user',
+        storageUsed: (user.usedStorage || 0) / 1073741824, // 转换为GB
+        status: user.status === 1 ? 'active' : 'disabled',
+        createdAt: user.createdTime ? new Date(user.createdTime).toLocaleString('zh-CN') : '未知'
       }))
       totalUsers.value = userData.totalElements
     } else {
-      throw new Error(response.data.message)
+      throw new Error(response.message)
     }
   } catch (error) {
     console.error('加载用户数据失败:', error)
@@ -286,6 +310,7 @@ const loadUsers = async () => {
 // 搜索处理
 const handleSearch = () => {
   currentPage.value = 1
+  loadUsers()
 }
 
 // 重置筛选条件
@@ -294,6 +319,30 @@ const resetFilters = () => {
   statusFilter.value = ''
   roleFilter.value = ''
   currentPage.value = 1
+  loadUsers()
+}
+
+// 重置密码
+const resetPassword = async (user) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要重置用户 "${user.email}" 的密码吗？新密码将设置为默认密码。`,
+      '确认重置密码',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    await Server.put(`/admin/user/${user.id}/password`)
+    ElMessage.success('密码重置成功')
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('重置密码失败:', error)
+      ElMessage.error('重置密码失败: ' + (error.response?.data?.message || error.message))
+    }
+  }
 }
 
 // 分页处理
@@ -310,15 +359,12 @@ const handleCurrentChange = (page) => {
 // 编辑用户
 const editUser = (user) => {
   editingUser.value = user
-  Object.assign(userForm, {
-    email: user.email,
-    password: '',
-    gender: user.gender || 'NOT_SET',
-    phone: user.phone || '',
-    role: user.role,
-    status: user.status,
-    storageQuota: 10 // 假设默认配额，实际应该从用户数据中获取
-  })
+  userForm.email = user.email
+  userForm.gender = user.gender
+  userForm.phone = user.phone
+  userForm.role = user.role
+  userForm.status = user.status
+  userForm.password = '' // 编辑时不显示密码
   showAddUserDialog.value = true
 }
 
@@ -333,18 +379,28 @@ const saveUser = async () => {
     const userData = {
       email: userForm.email,
       password: userForm.password,
-      gender: userForm.gender,
+      gender: userForm.gender === 'MALE' ? 1 : userForm.gender === 'FEMALE' ? 2 : 0,
       phone: userForm.phone,
-      role: userForm.role.toUpperCase(),
-      enabled: userForm.status === 'active'
+      role: userForm.role === 'admin' ? 1 : 0,
+      status: userForm.status === 'active' ? 1 : 0
     }
     
     if (editingUser.value) {
       // 更新用户
-      await Server.put(`/admin/users/${editingUser.value.id}`, userData)
+      await Server.put(`/admin/user/${editingUser.value.id}`, userData)
     } else {
-      // 添加用户
-      await Server.post('/admin/users', userData)
+      // 添加用户 - 需要先创建用户对象
+      const newUser = {
+        email: userForm.email,
+        password: userForm.password,
+        nickname: userForm.email.split('@')[0], // 默认昵称
+        gender: userForm.gender === 'MALE' ? 1 : userForm.gender === 'FEMALE' ? 2 : 0,
+        phone: userForm.phone,
+        role: userForm.role === 'admin' ? 1 : 0,
+        status: userForm.status === 'active' ? 1 : 0
+      }
+      // 这里需要调用注册接口或用户创建接口
+      await Server.post('/auth/register', newUser)
     }
     
     ElMessage.success(editingUser.value ? '用户更新成功' : '用户添加成功')
@@ -362,30 +418,16 @@ const saveUser = async () => {
 
 // 切换用户状态
 const toggleUserStatus = async (user) => {
-  const action = user.status === 'active' ? '禁用' : '启用'
   try {
-    await ElMessageBox.confirm(
-      `确定要${action}用户 ${user.email} 吗？`,
-      '确认操作',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    // 调用后端API更新用户状态
-    await Server.put(`/admin/users/${user.id}/status`, {
-      enabled: user.status !== 'active'
+    const newStatus = user.status === 'active' ? 'disabled' : 'active'
+    await Server.put(`/admin/user/${user.id}/status`, {
+      status: newStatus === 'active' ? 1 : 0
     })
-    
-    ElMessage.success(`用户${action}成功`)
-    loadUsers() // 重新加载数据
+    ElMessage.success(`用户已${newStatus === 'active' ? '启用' : '禁用'}`)
+    loadUsers()
   } catch (error) {
-    if (error !== 'cancel') {
-      console.error(`${action}用户失败:`, error)
-      ElMessage.error(`${action}用户失败: ` + (error.response?.data?.message || error.message))
-    }
+    console.error('切换用户状态失败:', error)
+    ElMessage.error('切换用户状态失败: ' + (error.response?.data?.message || error.message))
   }
 }
 
@@ -393,7 +435,7 @@ const toggleUserStatus = async (user) => {
 const deleteUser = async (user) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除用户 ${user.email} 吗？此操作不可恢复！`,
+      `确定要删除用户 "${user.email}" 吗？此操作不可恢复。`,
       '确认删除',
       {
         confirmButtonText: '确定',
@@ -402,11 +444,9 @@ const deleteUser = async (user) => {
       }
     )
     
-    // 调用后端API删除用户
-    await Server.delete(`/admin/users/${user.id}`)
-    
+    await Server.delete(`/admin/user/${user.id}`)
     ElMessage.success('用户删除成功')
-    loadUsers() // 重新加载数据
+    loadUsers()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除用户失败:', error)
@@ -459,6 +499,19 @@ onMounted(() => {
   padding: 0 16px;
 }
 
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.truncate-id {
+  display: inline-block;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .pagination-container {
   margin-top: 16px;
   display: flex;
@@ -470,6 +523,7 @@ onMounted(() => {
 /* 表格样式优化 */
 :deep(.el-table) {
   border-radius: 0;
+  min-width: 1200px;
 }
 
 :deep(.el-table__header) {
@@ -484,6 +538,30 @@ onMounted(() => {
 
 :deep(.el-table td) {
   border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(.el-table__body-wrapper) {
+  overflow-x: auto;
+}
+
+:deep(.el-table .cell) {
+  white-space: nowrap;
+}
+
+/* 使用率颜色样式 */
+.usage-high {
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.usage-medium {
+  color: #e6a23c;
+  font-weight: bold;
+}
+
+.usage-low {
+  color: #67c23a;
+  font-weight: bold;
 }
 
 /* 按钮样式优化 */

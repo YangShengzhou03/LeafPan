@@ -80,7 +80,7 @@ public class AdminSystemController {
     public ResponseEntity<ApiResponse<String>> cleanTempFiles(HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -111,7 +111,7 @@ public class AdminSystemController {
     public ResponseEntity<ApiResponse<String>> cleanLogFiles(HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -142,7 +142,7 @@ public class AdminSystemController {
     public ResponseEntity<ApiResponse<String>> cleanTrash(HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             

@@ -36,7 +36,7 @@ public class AdminFileController {
             @RequestParam(defaultValue = "20") int size) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -55,7 +55,7 @@ public class AdminFileController {
     public ResponseEntity<ApiResponse<File>> getFileById(@PathVariable Long id) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
@@ -111,7 +111,7 @@ public class AdminFileController {
             @RequestParam(defaultValue = "20") int size) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            if (currentUser == null || currentUser.getRole() != 1) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
