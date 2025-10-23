@@ -104,6 +104,13 @@ const storageInfo = computed(() => store.state.storageInfo)
 
 // 计算存储百分比
 const storagePercentage = computed(() => {
+  const { usagePercentage } = storageInfo.value
+  // 如果后端已经计算了百分比，直接使用；否则自己计算
+  if (usagePercentage !== undefined) {
+    return Math.min(100, Math.round(usagePercentage))
+  }
+  
+  // 兼容旧的计算方式
   const { totalStorageGB, usedStorageGB } = storageInfo.value
   if (!totalStorageGB || totalStorageGB <= 0) return 0
   return Math.min(100, Math.round((usedStorageGB / totalStorageGB) * 100))
@@ -111,11 +118,13 @@ const storagePercentage = computed(() => {
 
 // 格式化存储显示
 const totalStorage = computed(() => {
-  return `${storageInfo.value.totalStorageGB || 0} GB`
+  const { totalStorageGB } = storageInfo.value
+  return `${(totalStorageGB || 0).toFixed(1)} GB`
 })
 
 const usedStorage = computed(() => {
-  return `${(storageInfo.value.usedStorageGB || 0).toFixed(1)} GB`
+  const { usedStorageGB } = storageInfo.value
+  return `${(usedStorageGB || 0).toFixed(1)} GB`
 })
 
 // 格式化长文本，如果超过指定长度则显示为XXX****XXX形式

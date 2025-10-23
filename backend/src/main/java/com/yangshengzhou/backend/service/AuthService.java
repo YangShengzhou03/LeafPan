@@ -93,6 +93,7 @@ public class AuthService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
+        user.setNickname("LeafBaby"); // 设置默认昵称
         user.setRole((byte) 0); // 使用byte类型
         user.setCreatedTime(LocalDateTime.now());
         user.setUpdatedTime(LocalDateTime.now());

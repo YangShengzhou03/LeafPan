@@ -38,11 +38,11 @@
 
               <div class="info-item">
                 <el-icon class="item-icon">
-                  <Calendar />
+                  <Clock />
                 </el-icon>
                 <div class="item-content">
-                  <p class="item-label">出生日期</p>
-                  <p class="item-value">{{ formatDate(userProfile.birthdate) }}</p>
+                  <p class="item-label">最后登录时间</p>
+                  <p class="item-value">{{ formatDateTime(userProfile.lastLoginTime) }}</p>
                 </div>
               </div>
 
@@ -112,16 +112,6 @@
           </el-radio-group>
         </el-form-item>
         
-        <el-form-item label="出生日期" prop="birthdate">
-          <el-date-picker
-            v-model="editForm.birthdate"
-            type="date"
-            placeholder="选择出生日期"
-            value-format="YYYY-MM-DD"
-            style="width: 100%"
-          />
-        </el-form-item>
-        
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="editForm.email" placeholder="请输入邮箱地址" />
         </el-form-item>
@@ -150,7 +140,7 @@ import { ref, reactive, onMounted } from 'vue'
 import {
   Plus, User, Edit, ArrowRight, Lock,
   Calendar, Notification, Phone, Setting, Bell,
-  FirstAidKit, QuestionFilled
+  FirstAidKit, QuestionFilled, Clock
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
@@ -164,7 +154,6 @@ const editFormRef = ref()
 const editForm = reactive({
   name: '',
   gender: 'male',
-  birthdate: '',
   email: '',
   phone: ''
 })
@@ -173,9 +162,6 @@ const editForm = reactive({
 const editFormRules = {
   gender: [
     { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  birthdate: [
-    { required: true, message: '请选择出生日期', trigger: 'change' }
   ],
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
@@ -193,7 +179,6 @@ const openEditDialog = () => {
   Object.assign(editForm, {
     name: userProfile.name,
     gender: userProfile.gender,
-    birthdate: userProfile.birthdate,
     email: userProfile.email,
     phone: userProfile.phone
   })
@@ -220,6 +205,7 @@ const userProfile = reactive({
   birthdate: '--',
   email: '--',
   phone: '--',
+  lastLoginTime: '--',
   avatarUrl: 'https://picsum.photos/id/1005/200/200'
 })
 
@@ -235,6 +221,20 @@ const handleMouseMove = (e) => {
 // 格式化日期显示
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('zh-CN')
+}
+
+// 格式化日期时间显示
+const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString || dateTimeString === '--') return '--'
+  const date = new Date(dateTimeString)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
 }
 
 // 获取性别的文本表示
@@ -315,12 +315,22 @@ const fetchUserInfo = async () => {
   try {
     const response = await Server.get('/user/profile')
     if (response.data) {
-      user.value = response.data
+      // 更新用户信息
+      Object.assign(userProfile, {
+        name: response.data.name || '--',
+        gender: response.data.gender || '--',
+        birthdate: response.data.birthdate || '--',
+        email: response.data.email || '--',
+        phone: response.data.phone || '--',
+        lastLoginTime: response.data.lastLoginTime || '--',
+        avatarUrl: response.data.avatarUrl || userProfile.avatarUrl
+      })
+      
       // 填充表单数据
-      editForm.username = user.value.username
-      editForm.email = user.value.email
-      editForm.phone = user.value.phone || ''
-      editForm.bio = user.value.bio || ''
+      editForm.name = userProfile.name
+      editForm.gender = userProfile.gender
+      editForm.email = userProfile.email
+      editForm.phone = userProfile.phone
     }
   } catch (error) {
     console.error('获取用户信息失败:', error)
