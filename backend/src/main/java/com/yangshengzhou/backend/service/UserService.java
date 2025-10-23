@@ -129,6 +129,18 @@ public class UserService {
             user.setPhone(updateData.get("phone"));
         }
         
+        if (updateData.containsKey("role")) {
+            user.setRole(Byte.valueOf(updateData.get("role")));
+        }
+        
+        if (updateData.containsKey("status")) {
+            user.setStatus(Byte.valueOf(updateData.get("status")));
+        }
+        
+        if (updateData.containsKey("storageQuota")) {
+            user.setStorageQuota(Long.valueOf(updateData.get("storageQuota")));
+        }
+        
         return userRepository.save(user);
     }
     
