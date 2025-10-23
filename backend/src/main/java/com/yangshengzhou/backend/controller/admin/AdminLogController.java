@@ -41,7 +41,7 @@ public class AdminLogController {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            Page<OperationLog> logs = operationLogService.getAllOperationLogs(page, size);
+            Page<OperationLog> logs = operationLogService.getAllOperationLogs(page, size, level, module, startDate, endDate);
             
             return ResponseEntity.ok(ApiResponse.success(logs));
         } catch (Exception e) {
@@ -53,7 +53,7 @@ public class AdminLogController {
      * 导出日志
      */
     @GetMapping("/export")
-    public ResponseEntity<ApiResponse<List<OperationLog>>> exportLogs(
+    public ResponseEntity<ApiResponse<List<OperationLogVO>>> exportLogs(
             @RequestParam(required = false) String level,
             @RequestParam(required = false) String module,
             @RequestParam(required = false) String startDate,
@@ -64,7 +64,7 @@ public class AdminLogController {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            List<OperationLog> logs = operationLogService.getAllOperationLogs();
+            List<OperationLogVO> logs = operationLogService.getAllOperationLogs();
             
             return ResponseEntity.ok(ApiResponse.success(logs));
         } catch (Exception e) {

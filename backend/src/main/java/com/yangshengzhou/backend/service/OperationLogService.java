@@ -145,7 +145,7 @@ public class OperationLogService {
     /**
      * 分页获取所有操作日志（管理员用）
      */
-    public Page<OperationLog> getAllOperationLogs(int page, int size) {
+    public Page<OperationLog> getAllOperationLogs(int page, int size, String level, String module, String startDate, String endDate) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return operationLogRepository.findAll(pageable);
     }
