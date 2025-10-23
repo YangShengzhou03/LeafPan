@@ -132,11 +132,26 @@
         </span>
       </template>
     </el-dialog>
+    
+    <!-- 图像裁剪对话框 -->
+    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose">
+      <div class="crop-container">
+        <img ref="cropImage" :src="cropImageUrl" style="max-width: 100%; display: block;">
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleCropDialogClose">取消</el-button>
+          <el-button type="primary" @click="cropAndUploadAvatar" :loading="cropLoading">
+            确认裁剪并上传
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import {
   Plus, User, Edit, ArrowRight, Lock,
   Calendar, Notification, Phone, Setting, Bell,
@@ -144,11 +159,20 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
+import Cropper from 'cropperjs'
 
 // 编辑对话框相关状态
 const editDialogVisible = ref(false)
 const submitLoading = ref(false)
 const editFormRef = ref()
+
+// 裁剪相关状态
+const cropDialogVisible = ref(false)
+const cropLoading = ref(false)
+const cropImage = ref()
+const cropImageUrl = ref('')
+let cropper = null
+const currentFile = ref(null)
 
 // 编辑表单数据
 const editForm = reactive({
@@ -307,9 +331,111 @@ const beforeAvatarUpload = (file) => {
   const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
   const isLt2M = file.size / 1024 / 1024 < 2
 
-  if (!isJPG) ElMessage.error('上传头像图片只能是 JPG 或 PNG 格式!')
-  if (!isLt2M) ElMessage.error('上传头像图片大小不能超过 2MB!')
-  return isJPG && isLt2M
+  if (!isJPG) {
+    ElMessage.error('上传头像图片只能是 JPG 或 PNG 格式!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('上传头像图片大小不能超过 2MB!')
+    return false
+  }
+  
+  // 保存文件并打开裁剪对话框
+  currentFile.value = file
+  cropImageUrl.value = URL.createObjectURL(file.raw)
+  cropDialogVisible.value = true
+  
+  // 等待DOM更新后初始化cropper
+  nextTick(() => {
+    initCropper()
+  })
+  
+  return false // 阻止自动上传
+}
+
+// 初始化裁剪器
+const initCropper = () => {
+  if (cropper) {
+    cropper.destroy()
+  }
+  
+  cropper = new Cropper(cropImage.value, {
+    aspectRatio: 1, // 设置为1:1的比例
+    viewMode: 1,
+    dragMode: 'move',
+    autoCropArea: 0.8,
+    restore: false,
+    guides: true,
+    center: true,
+    highlight: false,
+    cropBoxMovable: true,
+    cropBoxResizable: true,
+    toggleDragModeOnDblclick: false,
+  })
+}
+
+// 关闭裁剪对话框
+const handleCropDialogClose = () => {
+  cropDialogVisible.value = false
+  if (cropper) {
+    cropper.destroy()
+    cropper = null
+  }
+  if (cropImageUrl.value) {
+    URL.revokeObjectURL(cropImageUrl.value)
+    cropImageUrl.value = ''
+  }
+  currentFile.value = null
+}
+
+// 裁剪并上传头像
+const cropAndUploadAvatar = () => {
+  if (!cropper || !currentFile.value) {
+    ElMessage.error('裁剪失败，请重试')
+    return
+  }
+  
+  cropLoading.value = true
+  
+  // 获取裁剪后的canvas
+  const canvas = cropper.getCroppedCanvas({
+    maxWidth: 4096,
+    maxHeight: 4096,
+    fillColor: '#fff',
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  })
+  
+  // 将canvas转换为blob
+  canvas.toBlob((blob) => {
+    if (!blob) {
+      ElMessage.error('图像处理失败，请重试')
+      cropLoading.value = false
+      return
+    }
+    
+    // 创建新的File对象
+    const croppedFile = new File([blob], currentFile.value.name, {
+      type: currentFile.value.type,
+      lastModified: Date.now(),
+    })
+    
+    // 创建FormData并上传
+    const formData = new FormData()
+    formData.append('file', croppedFile)
+    
+    // 这里应该调用上传API，目前先模拟上传成功
+    // 实际项目中应该替换为真实的API调用
+    // Server.post('/upload/avatar', formData).then(response => {...})
+    
+    // 模拟上传成功
+    setTimeout(() => {
+      userProfile.avatarUrl = URL.createObjectURL(blob)
+      cropLoading.value = false
+      handleCropDialogClose()
+      ElMessage.success('头像更新成功')
+    }, 1000)
+  }, currentFile.value.type, 0.9)
 }
 
 // 获取用户信息
@@ -568,13 +694,14 @@ const fetchUserInfo = async () => {
 
       .info-item {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         padding: 12px 16px;
         border-radius: 8px;
         background: var(--item-bg);
         border: 1px solid #e2e8f0;
         transition: all 0.2s ease;
         cursor: default;
+        text-align: left;
 
         &:hover {
           background: var(--hover-bg);
@@ -587,19 +714,35 @@ const fetchUserInfo = async () => {
           color: var(--accent-color);
           margin-right: 12px;
           flex-shrink: 0;
+          width: 18px;
+          text-align: center;
+          margin-top: 0px;
         }
 
         .item-content {
+          flex: 1;
+          min-width: 0;
+          text-align: left;
+          
           .item-label {
             font-size: 0.8rem;
             color: var(--text-secondary);
             margin-bottom: 4px;
+            margin-left: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
           }
 
           .item-value {
             font-size: 0.9rem;
             font-weight: 500;
             color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
           }
         }
       }
@@ -677,6 +820,25 @@ const fetchUserInfo = async () => {
       transition: all 0.2s ease;
     }
   }
+}
+
+.crop-container {
+  height: 400px;
+  width: 100%;
+}
+
+/* 覆盖cropperjs的默认样式，使其适应Element Plus的对话框 */
+:deep(.cropper-container) {
+  max-height: 400px;
+}
+
+:deep(.cropper-view-box) {
+  outline: 1px solid rgba(59, 130, 246, 0.5);
+  outline-color: rgba(59, 130, 246, 0.5);
+}
+
+:deep(.cropper-face) {
+  background-color: inherit;
 }
 </style>
 
