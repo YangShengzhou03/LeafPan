@@ -106,20 +106,14 @@
       <!-- 日志列表 -->
       <el-table v-loading="loading" :data="logs" style="width: 100%" stripe>
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="operationType" label="操作类型" width="120">
+        <el-table-column prop="operationType" label="操作类型" width="200">
           <template #default="{ row }">
             <el-tag :type="getLevelType(row.operationType)" size="small">
               {{ getOperationTypeName(row.operationType) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="targetType" label="目标类型" width="120">
-          <template #default="{ row }">
-            {{ getTargetTypeName(row.targetType) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="username" label="用户" width="120" />
+        <el-table-column prop="description" label="描述" min-width="120" show-overflow-tooltip />
         <el-table-column prop="ipAddress" label="IP地址" width="130" />
         <el-table-column prop="createTime" label="时间" width="160" />
         <el-table-column label="操作" width="100" fixed="right">
@@ -155,8 +149,6 @@
               {{ getOperationTypeName(selectedLog.operationType) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="目标类型">{{ getTargetTypeName(selectedLog.targetType) }}</el-descriptions-item>
-          <el-descriptions-item label="用户">{{ selectedLog.username }}</el-descriptions-item>
           <el-descriptions-item label="IP地址">{{ selectedLog.ipAddress }}</el-descriptions-item>
           <el-descriptions-item label="时间">{{ selectedLog.createTime }}</el-descriptions-item>
           <el-descriptions-item label="描述">{{ selectedLog.description }}</el-descriptions-item>
