@@ -60,8 +60,9 @@ const store = {
       const response = await Server.post('/auth/login', credentials)
       
       // 后端返回的数据结构是 {code: 200, message: "登录成功", data: {token: "...", user: {...}}}
-      if (response.data && response.data.code === 200 && response.data.data) {
-        const { token, user } = response.data.data
+      // 注意：Server.js的响应拦截器已经将后端返回的完整响应包装成了response.data
+      if (response && response.code === 200 && response.data) {
+        const { token, user } = response.data
         
         if (token) {
           utils.saveToken(token)
@@ -75,10 +76,10 @@ const store = {
           await this.fetchCurrentUser()
         }
         
-        return { success: true, message: response.data.message || '登录成功', user }
+        return { success: true, message: response.message || '登录成功', user }
       }
       
-      return { success: false, message: response.data?.message || '登录失败' }
+      return { success: false, message: response?.message || '登录失败' }
     } catch (error) {
       this.clearUser()
       console.error('登录失败:', error)
@@ -124,8 +125,9 @@ const store = {
     try {
       const response = await Server.get('/auth/me')
       console.log('获取用户信息响应:', response)
-      // 检查响应数据结构，可能需要从 response.data.data 中获取用户信息
-      const userData = response.data.data || response.data
+      // 注意：Server.js的响应拦截器已经将后端返回的完整响应包装成了response.data
+      // 后端返回的数据结构是 {code: 200, message: "success", data: {user: {...}}}
+      const userData = response.data || response
       console.log('解析后的用户数据:', userData)
       this.setUser(userData)
       
