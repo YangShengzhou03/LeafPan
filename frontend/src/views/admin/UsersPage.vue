@@ -206,7 +206,7 @@ const userForm = reactive({
   phone: '',
   role: 'user',
   status: 'active',
-  storageQuota: 1073741824 // 默认1GB，单位字节
+  storageQuota: 1 // 默认1GB，单位GB
 })
 
 // 表单验证规则
@@ -368,7 +368,8 @@ const editUser = (user) => {
   userForm.phone = user.phone
   userForm.role = user.role
   userForm.status = user.status
-  userForm.storageQuota = user.storageQuota
+  // 将字节转换为GB显示
+  userForm.storageQuota = Math.round(user.storageQuota / (1024 * 1024 * 1024))
   userForm.password = '' // 编辑时不显示密码
   showAddUserDialog.value = true
 }
@@ -380,6 +381,9 @@ const saveUser = async () => {
   try {
     await userFormRef.value.validate()
     
+    // 将GB转换为字节
+    const storageQuotaInBytes = userForm.storageQuota * 1024 * 1024 * 1024
+    
     // 调用后端API保存用户数据
     const userData = {
       email: userForm.email,
@@ -388,7 +392,7 @@ const saveUser = async () => {
       phone: userForm.phone,
       role: userForm.role === 'admin' ? 1 : 0,
       status: userForm.status === 'active' ? 1 : 0,
-      storageQuota: userForm.storageQuota
+      storageQuota: storageQuotaInBytes
     }
     
     if (editingUser.value) {
@@ -404,7 +408,7 @@ const saveUser = async () => {
         phone: userForm.phone,
         role: userForm.role === 'admin' ? 1 : 0,
         status: userForm.status === 'active' ? 1 : 0,
-        storageQuota: userForm.storageQuota
+        storageQuota: storageQuotaInBytes
       }
       // 使用管理员创建用户接口
       await Server.post('/admin/user', newUser)
@@ -479,7 +483,7 @@ const resetUserForm = () => {
     phone: '',
     role: 'user',
     status: 'active',
-    storageQuota: 1073741824 // 默认1GB
+    storageQuota: 1 // 默认1GB，单位GB
   })
 }
 
