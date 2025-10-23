@@ -628,8 +628,7 @@ const confirmCreateFolder = async () => {
         if (valid) {
             creatingFolder.value = true
             try {
-                const parentId = currentPath.value.length > 0 ? 
-                    currentPath.value[currentPath.value.length - 1] : 1
+                const parentId = currentFolderId.value || 1
                 await Server.post('/folder/create', {
                     name: folderForm.name,
                     parentId: parentId
