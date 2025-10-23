@@ -159,6 +159,33 @@ const loadDashboardData = async () => {
 onMounted(() => {
   loadDashboardData()
 })
+
+// 获取系统统计信息
+const fetchStats = async () => {
+  try {
+    const response = await Server.get('/admin/stats')
+    stats.value = response.data
+  } catch (error) {
+    console.error('获取系统统计信息失败:', error)
+    ElMessage.error('获取系统统计信息失败')
+  }
+}
+
+// 获取用户列表
+const fetchUsers = async () => {
+  try {
+    const response = await Server.get('/admin/user/list', {
+      params: {
+        page: 0,
+        size: 5
+      }
+    })
+    recentUsers.value = response.data.content || []
+  } catch (error) {
+    console.error('获取用户列表失败:', error)
+    ElMessage.error('获取用户列表失败')
+  }
+}
 </script>
 
 <style scoped>

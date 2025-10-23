@@ -511,3 +511,82 @@ onMounted(() => {
   border-color: #F56C6C;
 }
 </style>
+
+// 获取用户列表
+const fetchUsers = async () => {
+  loading.value = true
+  try {
+    const response = await Server.get('/admin/user/list', {
+      params: {
+        page: currentPage.value - 1,
+        size: pageSize.value,
+        keyword: searchKeyword.value,
+        role: roleFilter.value,
+        status: statusFilter.value
+      }
+    })
+    userList.value = response.data.content || []
+    total.value = response.data.totalElements || 0
+  } catch (error) {
+    console.error('获取用户列表失败:', error)
+    ElMessage.error('获取用户列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 提交用户表单
+const submitUserForm = async () => {
+  if (!userFormRef.value) return
+
+  try {
+    await userFormRef.value.validate()
+    submitting.value = true
+
+    if (isEditing.value) {
+      // 编辑用户
+      await Server.put(`/admin/user/${editingUser.value.id}`, userData)
+      ElMessage.success('用户信息已更新')
+    } else {
+      // 创建新用户
+      await Server.post('/admin/user', userData)
+      ElMessage.success('用户创建成功')
+    }
+
+    userDialogVisible.value = false
+    await fetchUsers()
+  } catch (error) {
+    if (error !== false) { // 不是表单验证错误
+      ElMessage.error(isEditing.value ? '更新用户失败' : '创建用户失败')
+      console.error('提交用户表单失败:', error)
+    }
+  } finally {
+    submitting.value = false
+  }
+}
+
+// 更新用户状态
+const updateUserStatus = async (user, enabled) => {
+  try {
+    await Server.put(`/admin/user/${user.id}/status`, {
+      enabled: enabled
+    })
+    ElMessage.success(`用户已${enabled ? '启用' : '禁用'}`)
+    await fetchUsers()
+  } catch (error) {
+    ElMessage.error('更新用户状态失败')
+    console.error('更新用户状态失败:', error)
+  }
+}
+
+// 删除用户
+const deleteUser = async (user) => {
+  try {
+    await Server.delete(`/admin/user/${user.id}`)
+    ElMessage.success('用户删除成功')
+    await fetchUsers()
+  } catch (error) {
+    ElMessage.error('删除用户失败')
+    console.error('删除用户失败:', error)
+  }
+}

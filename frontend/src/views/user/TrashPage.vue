@@ -245,38 +245,26 @@ const handleSort = () => {
 
 // 恢复文件
 const restoreFile = async (file) => {
-  try {
-    await Server.post(`/trash/restore/${file.id}`)
-    ElMessage.success(`"${file.name}" 已恢复`)
-    await fetchTrashFiles()
-  } catch (error) {
-    ElMessage.error('恢复文件失败')
-    console.error('恢复文件失败:', error)
-  }
+    try {
+        await Server.post(`/user/trash/${file.id}/restore`)
+        ElMessage.success('文件恢复成功')
+        await fetchTrashFiles()
+    } catch (error) {
+        ElMessage.error('文件恢复失败')
+        console.error('文件恢复失败:', error)
+    }
 }
 
-// 删除文件
-const deleteFile = (file) => {
-  ElMessageBox.confirm(
-    `确定要永久删除 "${file.name}" 吗？此操作无法撤销。`,
-    '确认删除',
-    {
-      confirmButtonText: '确定删除',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
+// 永久删除文件
+const deleteFile = async (file) => {
     try {
-      await Server.delete(`/trash/${file.id}`)
-      ElMessage.success('文件已永久删除')
-      await fetchTrashFiles()
+        await Server.delete(`/user/trash/${file.id}`)
+        ElMessage.success('文件已永久删除')
+        await fetchTrashFiles()
     } catch (error) {
-      ElMessage.error('删除文件失败')
-      console.error('删除文件失败:', error)
+        ElMessage.error('删除文件失败')
+        console.error('删除文件失败:', error)
     }
-  }).catch(() => {
-    // 用户取消操作
-  })
 }
 
 // 预览文件
@@ -321,58 +309,58 @@ const clearTrash = () => {
 
 // 确认批量操作
 const confirmBatchAction = async () => {
-  const { action } = batchActionDialog.value
-  batchActionDialog.value.loading = true
+    const { action } = batchActionDialog.value
+    batchActionDialog.value.loading = true
 
-  try {
-    if (action === 'restore') {
-      await Promise.all(selectedFiles.value.map(file =>
-        Server.post(`/trash/restore/${file.id}`)
-      ))
-      ElMessage.success(`已恢复 ${selectedFiles.value.length} 个文件`)
-    } else if (action === 'delete') {
-      await Promise.all(selectedFiles.value.map(file =>
-        Server.delete(`/trash/${file.id}`)
-      ))
-      ElMessage.success(`已永久删除 ${selectedFiles.value.length} 个文件`)
+    try {
+        if (action === 'restore') {
+            await Promise.all(selectedFiles.value.map(file =>
+                Server.post(`/user/trash/${file.id}/restore`)
+            ))
+            ElMessage.success(`已恢复 ${selectedFiles.value.length} 个文件`)
+        } else if (action === 'delete') {
+            await Promise.all(selectedFiles.value.map(file =>
+                Server.delete(`/user/trash/${file.id}`)
+            ))
+            ElMessage.success(`已永久删除 ${selectedFiles.value.length} 个文件`)
+        }
+
+        batchActionDialog.value.visible = false
+        await fetchTrashFiles()
+    } catch (error) {
+        ElMessage.error('操作失败')
+        console.error('批量操作失败:', error)
+    } finally {
+        batchActionDialog.value.loading = false
     }
-
-    batchActionDialog.value.visible = false
-    await fetchTrashFiles()
-  } catch (error) {
-    ElMessage.error('操作失败')
-    console.error('批量操作失败:', error)
-  } finally {
-    batchActionDialog.value.loading = false
-  }
 }
 
 // 确认清空回收站
 const confirmClearTrash = async () => {
-  clearTrashDialog.value.loading = true
+    clearTrashDialog.value.loading = true
 
-  try {
-    await Server.delete('/trash/clear')
-    ElMessage.success('回收站已清空')
-    clearTrashDialog.value.visible = false
-    await fetchTrashFiles()
-  } catch (error) {
-    ElMessage.error('清空回收站失败')
-    console.error('清空回收站失败:', error)
-  } finally {
-    clearTrashDialog.value.loading = false
-  }
+    try {
+        await Server.delete('/user/trash')
+        ElMessage.success('回收站已清空')
+        clearTrashDialog.value.visible = false
+        await fetchTrashFiles()
+    } catch (error) {
+        ElMessage.error('清空回收站失败')
+        console.error('清空回收站失败:', error)
+    } finally {
+        clearTrashDialog.value.loading = false
+    }
 }
 
 // 获取回收站文件
 const fetchTrashFiles = async () => {
-  try {
-    const response = await Server.get('/trash/files')
-    trashFiles.value = response.data || []
-  } catch (error) {
-    ElMessage.error('获取回收站文件失败')
-    console.error('获取回收站文件失败:', error)
-  }
+    try {
+        const response = await Server.get('/user/trash')
+        trashFiles.value = response.data || []
+    } catch (error) {
+        ElMessage.error('获取回收站文件失败')
+        console.error('获取回收站文件失败:', error)
+    }
 }
 
 // 页面加载时获取数据

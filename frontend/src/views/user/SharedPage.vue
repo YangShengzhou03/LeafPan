@@ -282,23 +282,23 @@ const stopShare = (file) => {
 
 // 下载文件
 const downloadFile = async (file) => {
-  try {
-    const response = await Server.get(`/files/${file.fileId}/download`, {
-      responseType: 'blob'
-    })
-    const url = window.URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', file.name)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-    ElMessage.success(`开始下载 "${file.name}"`)
-  } catch (error) {
-    ElMessage.error('下载失败')
-    console.error('下载文件失败:', error)
-  }
+    try {
+        const response = await Server.get(`/file/${file.fileId}/download`, {
+            responseType: 'blob'
+        })
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', file.name)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        ElMessage.success(`开始下载 "${file.name}"`)
+    } catch (error) {
+        ElMessage.error('下载失败')
+        console.error('下载文件失败:', error)
+    }
 }
 
 // 查看文件
@@ -366,7 +366,7 @@ const submitShare = async () => {
 // 获取我共享的文件
 const fetchSharedByMe = async () => {
   try {
-    const response = await Server.get('/share/user-shares')
+    const response = await Server.get('/share/user')
     sharedByMe.value = response.data || []
   } catch (error) {
     console.error('获取共享文件失败:', error)
@@ -387,7 +387,7 @@ const fetchSharedWithMe = async () => {
 // 获取可用文件列表
 const fetchAvailableFiles = async () => {
   try {
-    const response = await Server.get('/files')
+    const response = await Server.get('/file/list')
     availableFiles.value = response.data || []
   } catch (error) {
     console.error('获取文件列表失败:', error)
