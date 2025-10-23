@@ -431,9 +431,8 @@ const saveUser = async () => {
 const toggleUserStatus = async (user) => {
   try {
     const newStatus = user.status === 'active' ? 'disabled' : 'active'
-    await Server.put(`/admin/user/${user.id}/status`, {
-      status: newStatus === 'active' ? 1 : 0
-    })
+    const enabled = newStatus === 'active'
+    await Server.put(`/admin/user/${user.id}/status?enabled=${enabled}`)
     ElMessage.success(`用户已${newStatus === 'active' ? '启用' : '禁用'}`)
     loadUsers()
   } catch (error) {
