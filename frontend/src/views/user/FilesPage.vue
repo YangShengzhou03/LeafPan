@@ -530,7 +530,9 @@ const loadFiles = async () => {
         let folderId = currentFolderId.value
         if (!folderId) {
             const rootResponse = await Server.get('/folder/root')
-            if (rootResponse.data.success) {
+            // 注意：Server.js响应拦截器已将后端响应包装为response.data
+            // 后端数据结构为{code: 200, message: "success", data: {id: ...}}
+            if (rootResponse.data && rootResponse.data.code === 200) {
                 folderId = rootResponse.data.data.id
                 currentFolderId.value = folderId
             } else {
@@ -557,12 +559,16 @@ const loadFiles = async () => {
         // 处理文件数据
         const filesData = filesResponse.data
         console.log('文件数据:', filesData)
+        // 注意：Server.js响应拦截器已将后端响应包装为response.data
+        // 后端数据结构为{code: 200, message: "success", data: {content: [...], ...}}
         const fileList = filesData && filesData.code === 200 ? filesData.data?.content || [] : []
         console.log('解析后的文件列表:', fileList)
         
         // 处理文件夹数据
         const foldersData = foldersResponse.data
         console.log('文件夹数据:', foldersData)
+        // 注意：Server.js响应拦截器已将后端响应包装为response.data
+        // 后端数据结构为{code: 200, message: "success", data: [...]}
         const folderList = foldersData && foldersData.code === 200 ? foldersData.data || [] : []
         console.log('解析后的文件夹列表:', folderList)
         
@@ -600,7 +606,9 @@ const navigateToFolder = async (path) => {
         // 获取用户根目录
         try {
             const rootResponse = await Server.get('/folder/root')
-            if (rootResponse.data.success) {
+            // 注意：Server.js响应拦截器已将后端响应包装为response.data
+            // 后端数据结构为{code: 200, message: "success", data: {id: ...}}
+            if (rootResponse.data && rootResponse.data.code === 200) {
                 currentFolderId.value = rootResponse.data.data.id
             } else {
                 ElMessage.error('获取根目录失败')
@@ -716,7 +724,9 @@ const confirmUpload = async () => {
         let folderId = currentFolderId.value
         if (!folderId) {
             const rootResponse = await Server.get('/folder/root')
-            if (rootResponse.data.success) {
+            // 注意：Server.js响应拦截器已将后端响应包装为response.data
+            // 后端数据结构为{code: 200, message: "success", data: {id: ...}}
+            if (rootResponse.data && rootResponse.data.code === 200) {
                 folderId = rootResponse.data.data.id
             } else {
                 throw new Error('获取根目录失败')
