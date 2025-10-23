@@ -716,7 +716,7 @@ const fetchUserInfo = async () => {
           flex-shrink: 0;
           width: 18px;
           text-align: center;
-          margin-top: 0px;
+          margin-top: 10px;
         }
 
         .item-content {

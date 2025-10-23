@@ -5,12 +5,13 @@ USE leafpan;
 
 -- 1. 用户表
 CREATE TABLE users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID',
-    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+    id CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY COMMENT '用户ID(UUID)',
     email VARCHAR(100) NOT NULL UNIQUE COMMENT '邮箱',
     password VARCHAR(255) NOT NULL COMMENT '加密密码',
     nickname VARCHAR(50) NULL COMMENT '昵称',
     avatar VARCHAR(255) NULL COMMENT '头像URL',
+    gender TINYINT NULL COMMENT '性别：0-未知，1-男，2-女',
+    phone VARCHAR(20) NULL COMMENT '手机号码',
     role TINYINT NOT NULL DEFAULT 0 COMMENT '角色：0-普通，1-管理员',
     storage_quota BIGINT NOT NULL DEFAULT 1073741824 COMMENT '存储配额(字节，默认1GB)',
     used_storage BIGINT NOT NULL DEFAULT 0 COMMENT '已用空间(字节)',
@@ -28,7 +29,7 @@ CREATE TABLE folders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '文件夹ID',
     name VARCHAR(255) NOT NULL COMMENT '文件夹名称',
     parent_id BIGINT NOT NULL DEFAULT 0 COMMENT '父文件夹ID，0为根目录',
-    user_id BIGINT NOT NULL COMMENT '所属用户ID',
+    user_id CHAR(36) NOT NULL COMMENT '所属用户ID',
     path VARCHAR(765) NOT NULL COMMENT '完整路径',
     is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除：0-否，1-是',
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -45,7 +46,7 @@ CREATE TABLE files (
     name VARCHAR(255) NOT NULL COMMENT '文件名',
     original_name VARCHAR(255) NOT NULL COMMENT '原始文件名',
     folder_id BIGINT NOT NULL DEFAULT 0 COMMENT '所属文件夹ID',
-    user_id BIGINT NOT NULL COMMENT '所属用户ID',
+    user_id CHAR(36) NOT NULL COMMENT '所属用户ID',
     size BIGINT NOT NULL DEFAULT 0 COMMENT '文件大小(字节)',
     mime_type VARCHAR(100) NULL COMMENT 'MIME类型',
     extension VARCHAR(20) NULL COMMENT '扩展名',
@@ -68,7 +69,7 @@ CREATE TABLE shares (
     share_code VARCHAR(10) NOT NULL UNIQUE COMMENT '分享码',
     file_id BIGINT NULL COMMENT '文件ID',
     folder_id BIGINT NULL COMMENT '文件夹ID',
-    user_id BIGINT NOT NULL COMMENT '分享者ID',
+    user_id CHAR(36) NOT NULL COMMENT '分享者ID',
     share_type TINYINT NOT NULL DEFAULT 0 COMMENT '类型：0-公开，1-密码，2-私密',
     password VARCHAR(64) NULL COMMENT '分享密码(加密)',
     expire_time DATETIME NULL COMMENT '过期时间',
@@ -87,7 +88,7 @@ CREATE TABLE shares (
 -- 5. 操作日志表
 CREATE TABLE operation_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '日志ID',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
+    user_id CHAR(36) NOT NULL COMMENT '用户ID',
     operation_type VARCHAR(50) NOT NULL COMMENT '操作类型',
     target_type VARCHAR(50) NOT NULL COMMENT '目标类型：file/folder/share',
     target_id BIGINT NULL COMMENT '目标ID',
@@ -169,11 +170,11 @@ DELIMITER ;
 SET GLOBAL event_scheduler = ON;
 
 -- 插入默认管理员
-INSERT INTO users (username, email, password, nickname, role, storage_quota, status) 
-VALUES ('admin', 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 1, 107374182400, 1)
+INSERT INTO users (id, email, password, nickname, role, storage_quota, status) 
+VALUES (UUID(), 'admin@leafpan.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 1, 107374182400, 1)
 ON DUPLICATE KEY UPDATE users.id = users.id; -- 明确指定users表的id
 
 -- 为管理员创建根目录
 INSERT INTO folders (name, parent_id, user_id, path) 
-SELECT '根目录', 0, users.id, '/' FROM users WHERE username = 'admin'
+SELECT '根目录', 0, users.id, '/' FROM users WHERE email = 'admin@leafpan.com'
 ON DUPLICATE KEY UPDATE folders.id = folders.id; -- 明确指定folders表的id
