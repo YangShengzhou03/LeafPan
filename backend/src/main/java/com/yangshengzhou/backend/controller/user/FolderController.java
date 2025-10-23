@@ -92,6 +92,25 @@ public class FolderController {
     }
     
     /**
+     * 获取用户根目录
+     */
+    @GetMapping("/root")
+    public ResponseEntity<ApiResponse<Folder>> getUserRootFolder() {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+            }
+            
+            return folderService.getUserRootFolder(currentUser.getId())
+                .map(folder -> ResponseEntity.ok(ApiResponse.success(folder)))
+                .orElse(ResponseEntity.badRequest().body(ApiResponse.error("根目录不存在")));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("获取根目录失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
      * 获取子文件夹列表
      */
     @GetMapping("/{parentId}/subfolders")

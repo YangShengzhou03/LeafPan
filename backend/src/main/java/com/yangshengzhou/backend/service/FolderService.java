@@ -132,18 +132,10 @@ public class FolderService {
             }
         }
         
-        // 获取所有子文件夹
-        List<Folder> allSubFolders = folderRepository.findByParentId(parentId);
+        // 获取所有子文件夹（过滤掉已删除的）
+        List<Folder> allSubFolders = folderRepository.findByUserIdAndParentIdAndIsDeletedFalse(userId, parentId);
         
-        // 过滤出属于当前用户的子文件夹
-        List<Folder> userSubFolders = new ArrayList<>();
-        for (Folder folder : allSubFolders) {
-            if (folder.getUserId().equals(userId)) {
-                userSubFolders.add(folder);
-            }
-        }
-        
-        return userSubFolders;
+        return allSubFolders;
     }
     
     /**
@@ -157,5 +149,12 @@ public class FolderService {
     public boolean isFolderOwnedByUser(Long folderId, String userId) {
         Optional<Folder> folderOptional = folderRepository.findById(folderId);
         return folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId);
+    }
+    
+    /**
+     * 获取用户的根目录
+     */
+    public Optional<Folder> getUserRootFolder(String userId) {
+        return folderRepository.findUserRootFolder(userId, 0L);
     }
 }

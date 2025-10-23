@@ -68,7 +68,7 @@
         </div>
 
         <!-- 文件列表 - 网格视图 -->
-        <div v-if="viewMode === 'grid'" class="files-grid">
+        <div v-if="viewMode === 'grid'" class="files-grid" v-loading="loading">
             <div v-for="item in filteredFiles" :key="item.id" class="file-item" @click="handleItemClick(item)"
                 @contextmenu.prevent="handleRightClick(item, $event)">
                 <div class="file-icon-container">
@@ -138,7 +138,7 @@
         </div>
 
         <!-- 文件列表 - 列表视图 -->
-        <div v-else class="files-list">
+        <div v-else class="files-list" v-loading="loading">
             <el-table :data="filteredFiles" class="modern-table" @row-contextmenu="handleRowRightClick" stripe>
                 <el-table-column width="50">
                     <template #default="{ row }">
@@ -409,6 +409,9 @@ const renameRules = {
 // 当前选中的文件
 const selectedItem = ref(null)
 
+// 加载状态
+const loading = ref(false)
+
 // 右键菜单相关
 const contextMenuVisible = ref(false)
 const contextMenuX = ref(0)
@@ -520,9 +523,19 @@ onBeforeUnmount(() => {
 
 // 加载文件列表
 const loadFiles = async () => {
+    loading.value = true
     try {
-        // 使用文件夹ID而不是路径
-        const folderId = currentFolderId.value || 1
+        // 如果没有currentFolderId，先获取用户根目录
+        let folderId = currentFolderId.value
+        if (!folderId) {
+            const rootResponse = await Server.get('/folder/root')
+            if (rootResponse.data.success) {
+                folderId = rootResponse.data.data.id
+                currentFolderId.value = folderId
+            } else {
+                throw new Error('获取根目录失败')
+            }
+        }
         
         // 同时获取文件和文件夹
         const [filesResponse, foldersResponse] = await Promise.all([
@@ -560,6 +573,8 @@ const loadFiles = async () => {
     } catch (error) {
         console.error('加载文件列表失败:', error)
         ElMessage.error('加载文件列表失败')
+    } finally {
+        loading.value = false
     }
 }
 
@@ -573,8 +588,19 @@ const navigateToFolder = async (path) => {
     
     // 查找目标文件夹的ID
     if (currentPath.value.length === 0) {
-        // 根目录
-        currentFolderId.value = 1
+        // 获取用户根目录
+        try {
+            const rootResponse = await Server.get('/folder/root')
+            if (rootResponse.data.success) {
+                currentFolderId.value = rootResponse.data.data.id
+            } else {
+                ElMessage.error('获取根目录失败')
+                return
+            }
+        } catch (error) {
+            console.error('获取根目录失败:', error)
+            currentFolderId.value = 1 // 默认为根目录
+        }
     } else {
         // 需要从根目录开始逐级查找文件夹ID
         try {
@@ -582,14 +608,21 @@ const navigateToFolder = async (path) => {
             const foldersResponse = await Server.get('/folder/list')
             const allFolders = foldersResponse.data || []
             
+            // 获取根目录ID
+            const rootResponse = await Server.get('/folder/root')
+            let rootId = 1
+            if (rootResponse.data.success) {
+                rootId = rootResponse.data.data.id
+            }
+            
             // 从根目录开始查找
-            let parentId = 1 // 根目录ID
-            let foundFolderId = 1
+            let parentId = rootId
+            let foundFolderId = rootId
             
             for (const folderName of currentPath.value) {
                 const folder = allFolders.find(f => 
                     f.name === folderName && 
-                    (f.parentId === parentId || (f.parentId === null && parentId === 1))
+                    (f.parentId === parentId || (f.parentId === null && parentId === rootId))
                 )
                 
                 if (folder) {
@@ -597,7 +630,7 @@ const navigateToFolder = async (path) => {
                     parentId = folder.id
                 } else {
                     // 如果找不到文件夹，保持在根目录
-                    foundFolderId = 1
+                    foundFolderId = rootId
                     break
                 }
             }
@@ -605,7 +638,16 @@ const navigateToFolder = async (path) => {
             currentFolderId.value = foundFolderId
         } catch (error) {
             console.error('查找文件夹失败:', error)
-            currentFolderId.value = 1 // 默认为根目录
+            // 获取用户根目录作为默认值
+            try {
+                const rootResponse = await Server.get('/folder/root')
+                if (rootResponse.data.success) {
+                    currentFolderId.value = rootResponse.data.data.id
+                }
+            } catch (rootError) {
+                console.error('获取根目录失败:', rootError)
+                currentFolderId.value = 1 // 默认为根目录
+            }
         }
     }
     
@@ -656,8 +698,16 @@ const confirmUpload = async () => {
     let failCount = 0
     
     try {
-        // 获取当前文件夹ID，如果没有指定则使用根目录ID(1)
-        const folderId = currentFolderId.value || 1
+        // 获取当前文件夹ID，如果没有指定则获取用户根目录ID
+        let folderId = currentFolderId.value
+        if (!folderId) {
+            const rootResponse = await Server.get('/folder/root')
+            if (rootResponse.data.success) {
+                folderId = rootResponse.data.data.id
+            } else {
+                throw new Error('获取根目录失败')
+            }
+        }
         
         // 逐个上传文件
         for (const fileItem of fileList.value) {
@@ -713,7 +763,17 @@ const confirmCreateFolder = async () => {
         if (valid) {
             creatingFolder.value = true
             try {
-                const parentId = currentFolderId.value || 1
+                // 获取当前文件夹ID，如果没有指定则获取用户根目录ID
+                let parentId = currentFolderId.value
+                if (!parentId) {
+                    const rootResponse = await Server.get('/folder/root')
+                    if (rootResponse.data.success) {
+                        parentId = rootResponse.data.data.id
+                    } else {
+                        throw new Error('获取根目录失败')
+                    }
+                }
+                
                 await Server.post('/folder/create', {
                     name: folderForm.name,
                     parentId: parentId

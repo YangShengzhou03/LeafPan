@@ -33,4 +33,10 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     boolean existsByUserIdAndName(String userId, String name);
     
     boolean existsByUserIdAndNameAndIdNot(String userId, String name, Long id);
+    
+    /**
+     * 查找用户的根目录（parentId为0的文件夹）
+     */
+    @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.parentId = :parentId AND f.isDeleted = false")
+    Optional<Folder> findUserRootFolder(@Param("userId") String userId, @Param("parentId") Long parentId);
 }
