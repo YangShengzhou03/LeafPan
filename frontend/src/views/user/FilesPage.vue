@@ -76,7 +76,7 @@
                         <component :is="getFileIconComponent(item.type)" />
                     </el-icon>
                 </div>
-                <div class="file-name" :title="item.name">{{ truncateFileName(item.name) }}</div>
+                <div class="file-name" :title="item.displayName || item.name">{{ truncateFileName(item.displayName || item.name) }}</div>
                 <div class="file-meta">
                     {{ item.type === 'folder' ? '' : formatFileSize(item.size) }}
                 </div>
@@ -582,8 +582,15 @@ const loadFiles = async () => {
             updateTime: folder.updateTime
         }))
         
+        // 处理文件列表，使用originalName显示原始文件名
+        const processedFileList = fileList.map(file => ({
+            ...file,
+            // 使用originalName显示原始文件名，如果不存在则使用name
+            displayName: file.originalName || file.name
+        }))
+        
         // 合并文件夹和文件
-        files.value = [...folderItems, ...fileList]
+        files.value = [...folderItems, ...processedFileList]
         // 根据控制台日志，实际数据结构包含totalElements字段
         totalFiles.value = filesData && filesData.totalElements ? filesData.totalElements : 0
     } catch (error) {
