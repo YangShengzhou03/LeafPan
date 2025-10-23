@@ -899,7 +899,7 @@ const handleFileCommand = async (command, item) => {
         case 'delete':
             try {
                 await ElMessageBox.confirm(
-                    `确定要删除 "${item.name}" 吗？此操作不可恢复。`,
+                    `确定要删除 "${item.originalName}" 吗？此操作不可恢复。`,
                     '确认删除',
                     {
                         confirmButtonText: '确定',

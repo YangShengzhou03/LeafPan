@@ -101,8 +101,8 @@ const fetchStorageInfo = async () => {
     if (response.data && response.data.data) {
       const data = response.data.data
       console.log('存储数据详情:', data)
-      // 后端返回的字段是storageQuota和usedStorage，单位是字节
-      totalStorageGB.value = data.storageQuota / (1024 * 1024 * 1024) // 转换为GB
+      // 后端返回的字段是totalQuota和usedStorage，单位是字节
+      totalStorageGB.value = data.totalQuota / (1024 * 1024 * 1024) // 转换为GB
       usedStorageGB.value = data.usedStorage / (1024 * 1024 * 1024) // 转换为GB
       
       console.log('转换后的存储信息:', {
