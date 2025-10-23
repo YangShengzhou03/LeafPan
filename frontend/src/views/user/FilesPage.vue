@@ -76,7 +76,8 @@
                         <component :is="getFileIconComponent(item.type)" />
                     </el-icon>
                 </div>
-                <div class="file-name" :title="item.originalName || item.name">{{ truncateFileName(item.originalName || item.name) }}</div>
+                <div class="file-name" :title="item.originalName || item.name">{{ truncateFileName(item.originalName ||
+                    item.name) }}</div>
                 <div class="file-meta">
                     {{ item.type === 'folder' ? '' : formatFileSize(item.size) }}
                 </div>
@@ -149,7 +150,8 @@
                 </el-table-column>
                 <el-table-column label="名称" min-width="300">
                     <template #default="{ row }">
-                        <span class="file-name" @click="handleItemClick(row)" :title="row.originalName || row.name">{{ truncateFileName(row.originalName || row.name) }}</span>
+                        <span class="file-name" @click="handleItemClick(row)" :title="row.originalName || row.name">{{
+                            truncateFileName(row.originalName || row.name) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="大小" width="120">
@@ -195,7 +197,7 @@
                                     </el-dropdown-item>
                                     <el-dropdown-item command="copy">
                                         <el-icon>
-                                            <Copy />
+                                            <CopyDocument />
                                         </el-icon>
                                         复制
                                     </el-dropdown-item>
@@ -299,7 +301,7 @@
             </el-menu-item>
             <el-menu-item index="copy">
                 <el-icon>
-                    <Copy />
+                    <CopyDocument />
                 </el-icon>
                 <span>复制</span>
             </el-menu-item>
@@ -454,7 +456,7 @@ const breadcrumbItems = computed(() => {
     const items = [
         { name: '我的文件', path: [] }
     ]
-    
+
     // 添加当前路径中的文件夹
     currentPath.value.forEach((folderName, index) => {
         items.push({
@@ -462,7 +464,7 @@ const breadcrumbItems = computed(() => {
             path: currentPath.value.slice(0, index + 1)
         })
     })
-    
+
     return items
 })
 
@@ -477,17 +479,17 @@ const handleBreadcrumbClick = async (item) => {
             // 需要从根目录开始逐级查找文件夹ID
             const foldersResponse = await Server.get('/folder/list')
             const allFolders = foldersResponse.data || []
-            
+
             // 从根目录开始查找
             let parentId = 1 // 根目录ID
             let foundFolderId = 1
-            
+
             for (const folderName of item.path) {
-                const folder = allFolders.find(f => 
-                    f.name === folderName && 
+                const folder = allFolders.find(f =>
+                    f.name === folderName &&
                     (f.parentId === parentId || (f.parentId === null && parentId === 1))
                 )
-                
+
                 if (folder) {
                     foundFolderId = folder.id
                     parentId = folder.id
@@ -497,11 +499,11 @@ const handleBreadcrumbClick = async (item) => {
                     break
                 }
             }
-            
+
             currentPath.value = item.path
             currentFolderId.value = foundFolderId
         }
-        
+
         // 重新加载文件列表
         await loadFiles()
     } catch (error) {
@@ -539,7 +541,7 @@ const loadFiles = async () => {
                 throw new Error('获取根目录失败')
             }
         }
-        
+
         // 同时获取文件和文件夹
         const [filesResponse, foldersResponse] = await Promise.all([
             Server.get('/file/list/page', {
@@ -551,11 +553,11 @@ const loadFiles = async () => {
             }),
             Server.get(`/folder/${folderId}/subfolders`)
         ])
-        
+
         // 调试：打印原始响应数据
         console.log('文件列表响应:', filesResponse)
         console.log('文件夹列表响应:', foldersResponse)
-        
+
         // 处理文件数据
         const filesData = filesResponse.data
         console.log('文件数据:', filesData)
@@ -563,7 +565,7 @@ const loadFiles = async () => {
         // 根据控制台日志，实际数据结构是{content: Array(2), ...}，没有code字段，应该直接访问filesData.content
         const fileList = filesData && filesData.content ? filesData.content : []
         console.log('解析后的文件列表:', fileList)
-        
+
         // 处理文件夹数据
         const foldersData = foldersResponse.data
         console.log('文件夹数据:', foldersData)
@@ -571,7 +573,7 @@ const loadFiles = async () => {
         // 根据控制台日志，文件夹数据结构是{code: 200, message: '操作成功', data: Array(0)}
         const folderList = foldersData && foldersData.code === 200 ? foldersData.data || [] : []
         console.log('解析后的文件夹列表:', folderList)
-        
+
         // 将文件夹转换为文件项格式，并添加到文件列表前面
         const folderItems = folderList.map(folder => ({
             id: folder.id,
@@ -581,14 +583,14 @@ const loadFiles = async () => {
             createTime: folder.createTime,
             updateTime: folder.updateTime
         }))
-        
+
         // 处理文件列表，使用originalName显示原始文件名
         const processedFileList = fileList.map(file => ({
             ...file,
             // 使用originalName显示原始文件名，如果不存在则使用name
             displayName: file.originalName || file.name
         }))
-        
+
         // 合并文件夹和文件
         files.value = [...folderItems, ...processedFileList]
         // 根据控制台日志，实际数据结构包含totalElements字段
@@ -608,7 +610,7 @@ const navigateToFolder = async (path) => {
     } else {
         currentPath.value = path
     }
-    
+
     // 查找目标文件夹的ID
     if (currentPath.value.length === 0) {
         // 获取用户根目录
@@ -632,24 +634,24 @@ const navigateToFolder = async (path) => {
             // 获取所有文件夹列表
             const foldersResponse = await Server.get('/folder/list')
             const allFolders = foldersResponse.data || []
-            
+
             // 获取根目录ID
             const rootResponse = await Server.get('/folder/root')
             let rootId = 1
             if (rootResponse.data.success) {
                 rootId = rootResponse.data.data.id
             }
-            
+
             // 从根目录开始查找
             let parentId = rootId
             let foundFolderId = rootId
-            
+
             for (const folderName of currentPath.value) {
-                const folder = allFolders.find(f => 
-                    f.name === folderName && 
+                const folder = allFolders.find(f =>
+                    f.name === folderName &&
                     (f.parentId === parentId || (f.parentId === null && parentId === rootId))
                 )
-                
+
                 if (folder) {
                     foundFolderId = folder.id
                     parentId = folder.id
@@ -659,7 +661,7 @@ const navigateToFolder = async (path) => {
                     break
                 }
             }
-            
+
             currentFolderId.value = foundFolderId
         } catch (error) {
             console.error('查找文件夹失败:', error)
@@ -675,7 +677,7 @@ const navigateToFolder = async (path) => {
             }
         }
     }
-    
+
     loadFiles()
 }
 
@@ -711,16 +713,16 @@ const handleFileChange = (file, uploadFiles) => {
     // 检查文件大小是否超过150MB限制
     const maxSize = 150 * 1024 * 1024 // 150MB
     const oversizedFiles = uploadFiles.filter(f => f.size > maxSize)
-    
+
     if (oversizedFiles.length > 0) {
         ElMessage.error(`文件大小不能超过150MB: ${oversizedFiles.map(f => f.name).join(', ')}`)
         // 过滤掉超过大小的文件
         uploadFiles = uploadFiles.filter(f => f.size <= maxSize)
     }
-    
+
     // 只保留新选择的文件，避免重复添加
-    fileList.value = uploadFiles.filter((f, index, self) => 
-        index === self.findIndex(item => 
+    fileList.value = uploadFiles.filter((f, index, self) =>
+        index === self.findIndex(item =>
             item.name === f.name && item.size === f.size
         )
     )
@@ -736,7 +738,7 @@ const confirmUpload = async () => {
     uploading.value = true
     let successCount = 0
     let failCount = 0
-    
+
     try {
         // 获取当前文件夹ID，如果没有指定则获取用户根目录ID
         let folderId = currentFolderId.value
@@ -750,10 +752,10 @@ const confirmUpload = async () => {
                 throw new Error('获取根目录失败')
             }
         }
-        
+
         // 创建已上传文件名的集合，避免重复上传
         const uploadedFiles = new Set()
-        
+
         // 逐个上传文件
         for (const fileItem of fileList.value) {
             // 检查是否已经上传过同名同大小的文件
@@ -762,19 +764,19 @@ const confirmUpload = async () => {
                 console.log(`跳过重复文件: ${fileItem.name}`)
                 continue
             }
-            
+
             try {
                 const formData = new FormData()
                 formData.append('file', fileItem.raw || fileItem)
                 // 确保folderId是数字类型
                 formData.append('folderId', folderId.toString())
-                
+
                 await Server.post('/file/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
                 })
-                
+
                 successCount++
                 uploadedFiles.add(fileKey)
             } catch (error) {
@@ -782,7 +784,7 @@ const confirmUpload = async () => {
                 failCount++
             }
         }
-        
+
         if (failCount === 0) {
             ElMessage.success(`成功上传 ${successCount} 个文件`)
         } else if (successCount === 0) {
@@ -790,7 +792,7 @@ const confirmUpload = async () => {
         } else {
             ElMessage.warning(`上传完成，成功 ${successCount} 个，失败 ${failCount} 个`)
         }
-        
+
         uploadDialogVisible.value = false
         // 清空文件列表，避免下次上传重复
         fileList.value = []
@@ -828,7 +830,7 @@ const confirmCreateFolder = async () => {
                         throw new Error('获取根目录失败')
                     }
                 }
-                
+
                 await Server.post('/folder/create', {
                     name: folderForm.name,
                     parentId: parentId
@@ -937,14 +939,14 @@ const handleFileCommand = async (command, item) => {
 }
 
 async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    ElMessage.success('分享链接已复制')
-    return true;
-  } catch (err) {
-    ElMessage.error('分享链接复制失败')
-    return false;
-  }
+    try {
+        await navigator.clipboard.writeText(text);
+        ElMessage.success('分享链接已复制')
+        return true;
+    } catch (err) {
+        ElMessage.error('分享链接复制失败')
+        return false;
+    }
 }
 
 
@@ -1494,11 +1496,11 @@ const handleCurrentChange = (newPage) => {
     .file-icon {
         font-size: 28px;
     }
-    
+
     .file-name {
         font-size: 11px;
     }
-    
+
     .file-meta {
         font-size: 9px;
     }
