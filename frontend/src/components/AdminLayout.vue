@@ -1,66 +1,73 @@
 <template>
-  <div class="admin-layout">
-    <!-- 顶部导航栏 -->
-    <header class="admin-header">
-      <div class="header-left">
-        <h1 class="logo">枫叶网盘 - 管理员控制台</h1>
-      </div>
-      <div class="header-right">
-        <el-dropdown @command="handleCommand">
-          <span class="user-info">
-            <el-avatar :size="32" :src="userAvatar">
-              <el-icon><User /></el-icon>
-            </el-avatar>
-            <span class="username">{{ store.user?.nickname || store.user?.username || '管理员' }}</span>
-            <el-icon class="el-icon--right"><arrow-down /></el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="userMode">切换到用户模式</el-dropdown-item>
-              <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
-    </header>
+  <el-watermark content="{{ store.user?.nickname || store.user?.username || '管理员' }}" :font="watermarkFont">
+    <div class="admin-layout">
+      <!-- 顶部导航栏 -->
+      <header class="admin-header">
+        <div class="header-left">
+          <h1 class="logo">枫叶网盘 - 管理员控制台</h1>
+        </div>
+        <div class="header-right">
+          <el-dropdown @command="handleCommand">
+            <span class="user-info">
+              <el-avatar :size="32" :src="userAvatar">
+                <el-icon>
+                  <User />
+                </el-icon>
+              </el-avatar>
+              <span class="username">{{ store.user?.nickname || store.user?.username || '管理员' }}</span>
+              <el-icon class="el-icon--right"><arrow-down /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="userMode">切换到用户模式</el-dropdown-item>
+                <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </header>
 
-    <div class="admin-container">
-      <!-- 侧边栏 -->
-      <aside class="admin-sidebar">
-        <el-menu
-          :default-active="activeMenu"
-          class="admin-menu"
-          router
-          unique-opened
-        >
-          <el-menu-item index="/admin">
-            <el-icon><Monitor /></el-icon>
-            <span>管理员仪表盘</span>
-          </el-menu-item>
-          
-          <el-menu-item index="/admin/users">
-            <el-icon><User /></el-icon>
-            <span>用户管理</span>
-          </el-menu-item>
-          
-          <el-menu-item index="/admin/system">
-            <el-icon><Setting /></el-icon>
-            <span>系统设置</span>
-          </el-menu-item>
-          
-          <el-menu-item index="/admin/logs">
-            <el-icon><Document /></el-icon>
-            <span>操作日志</span>
-          </el-menu-item>
-        </el-menu>
-      </aside>
+      <div class="admin-container">
+        <!-- 侧边栏 -->
+        <aside class="admin-sidebar">
+          <el-menu :default-active="activeMenu" class="admin-menu" router unique-opened>
+            <el-menu-item index="/admin">
+              <el-icon>
+                <Monitor />
+              </el-icon>
+              <span>管理员仪表盘</span>
+            </el-menu-item>
 
-      <!-- 主内容区域 -->
-      <main class="admin-main">
-        <router-view />
-      </main>
+            <el-menu-item index="/admin/users">
+              <el-icon>
+                <User />
+              </el-icon>
+              <span>用户管理</span>
+            </el-menu-item>
+
+            <el-menu-item index="/admin/system">
+              <el-icon>
+                <Setting />
+              </el-icon>
+              <span>系统设置</span>
+            </el-menu-item>
+
+            <el-menu-item index="/admin/logs">
+              <el-icon>
+                <Document />
+              </el-icon>
+              <span>操作日志</span>
+            </el-menu-item>
+          </el-menu>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <main class="admin-main">
+          <router-view />
+        </main>
+      </div>
     </div>
-  </div>
+  </el-watermark>
 </template>
 
 <script setup>
@@ -210,15 +217,15 @@ onMounted(() => {
   .admin-sidebar {
     width: 200px;
   }
-  
+
   .admin-header {
     padding: 0 16px;
   }
-  
+
   .header-left .logo {
     font-size: 16px;
   }
-  
+
   .admin-main {
     padding: 16px;
   }
