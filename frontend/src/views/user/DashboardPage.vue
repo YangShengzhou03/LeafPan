@@ -126,32 +126,38 @@ const fetchStorageInfo = async () => {
 // 获取文件统计
 const fetchFileStats = async () => {
   try {
-    // 获取文件列表
-    const fileResponse = await Server.get('/file/list?page=0&size=1000')
-    // 获取文件夹列表
-    const folderResponse = await Server.get('/folder/list')
+    console.log('开始获取文件统计数据...')
     
-    let totalFiles = 0
-    let totalFolders = 0
+    // 使用现有的文件列表和文件夹列表接口获取统计数据
+    const [filesResponse, foldersResponse] = await Promise.all([
+      Server.get('/file/list', { params: { page: 0, size: 1 } }),
+      Server.get('/folder/list', { params: { page: 0, size: 1 } })
+    ])
     
-    if (fileResponse.data && fileResponse.data.data) {
-      const files = fileResponse.data.data
-      totalFiles = files.length
-    }
+    console.log('文件列表API响应:', filesResponse)
+    console.log('文件夹列表API响应:', foldersResponse)
     
-    if (folderResponse.data && folderResponse.data.data) {
-      const folders = folderResponse.data.data
-      totalFolders = folders.length
-    }
+    // 从响应中提取总数
+    const fileCount = filesResponse.data?.data?.totalElements || 0
+    const folderCount = foldersResponse.data?.data?.totalElements || 0
     
+    console.log('文件统计数据详情:', {
+      fileCount,
+      folderCount
+    })
+    
+    // 更新文件统计
     fileStats.value = [
-      { type: 'files', label: '文件总数', count: totalFiles },
-      { type: 'folders', label: '文件夹', count: totalFolders },
-      { type: 'shared', label: '共享文件', count: 0 },
-      { type: 'favorites', label: '收藏文件', count: 0 }
+      { type: 'files', label: '文件总数', count: fileCount },
+      { type: 'folders', label: '文件夹', count: folderCount },
+      { type: 'shared', label: '共享文件', count: 0 }, // 暂时使用默认值，需要后端实现共享统计
+      { type: 'favorites', label: '收藏文件', count: 0 }  // 暂时使用默认值，需要后端实现收藏统计
     ]
+    
+    console.log('更新后的文件统计:', fileStats.value)
   } catch (error) {
     console.error('获取文件统计失败:', error)
+    console.error('错误详情:', error.response)
     // 设置默认值
     fileStats.value = [
       { type: 'files', label: '文件总数', count: 0 },
