@@ -206,7 +206,9 @@ const openEditDialog = () => {
   // 将当前用户信息填充到编辑表单
   Object.assign(editForm, {
     name: userProfile.name,
-    gender: userProfile.gender,
+    gender: userProfile.gender === 1 ? 'male' : 
+                    userProfile.gender === 2 ? 'female' : 
+                    'other', // 0(未知)或其他值映射为other
     email: userProfile.email,
     phone: userProfile.phone
   })
