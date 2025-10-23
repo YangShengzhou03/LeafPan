@@ -11,8 +11,8 @@ public class AdminSystemController {
     /**
      * 系统管理功能正在开发中
      */
-    @GetMapping("/stats")
-    public ResponseEntity<ApiResponse<String>> getDashboardStats() {
+    @GetMapping("/system-stats")
+    public ResponseEntity<ApiResponse<String>> getSystemStats() {
         return ResponseEntity.ok(ApiResponse.success("系统管理功能正在开发中"));
     }
 }
