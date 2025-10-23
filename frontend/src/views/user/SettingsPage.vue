@@ -142,10 +142,20 @@
     </el-dialog>
 
     <!-- 图像裁剪对话框 -->
-    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose"
-      @opened="initCropper">
+    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose">
       <div class="crop-container">
-        <img ref="cropImage" :src="cropImageUrl" style="max-width: 100%; display: block;">
+        <vue-cropper 
+          ref="cropper" 
+          :src="cropImageUrl" 
+          :aspect-ratio="1"
+          :view-mode="2"
+          :auto-crop-area="0.8"
+          :movable="true"
+          :zoomable="true"
+          :rotatable="true"
+          :scalable="true"
+          style="width: 100%; height: 400px;"
+        ></vue-cropper>
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -160,7 +170,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import {
   Plus, User, Edit, ArrowRight, Lock,
   Calendar, Notification, Phone, Setting, Bell,
@@ -168,8 +178,7 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
-import Cropper from 'cropperjs'
-import 'cropperjs/dist/cropper.css'
+import VueCropper from 'vue-cropper'
 
 // 头像遮罩层显示状态
 const showAvatarOverlay = ref(false)
@@ -182,9 +191,8 @@ const editFormRef = ref()
 // 裁剪相关状态
 const cropDialogVisible = ref(false)
 const cropLoading = ref(false)
-const cropImage = ref()
 const cropImageUrl = ref('')
-let cropper = null
+const cropper = ref()
 const currentFile = ref(null)
 
 // 编辑表单数据
@@ -395,68 +403,9 @@ const beforeAvatarUpload = (file) => {
   return false // 阻止自动上传
 }
 
-// 初始化裁剪器
-const initCropper = async () => {
-  if (cropper) {
-    cropper.destroy()
-    cropper = null
-  }
-
-  // 等待DOM更新完成
-  await nextTick()
-  
-  // 确保图片元素已经加载
-  if (cropImage.value) {
-    // 强制重新加载图片，确保onload触发
-    cropImage.value.src = cropImageUrl.value
-    cropImage.value.onload = () => {
-      createCropper()
-    }
-    
-    // 如果图片已经加载完成，直接初始化
-    if (cropImage.value.complete) {
-      createCropper()
-    }
-  }
-}
-
-// 创建裁剪器实例
-const createCropper = () => {
-  if (!cropImage.value) return
-
-  cropper = new Cropper(cropImage.value, {
-    aspectRatio: 1, // 设置为1:1的比例
-    viewMode: 1,
-    dragMode: 'move',
-    autoCropArea: 0.8,
-    restore: false,
-    guides: true,
-    center: true,
-    highlight: false,
-    cropBoxMovable: true,
-    cropBoxResizable: true,
-    toggleDragModeOnDblclick: false,
-    minCropBoxWidth: 100,
-    minCropBoxHeight: 100,
-    ready() {
-      // 裁剪器准备就绪后，确保裁剪框是正方形
-      const cropBoxData = this.getCropBoxData()
-      const size = Math.min(cropBoxData.width, cropBoxData.height)
-      this.setCropBoxData({
-        width: size,
-        height: size
-      })
-    }
-  })
-}
-
 // 关闭裁剪对话框
 const handleCropDialogClose = () => {
   cropDialogVisible.value = false
-  if (cropper) {
-    cropper.destroy()
-    cropper = null
-  }
   if (cropImageUrl.value) {
     URL.revokeObjectURL(cropImageUrl.value)
     cropImageUrl.value = ''
@@ -466,7 +415,7 @@ const handleCropDialogClose = () => {
 
 // 裁剪并上传头像
 const cropAndUploadAvatar = async () => {
-  if (!cropper || !currentFile.value) {
+  if (!cropper.value || !currentFile.value) {
     ElMessage.error('裁剪失败，请重试')
     return
   }
@@ -474,8 +423,8 @@ const cropAndUploadAvatar = async () => {
   cropLoading.value = true
 
   try {
-    // 获取裁剪后的canvas
-    const canvas = cropper.getCroppedCanvas({
+    // 使用vue-cropper的getCroppedCanvas方法获取裁剪后的canvas
+    const canvas = cropper.value.getCroppedCanvas({
       width: 200,
       height: 200,
       fillColor: '#fff',
@@ -984,5 +933,7 @@ const fetchUserInfo = async () => {
   background-color: #409eff;
 }
 </style>
+
+
 
 

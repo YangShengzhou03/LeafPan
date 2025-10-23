@@ -12,6 +12,17 @@ bin/
 *.tar.gz
 *.rar
 
+node_modules/
+*.log
+.env*
+dist/
+build/
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
 # Maven
 .mvn/wrapper/maven-wrapper.jar
 .mvn/wrapper/maven-wrapper.properties
