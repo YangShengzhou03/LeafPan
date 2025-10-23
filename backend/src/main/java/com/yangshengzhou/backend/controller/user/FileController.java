@@ -3,13 +3,14 @@ package com.yangshengzhou.backend.controller.user;
 import com.yangshengzhou.backend.dto.ApiResponse;
 import com.yangshengzhou.backend.entity.File;
 import com.yangshengzhou.backend.entity.User;
+import com.yangshengzhou.backend.event.StorageUpdateEvent;
 import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.FileService;
 import com.yangshengzhou.backend.service.FileStorageService;
 import com.yangshengzhou.backend.service.OperationLogService;
-import com.yangshengzhou.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -42,7 +43,7 @@ public class FileController {
     private OperationLogService operationLogService;
     
     @Autowired
-    private UserService userService;
+    private ApplicationEventPublisher eventPublisher;
     
     /**
      * 上传文件
@@ -326,8 +327,8 @@ public class FileController {
             boolean deleted = fileService.deleteFile(id, currentUser.getId());
             
             if (deleted) {
-                // 减少用户已用存储容量
-                userService.decreaseUsedStorage(currentUser.getId(), file.getSize());
+                // 发布存储减少事件（异步处理）
+                eventPublisher.publishEvent(new StorageUpdateEvent(currentUser.getId(), file.getSize(), false));
                 
                 // 记录删除日志
                 operationLogService.logOperation(
@@ -436,8 +437,8 @@ public class FileController {
                             if (fileService.deleteFile(fileId, currentUser.getId())) {
                                 successCount++;
                                 
-                                // 减少用户已用存储容量
-                                userService.decreaseUsedStorage(currentUser.getId(), file.getSize());
+                                // 发布存储减少事件（异步处理）
+                                eventPublisher.publishEvent(new StorageUpdateEvent(currentUser.getId(), file.getSize(), false));
                                 
                                 // 记录删除日志
                                 operationLogService.logOperation(
