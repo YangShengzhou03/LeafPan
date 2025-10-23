@@ -93,14 +93,18 @@ const fileStats = ref([
 const fetchStorageInfo = async () => {
   try {
     loading.value = true
-    const response = await Server.get('/user/storage')
-    if (response.data) {
-      const data = response.data
-      totalStorageGB.value = data.totalSpace / (1024 * 1024 * 1024) // 转换为GB
-      usedStorageGB.value = data.usedSpace / (1024 * 1024 * 1024) // 转换为GB
+    const response = await Server.get('/api/user/storage')
+    if (response.data && response.data.data) {
+      const data = response.data.data
+      // 后端返回的字段是storageQuota和usedStorage，单位是字节
+      totalStorageGB.value = data.storageQuota / (1024 * 1024 * 1024) // 转换为GB
+      usedStorageGB.value = data.usedStorage / (1024 * 1024 * 1024) // 转换为GB
     }
   } catch (error) {
     console.error('获取存储信息失败:', error)
+    // 设置默认值
+    totalStorageGB.value = 1
+    usedStorageGB.value = 0
   } finally {
     loading.value = false
   }
@@ -109,20 +113,39 @@ const fetchStorageInfo = async () => {
 // 获取文件统计
 const fetchFileStats = async () => {
   try {
-    // 这里假设有一个获取文件统计的API
-    // 如果没有，可以使用获取文件列表的API来计算统计信息
-    const response = await Server.get('/user/dashboard-stats')
-    if (response.data) {
-      const data = response.data
-      fileStats.value = [
-        { type: 'files', label: '文件总数', count: data.totalFiles || 0 },
-        { type: 'folders', label: '文件夹', count: data.totalFolders || 0 },
-        { type: 'shared', label: '共享文件', count: data.sharedFiles || 0 },
-        { type: 'favorites', label: '收藏文件', count: data.favoriteFiles || 0 }
-      ]
+    // 获取文件列表
+    const fileResponse = await Server.get('/api/file/list?page=0&size=1000')
+    // 获取文件夹列表
+    const folderResponse = await Server.get('/api/folder/list')
+    
+    let totalFiles = 0
+    let totalFolders = 0
+    
+    if (fileResponse.data && fileResponse.data.data) {
+      const files = fileResponse.data.data
+      totalFiles = files.length
     }
+    
+    if (folderResponse.data && folderResponse.data.data) {
+      const folders = folderResponse.data.data
+      totalFolders = folders.length
+    }
+    
+    fileStats.value = [
+      { type: 'files', label: '文件总数', count: totalFiles },
+      { type: 'folders', label: '文件夹', count: totalFolders },
+      { type: 'shared', label: '共享文件', count: 0 },
+      { type: 'favorites', label: '收藏文件', count: 0 }
+    ]
   } catch (error) {
     console.error('获取文件统计失败:', error)
+    // 设置默认值
+    fileStats.value = [
+      { type: 'files', label: '文件总数', count: 0 },
+      { type: 'folders', label: '文件夹', count: 0 },
+      { type: 'shared', label: '共享文件', count: 0 },
+      { type: 'favorites', label: '收藏文件', count: 0 }
+    ]
   }
 }
 

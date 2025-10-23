@@ -855,9 +855,7 @@ const handleFileCommand = async (command, item) => {
                 })
                 ElMessage.success('分享链接已生成')
                 // 可以在这里处理分享链接的显示
-                console.log('分享链接:', response.data.shareCode)
             } catch (error) {
-                console.error('分享失败:', error)
                 ElMessage.error('分享失败')
             }
             break
