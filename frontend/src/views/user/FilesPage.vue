@@ -523,19 +523,40 @@ const loadFiles = async () => {
     try {
         // 使用文件夹ID而不是路径
         const folderId = currentFolderId.value || 1
-        const response = await Server.get('/file/list', {
-            params: {
-                folderId,
-                page: currentPage.value,
-                pageSize: pageSize.value
-            }
-        })
-        if (response.data) {
-            files.value = response.data.content || response.data.files || []
-            totalFiles.value = response.data.totalElements || response.data.total || 0
-        } else {
-            ElMessage.error('加载文件列表失败')
-        }
+        
+        // 同时获取文件和文件夹
+        const [filesResponse, foldersResponse] = await Promise.all([
+            Server.get('/file/list/page', {
+                params: {
+                    folderId,
+                    page: currentPage.value - 1, // Spring Data JPA的页码从0开始
+                    size: pageSize.value
+                }
+            }),
+            Server.get(`/folder/${folderId}/subfolders`)
+        ])
+        
+        // 处理文件数据
+        const filesData = filesResponse.data
+        const fileList = filesData ? filesData.content || [] : []
+        
+        // 处理文件夹数据
+        const foldersData = foldersResponse.data
+        const folderList = foldersData ? foldersData : []
+        
+        // 将文件夹转换为文件项格式，并添加到文件列表前面
+        const folderItems = folderList.map(folder => ({
+            id: folder.id,
+            name: folder.name,
+            type: 'folder',
+            size: 0,
+            createTime: folder.createTime,
+            updateTime: folder.updateTime
+        }))
+        
+        // 合并文件夹和文件
+        files.value = [...folderItems, ...fileList]
+        totalFiles.value = filesData ? filesData.totalElements || 0 : 0
     } catch (error) {
         console.error('加载文件列表失败:', error)
         ElMessage.error('加载文件列表失败')

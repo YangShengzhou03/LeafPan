@@ -124,8 +124,26 @@ public class FolderService {
     /**
      * 获取子文件夹列表
      */
-    public List<Folder> getSubFolders(Long parentId) {
-        return folderRepository.findByParentId(parentId);
+    public List<Folder> getSubFolders(Long parentId, String userId) {
+        // 首先验证用户是否有权限访问父文件夹
+        if (parentId != null && parentId > 0) {
+            if (!hasPermission(userId, parentId)) {
+                return new ArrayList<>(); // 用户无权限，返回空列表
+            }
+        }
+        
+        // 获取所有子文件夹
+        List<Folder> allSubFolders = folderRepository.findByParentId(parentId);
+        
+        // 过滤出属于当前用户的子文件夹
+        List<Folder> userSubFolders = new ArrayList<>();
+        for (Folder folder : allSubFolders) {
+            if (folder.getUserId().equals(userId)) {
+                userSubFolders.add(folder);
+            }
+        }
+        
+        return userSubFolders;
     }
     
     /**

@@ -102,7 +102,7 @@ public class FolderController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            List<Folder> folders = folderService.getSubFolders(parentId);
+            List<Folder> folders = folderService.getSubFolders(parentId, currentUser.getId());
             return ResponseEntity.ok(ApiResponse.success(folders));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取子文件夹列表失败: " + e.getMessage()));
