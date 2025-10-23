@@ -166,7 +166,9 @@ router.beforeEach(async (to, from, next) => {
     // 如果有token但没有用户信息，尝试获取用户信息
     if (!store.state.user) {
       try {
+        console.log('路由守卫中获取用户信息')
         await store.fetchCurrentUser();
+        console.log('路由守卫中获取用户信息成功:', store.state.user)
         await store.fetchStorageInfo();
       } catch (error) {
         console.error('获取用户信息失败:', error);

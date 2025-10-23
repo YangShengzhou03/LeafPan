@@ -21,6 +21,7 @@ const store = {
   // 设置用户信息
   setUser(user) {
     if (user) {
+      console.log('设置用户信息:', user)
       state.user = user
       state.isAuthenticated = true
       // 检查用户角色，设置管理员标志
@@ -122,7 +123,16 @@ const store = {
 
     try {
       const response = await Server.get('/auth/me')
-      this.setUser(response.data)
+      console.log('获取用户信息响应:', response)
+      // 检查响应数据结构，可能需要从 response.data.data 中获取用户信息
+      const userData = response.data.data || response.data
+      console.log('解析后的用户数据:', userData)
+      this.setUser(userData)
+      
+      // 如果用户信息中包含存储信息，更新存储信息
+      if (userData.storageInfo) {
+        this.updateStorageInfo(userData.storageInfo)
+      }
     } catch (error) {
       console.error('获取用户信息失败:', error)
       // 只有在token无效或过期时才清除token
@@ -140,8 +150,10 @@ const store = {
 
     try {
       const response = await Server.get('/user/storage')
-      state.storageInfo = response.data
-      return response.data
+      // 检查响应数据结构，可能需要从 response.data.data 中获取存储信息
+      const storageData = response.data.data || response.data
+      state.storageInfo = storageData
+      return storageData
     } catch (error) {
       console.error('获取存储信息失败:', error)
       return null

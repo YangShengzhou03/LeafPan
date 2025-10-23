@@ -13,7 +13,7 @@
                             <img :src="currentUser?.avatar || 'https://picsum.photos/id/1005/200/200'" alt="用户头像" class="avatar-image">
                         </div>
                         <div class="user-details">
-                            <span class="username">{{ currentUser?.username || '用户名' }}</span>
+                            <span class="username">{{ currentUser?.nickname || currentUser?.username || '用户名' }}</span>
                             <span class="user-email">{{ currentUser?.email || '' }}</span>
                         </div>
                         <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" aria-hidden="true"></i>
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import store from '@/utils/store.js'
 
@@ -123,6 +123,20 @@ const currentUser = computed(() => {
   return store.state.user
 })
 
+// 监听用户信息变化，当用户信息更新后自动刷新存储信息
+watch(currentUser, async (newUser) => {
+  if (newUser) {
+    await refreshStorageInfo()
+  }
+}, { immediate: false })
+
+// 监听用户信息变化，确保用户名和邮箱正确显示
+watch(() => store.state.user, (newUser) => {
+  if (newUser) {
+    console.log('用户信息已更新:', newUser)
+  }
+}, { deep: true, immediate: true })
+
 // 退出登录
 const handleLogout = async () => {
   try {
@@ -149,11 +163,23 @@ const refreshStorageInfo = async () => {
 }
 
 // 组件挂载时刷新存储信息和用户信息
-onMounted(() => {
-  refreshStorageInfo()
-  // 获取用户信息
-  if (!store.state.user) {
-    store.fetchCurrentUser()
+onMounted(async () => {
+  // 确保在组件挂载时获取最新的用户信息和存储信息
+  try {
+    // 检查是否已有用户信息，如果没有则获取
+    if (!store.state.user) {
+      console.log('组件挂载时获取用户信息')
+      await store.fetchCurrentUser()
+    } else {
+      console.log('组件挂载时已有用户信息:', store.state.user)
+    }
+    
+    // 然后获取存储信息
+    await refreshStorageInfo()
+  } catch (error) {
+    console.error('初始化用户信息失败:', error)
+    // 如果获取失败，可能是token无效，尝试重新初始化
+    await store.init()
   }
   // 添加全局点击事件监听器，用于关闭下拉菜单
   document.addEventListener('click', closeDropdown)

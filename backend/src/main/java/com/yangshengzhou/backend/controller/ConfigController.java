@@ -85,6 +85,15 @@ public class ConfigController {
     }
     
     /**
+     * 获取默认配置信息
+     * 重定向到公开配置
+     */
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getDefaultConfig() {
+        return getPublicConfig();
+    }
+    
+    /**
      * 获取公开配置信息
      * 只包含前端需要的公开配置
      */

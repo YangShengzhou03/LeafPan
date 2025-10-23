@@ -29,9 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
         
-        // 跳过公开接口的JWT认证
-        if (requestURI.startsWith("/auth/") || 
-            requestURI.startsWith("/api/auth/") || 
+        // 跳过公开接口的JWT认证（除了 /auth/me）
+        if ((requestURI.startsWith("/auth/") && !requestURI.equals("/auth/me") && !requestURI.equals("/api/auth/me")) || 
+            (requestURI.startsWith("/api/auth/") && !requestURI.equals("/api/auth/me")) || 
             requestURI.startsWith("/public/") || 
             requestURI.startsWith("/api/public/") || 
             requestURI.startsWith("/config/") || 
