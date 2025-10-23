@@ -15,8 +15,13 @@ import java.util.UUID;
 @Service
 public class AvatarService {
     
+    // 使用构造器注入替代字段注入，避免循环依赖
+    private final FileStorageService fileStorageService;
+    
     @Autowired
-    private FileStorageService fileStorageService;
+    public AvatarService(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
+    }
     
     @Autowired
     private UserRepository userRepository;

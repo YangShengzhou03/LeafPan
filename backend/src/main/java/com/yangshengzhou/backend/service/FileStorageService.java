@@ -2,12 +2,13 @@ package com.yangshengzhou.backend.service;
 
 import com.yangshengzhou.backend.config.MinioConfig;
 import com.yangshengzhou.backend.entity.File;
+import com.yangshengzhou.backend.event.StorageUpdateEvent;
 import com.yangshengzhou.backend.repository.FileRepository;
-import com.yangshengzhou.backend.service.UserService;
 import io.minio.*;
 import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +30,7 @@ public class FileStorageService {
     private FileRepository fileRepository;
     
     @Autowired
-    private UserService userService;
+    private ApplicationEventPublisher eventPublisher;
     
     @Value("${app.storage.allowed-extensions}")
     private String allowedExtensions;
@@ -105,8 +106,8 @@ public class FileStorageService {
         
         fileRepository.save(fileEntity);
         
-        // 更新用户已用存储容量
-        userService.updateUsedStorage(userId, multipartFile.getSize());
+        // 发布存储更新事件（异步处理）
+        eventPublisher.publishEvent(new StorageUpdateEvent(userId, multipartFile.getSize(), true));
         
         return fileEntity;
     }
