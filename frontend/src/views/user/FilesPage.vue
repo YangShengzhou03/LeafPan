@@ -853,7 +853,7 @@ const handleFileCommand = async (command, item) => {
                     password: null,
                     expireTime: null
                 })
-                copyToClipboard('感谢使用LeafPan，分享链接已复制到剪贴板')
+                copyToClipboard('感谢使用LeafPan，这是一个简单高效的云存储平台')
             } catch (error) {
                 ElMessage.error('分享失败')
             }
@@ -911,10 +911,10 @@ const handleFileCommand = async (command, item) => {
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
-    ElMessage.success('复制成功')
+    ElMessage.success('分享链接已复制')
     return true;
   } catch (err) {
-    ElMessage.error('复制失败')
+    ElMessage.error('分享链接复制失败')
     return false;
   }
 }
