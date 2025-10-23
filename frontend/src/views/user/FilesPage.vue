@@ -76,7 +76,7 @@
                         <component :is="getFileIconComponent(item.type)" />
                     </el-icon>
                 </div>
-                <div class="file-name" :title="item.name">{{ item.name }}</div>
+                <div class="file-name" :title="item.name">{{ truncateFileName(item.name) }}</div>
                 <div class="file-meta">
                     {{ item.type === 'folder' ? '' : formatFileSize(item.size) }}
                 </div>
@@ -149,7 +149,7 @@
                 </el-table-column>
                 <el-table-column label="名称" min-width="300">
                     <template #default="{ row }">
-                        <span class="file-name" @click="handleItemClick(row)">{{ row.name }}</span>
+                        <span class="file-name" @click="handleItemClick(row)" :title="row.name">{{ truncateFileName(row.name) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="大小" width="120">
@@ -980,11 +980,29 @@ const formatFileSize = (bytes) => {
 
 // 格式化日期
 const formatDate = (dateString) => {
+    if (!dateString || dateString === 'Invalid Date') {
+        return '--'
+    }
     const date = new Date(dateString)
+    // 检查日期是否有效
+    if (isNaN(date.getTime())) {
+        return '--'
+    }
     return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', {
         hour: '2-digit',
         minute: '2-digit'
     })
+}
+
+// 截断文件名，过长时显示省略号
+const truncateFileName = (fileName) => {
+    if (!fileName) return ''
+    // 网格视图限制为10个字符，列表视图限制为25个字符
+    const maxLength = viewMode.value === 'grid' ? 10 : 25
+    if (fileName.length <= maxLength) {
+        return fileName
+    }
+    return fileName.substring(0, maxLength) + '...'
 }
 
 // 处理分页变化
@@ -1147,10 +1165,10 @@ const handleCurrentChange = (newPage) => {
 
 .files-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
     background: white;
-    padding: 20px;
+    padding: 15px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
@@ -1160,11 +1178,11 @@ const handleCurrentChange = (newPage) => {
     background: #f8fafc;
     border: 2px solid transparent;
     border-radius: 12px;
-    padding: 20px;
+    padding: 15px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-height: 140px;
+    min-height: 100px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1177,27 +1195,30 @@ const handleCurrentChange = (newPage) => {
 }
 
 .file-icon-container {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .file-icon {
-    font-size: 48px;
+    font-size: 32px;
     color: #409eff;
 }
 
 .file-name {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     color: #1f2937;
-    margin-bottom: 8px;
-    word-break: break-all;
-    line-height: 1.4;
+    margin-bottom: 6px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 .file-meta {
-    font-size: 12px;
+    font-size: 10px;
     color: #6b7280;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .file-actions {
@@ -1258,6 +1279,11 @@ const handleCurrentChange = (newPage) => {
     color: #409eff;
     cursor: pointer;
     transition: color 0.3s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: inline-block;
 }
 
 .file-name:hover {
@@ -1394,18 +1420,26 @@ const handleCurrentChange = (newPage) => {
     }
 
     .files-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 12px;
-        padding: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        padding: 10px;
     }
 
     .file-item {
-        padding: 16px;
-        min-height: 120px;
+        padding: 12px;
+        min-height: 90px;
     }
 
     .file-icon {
-        font-size: 36px;
+        font-size: 28px;
+    }
+    
+    .file-name {
+        font-size: 11px;
+    }
+    
+    .file-meta {
+        font-size: 9px;
     }
 }
 </style>
