@@ -19,7 +19,7 @@ public class Share {
     @Column(name = "folder_id")
     private Long folderId;
     
-    @Column(name = "user_id", nullable = false, length = 36)
+    @Column(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
     private String userId;
     
     @Column(name = "share_type", nullable = false)

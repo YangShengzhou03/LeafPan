@@ -20,7 +20,7 @@ public class File {
     @Column(name = "folder_id", nullable = false)
     private Long folderId = 0L;
     
-    @Column(name = "user_id", nullable = false, length = 36)
+    @Column(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
     private String userId;
     
     @Column(nullable = false)

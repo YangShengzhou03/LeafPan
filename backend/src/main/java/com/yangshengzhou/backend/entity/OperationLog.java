@@ -10,7 +10,7 @@ public class OperationLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "user_id", nullable = false, length = 36)
+    @Column(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
     private String userId;
     
     @Column(name = "operation_type", nullable = false, length = 50)
@@ -19,7 +19,7 @@ public class OperationLog {
     @Column(name = "target_type", nullable = false, length = 50)
     private String targetType;
     
-    @Column(name = "target_id", length = 36)
+    @Column(name = "target_id", columnDefinition = "CHAR(36)")
     private String targetId;
     
     @Column(length = 500)

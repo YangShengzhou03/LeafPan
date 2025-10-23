@@ -16,7 +16,7 @@ public class Folder {
     @Column(name = "parent_id", nullable = false)
     private Long parentId = 0L; // 0表示根目录
     
-    @Column(name = "user_id", nullable = false, length = 36)
+    @Column(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
     private String userId;
     
     @Column(nullable = false, length = 1000)
