@@ -1,5 +1,5 @@
 <template>
-  <el-watermark content="{{ store.user?.nickname || store.user?.username || '管理员' }}" :font="watermarkFont">
+  <el-watermark :content="watermarkContent" :font="watermarkFont">
     <div class="admin-layout">
       <!-- 顶部导航栏 -->
       <header class="admin-header">
@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, ArrowDown, Monitor, Setting, Document } from '@element-plus/icons-vue'
@@ -86,6 +86,18 @@ const activeMenu = computed(() => route.path)
 // 用户头像
 const userAvatar = computed(() => {
   return store.user?.avatar || ''
+})
+
+// 水印内容
+const watermarkContent = computed(() => {
+  return store.user?.nickname || store.user?.username || store.user?.email || '管理员'
+})
+
+// 水印字体配置
+const watermarkFont = reactive({
+  color: 'rgba(0, 0, 0, 0.1)',
+  fontSize: 16,
+  fontWeight: 'normal'
 })
 
 // 处理下拉菜单命令
