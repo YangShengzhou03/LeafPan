@@ -1,6 +1,8 @@
 package com.yangshengzhou.backend.repository;
 
 import com.yangshengzhou.backend.entity.File;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,9 +34,9 @@ public interface FileRepository extends JpaRepository<File, Long> {
     
     boolean existsByUserIdAndStorageKey(String userId, String storageKey);
     
-    org.springframework.data.domain.Page<File> findByUserId(String userId, org.springframework.data.domain.Pageable pageable);
+    Page<File> findByUserId(String userId, Pageable pageable);
     
-    org.springframework.data.domain.Page<File> findByUserIdAndFolderId(String userId, Long folderId, org.springframework.data.domain.Pageable pageable);
+    Page<File> findByUserIdAndFolderId(String userId, Long folderId, Pageable pageable);
     
     boolean existsByStorageKey(String storageKey);
 }

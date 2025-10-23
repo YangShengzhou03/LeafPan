@@ -552,11 +552,11 @@ const loadFiles = async () => {
         
         // 处理文件数据
         const filesData = filesResponse.data
-        const fileList = filesData ? filesData.content || [] : []
+        const fileList = filesData && filesData.success ? filesData.data?.content || [] : []
         
         // 处理文件夹数据
         const foldersData = foldersResponse.data
-        const folderList = foldersData ? foldersData : []
+        const folderList = foldersData && foldersData.success ? foldersData.data || [] : []
         
         // 将文件夹转换为文件项格式，并添加到文件列表前面
         const folderItems = folderList.map(folder => ({

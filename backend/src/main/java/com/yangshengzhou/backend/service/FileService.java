@@ -145,7 +145,7 @@ public class FileService {
      * 分页获取用户的文件列表
      */
     public Page<File> getUserFiles(String userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return fileRepository.findByUserId(userId, pageable);
     }
     
@@ -153,7 +153,7 @@ public class FileService {
      * 分页获取用户指定文件夹下的文件列表
      */
     public Page<File> getUserFilesByFolderId(String userId, Long folderId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         return fileRepository.findByUserIdAndFolderId(userId, folderId, pageable);
     }
 
