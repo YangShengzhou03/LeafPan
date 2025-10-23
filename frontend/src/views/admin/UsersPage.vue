@@ -77,24 +77,26 @@
                 {{ formatStorage(scope.row.storageQuota) }}
               </template>
             </el-table-column>
-            <el-table-column prop="storageUsed" label="已用存储" width="100">
-              <template #default="scope">
-                {{ formatStorage(scope.row.storageUsed) }}
-              </template>
-            </el-table-column>
-            <el-table-column prop="usagePercentage" label="使用率" width="80">
-              <template #default="scope">
-                {{ calculateUsagePercentage(scope.row.storageUsed, scope.row.storageQuota) }}%
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="状态" width="100">
+            <el-table-column prop="storageUsed" label="存储使用" width="140">
+          <template #default="{ row }">
+            {{ formatStorage(row.storageUsed) }} / {{ formatStorage(row.storageQuota) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="usagePercentage" label="使用率" width="80">
+          <template #default="{ row }">
+            <span :class="getUsageClass(row.storageUsed, row.storageQuota)">
+              {{ calculateUsagePercentage(row.storageUsed, row.storageQuota) }}%
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="100">
               <template #default="scope">
                 <el-tag :type="scope.row.status === 'active' ? 'success' : 'danger'">
                   {{ scope.row.status === 'active' ? '正常' : '禁用' }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="createdAt" label="注册时间" width="150" />
+            <el-table-column prop="lastLoginTime" label="最后上线时间" width="200" :show-overflow-tooltip="true" />
             <el-table-column label="操作" width="280" fixed="right">
               <template #default="scope">
                 <el-button size="small" @click="editUser(scope.row)">编辑</el-button>
@@ -196,7 +198,7 @@ const showAddUserDialog = ref(false)
 const editingUser = ref(null)
 const userFormRef = ref(null)
 
-// 用户表单
+// 用户表单数据
 const userForm = reactive({
   email: '',
   password: '',
@@ -204,7 +206,7 @@ const userForm = reactive({
   phone: '',
   role: 'user',
   status: 'active',
-  storageQuota: 10
+  storageQuota: 1073741824 // 默认1GB，单位字节
 })
 
 // 表单验证规则
@@ -291,8 +293,10 @@ const loadUsers = async () => {
         gender: user.gender === 1 ? 'MALE' : user.gender === 2 ? 'FEMALE' : 'NOT_SET',
         phone: user.phone || '',
         role: user.role === 1 ? 'admin' : 'user',
-        storageUsed: (user.usedStorage || 0) / 1073741824, // 转换为GB
+        storageQuota: user.storageQuota || 1073741824,
+        storageUsed: user.usedStorage || 0,
         status: user.status === 1 ? 'active' : 'disabled',
+        lastLoginTime: user.lastLoginTime ? new Date(user.lastLoginTime).toLocaleString('zh-CN') : '从未登录',
         createdAt: user.createdTime ? new Date(user.createdTime).toLocaleString('zh-CN') : '未知'
       }))
       totalUsers.value = userData.totalElements
@@ -364,6 +368,7 @@ const editUser = (user) => {
   userForm.phone = user.phone
   userForm.role = user.role
   userForm.status = user.status
+  userForm.storageQuota = user.storageQuota
   userForm.password = '' // 编辑时不显示密码
   showAddUserDialog.value = true
 }
@@ -382,14 +387,15 @@ const saveUser = async () => {
       gender: userForm.gender === 'MALE' ? 1 : userForm.gender === 'FEMALE' ? 2 : 0,
       phone: userForm.phone,
       role: userForm.role === 'admin' ? 1 : 0,
-      status: userForm.status === 'active' ? 1 : 0
+      status: userForm.status === 'active' ? 1 : 0,
+      storageQuota: userForm.storageQuota
     }
     
     if (editingUser.value) {
       // 更新用户
       await Server.put(`/admin/user/${editingUser.value.id}`, userData)
     } else {
-      // 添加用户 - 需要先创建用户对象
+      // 添加用户 - 使用管理员创建用户接口
       const newUser = {
         email: userForm.email,
         password: userForm.password,
@@ -397,10 +403,11 @@ const saveUser = async () => {
         gender: userForm.gender === 'MALE' ? 1 : userForm.gender === 'FEMALE' ? 2 : 0,
         phone: userForm.phone,
         role: userForm.role === 'admin' ? 1 : 0,
-        status: userForm.status === 'active' ? 1 : 0
+        status: userForm.status === 'active' ? 1 : 0,
+        storageQuota: userForm.storageQuota
       }
-      // 这里需要调用注册接口或用户创建接口
-      await Server.post('/auth/register', newUser)
+      // 使用管理员创建用户接口
+      await Server.post('/admin/user', newUser)
     }
     
     ElMessage.success(editingUser.value ? '用户更新成功' : '用户添加成功')
@@ -455,6 +462,14 @@ const deleteUser = async (user) => {
   }
 }
 
+// 获取使用率颜色类
+const getUsageClass = (used, quota) => {
+  const percentage = calculateUsagePercentage(used, quota)
+  if (percentage >= 90) return 'usage-high'
+  if (percentage >= 70) return 'usage-medium'
+  return 'usage-low'
+}
+
 // 重置用户表单
 const resetUserForm = () => {
   Object.assign(userForm, {
@@ -464,7 +479,7 @@ const resetUserForm = () => {
     phone: '',
     role: 'user',
     status: 'active',
-    storageQuota: 10
+    storageQuota: 1073741824 // 默认1GB
   })
 }
 

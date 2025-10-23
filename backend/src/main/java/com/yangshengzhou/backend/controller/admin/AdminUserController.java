@@ -191,6 +191,40 @@ public class AdminUserController {
     }
     
     /**
+     * 创建用户
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody User user, HttpServletRequest request) {
+        try {
+            User currentUser = authService.getCurrentUser();
+            if (currentUser == null || currentUser.getRole() != 1) {
+                return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
+            }
+            
+            User createdUser = userService.createUser(user);
+            
+            if (createdUser != null) {
+                // 记录操作日志
+                operationLogService.logOperation(
+                    currentUser.getId(),
+                    "CREATE_USER",
+                    "USER",
+                    createdUser.getId(),
+                    "管理员创建用户",
+                    getClientIpAddress(request),
+                    request.getHeader("User-Agent")
+                );
+                
+                return ResponseEntity.ok(ApiResponse.success(createdUser));
+            } else {
+                return ResponseEntity.badRequest().body(ApiResponse.error("用户创建失败"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("创建用户失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
      * 获取用户统计信息
      */
     @GetMapping("/statistics")

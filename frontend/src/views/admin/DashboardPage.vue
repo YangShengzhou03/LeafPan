@@ -132,25 +132,15 @@ const formatDate = (dateString) => {
 const loadDashboardData = async () => {
   try {
     // 调用后端API获取真实数据
-    const response = await Server.get('/admin/system/statistics')
+    const response = await Server.get('/admin/stats')
     
     // 更新统计数据
     stats.value = {
-      userCount: response.data.totalUsers || 0,
-      fileCount: response.data.totalFiles || 0,
-      usedStorage: (response.data.totalStorageUsed || 0) / 1073741824, // 转换为GB
-      shareCount: response.data.totalShares || 0
+      userCount: response.data.userCount || 0,
+      fileCount: response.data.fileCount || 0,
+      usedStorage: response.data.usedStorage || 0,
+      shareCount: response.data.shareCount || 0
     }
-    
-    // 获取最近注册用户
-    const usersResponse = await Server.get('/admin/user/list', { 
-      params: {
-        page: 0, 
-        size: 5
-      }
-    })
-    
-    recentUsers.value = usersResponse.data.content || []
     
     // 更新系统运行时间
     uptime.value = response.data.uptime || ''
