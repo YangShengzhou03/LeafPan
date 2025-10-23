@@ -61,13 +61,8 @@
         <!-- 面包屑导航 -->
         <div class="breadcrumb-container">
             <el-breadcrumb separator="/" class="modern-breadcrumb">
-                <el-breadcrumb-item>
-                    <a @click="navigateToFolder('')" class="breadcrumb-link">我的文件</a>
-                </el-breadcrumb-item>
-                <el-breadcrumb-item v-for="(folder, index) in currentPath" :key="index">
-                    <a @click="navigateToFolder(currentPath.slice(0, index + 1).join('/'))" class="breadcrumb-link">{{
-                        folder
-                    }}</a>
+                <el-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="index">
+                    <a @click="handleBreadcrumbClick(item)" class="breadcrumb-link">{{ item.name }}</a>
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -449,6 +444,67 @@ const filteredFiles = computed(() => {
 
     return result
 })
+
+// 面包屑导航
+const breadcrumbItems = computed(() => {
+    const items = [
+        { name: '我的文件', path: [] }
+    ]
+    
+    // 添加当前路径中的文件夹
+    currentPath.value.forEach((folderName, index) => {
+        items.push({
+            name: folderName,
+            path: currentPath.value.slice(0, index + 1)
+        })
+    })
+    
+    return items
+})
+
+// 处理面包屑点击
+const handleBreadcrumbClick = async (item) => {
+    try {
+        if (item.path.length === 0) {
+            // 根目录
+            currentPath.value = []
+            currentFolderId.value = 1
+        } else {
+            // 需要从根目录开始逐级查找文件夹ID
+            const foldersResponse = await Server.get('/folder/list')
+            const allFolders = foldersResponse.data || []
+            
+            // 从根目录开始查找
+            let parentId = 1 // 根目录ID
+            let foundFolderId = 1
+            
+            for (const folderName of item.path) {
+                const folder = allFolders.find(f => 
+                    f.name === folderName && 
+                    (f.parentId === parentId || (f.parentId === null && parentId === 1))
+                )
+                
+                if (folder) {
+                    foundFolderId = folder.id
+                    parentId = folder.id
+                } else {
+                    // 如果找不到文件夹，保持在根目录
+                    foundFolderId = 1
+                    break
+                }
+            }
+            
+            currentPath.value = item.path
+            currentFolderId.value = foundFolderId
+        }
+        
+        // 重新加载文件列表
+        await loadFiles()
+    } catch (error) {
+        console.error('导航失败:', error)
+        ElMessage.error('导航失败')
+    }
+}
 
 // 页面加载时获取数据
 onMounted(async () => {
