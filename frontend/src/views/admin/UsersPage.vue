@@ -276,6 +276,12 @@ const loadUsers = async () => {
   loading.value = true
   try {
     // 调用后端API获取真实数据
+    console.log('开始请求用户数据...')
+    console.log('请求参数:', {
+      page: currentPage.value - 1,
+      size: pageSize.value
+    })
+    
     const response = await Server.get('/admin/user/list', {
       params: {
         page: currentPage.value - 1,
@@ -283,24 +289,36 @@ const loadUsers = async () => {
       }
     })
     
+    console.log('API响应数据:', response.data)
+    console.log('响应状态码:', response.status)
+    
     if (response.data.code === 200) {
       const userData = response.data.data
+      console.log('用户数据内容:', userData)
+      console.log('用户列表:', userData.content)
+      
       users.value = userData.content.map(user => ({
         id: user.id,
         email: user.email,
         gender: user.gender === 1 ? 'MALE' : user.gender === 2 ? 'FEMALE' : 'NOT_SET',
         phone: user.phone || '',
         role: user.role === 1 ? 'admin' : 'user',
+        storageQuota: (user.storageQuota || 10) * 1073741824, // 转换为字节
         storageUsed: (user.usedStorage || 0) / 1073741824, // 转换为GB
         status: user.status === 1 ? 'active' : 'disabled',
         createdAt: user.createdTime ? new Date(user.createdTime).toLocaleString('zh-CN') : '未知'
       }))
+      
+      console.log('处理后的用户数据:', users.value)
       totalUsers.value = userData.totalElements
+      console.log('总用户数:', totalUsers.value)
     } else {
+      console.error('API返回错误码:', response.data.code, '错误信息:', response.data.message)
       throw new Error(response.data.message)
     }
   } catch (error) {
     console.error('加载用户数据失败:', error)
+    console.error('错误详情:', error.response?.data || error.message)
     ElMessage.error('加载用户数据失败: ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
