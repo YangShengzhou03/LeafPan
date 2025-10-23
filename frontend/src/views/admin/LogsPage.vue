@@ -282,8 +282,8 @@ const loadLogs = async () => {
       }
     })
 
-    logs.value = response.data.data.content || []
-    totalLogs.value = response.data.data.totalElements || 0
+    logs.value = response.data.content || []
+    totalLogs.value = response.data.totalElements || 0
     updateStats()
   } catch (error) {
     console.error('加载日志数据失败:', error)

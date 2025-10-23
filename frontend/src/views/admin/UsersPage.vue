@@ -330,7 +330,7 @@ const resetFilters = () => {
 const resetPassword = async (user) => {
   try {
     await ElMessageBox.confirm(
-      `确定要重置用户 "${user.email}" 的密码吗？新密码将设置为默认密码。`,
+      `确定要重置用户 "${user.email}" 的密码为"123456"吗？`,
       '确认重置密码',
       {
         confirmButtonText: '确定',
@@ -339,8 +339,8 @@ const resetPassword = async (user) => {
       }
     )
     
-    await Server.put(`/admin/user/${user.id}/password`)
-    ElMessage.success('密码重置成功')
+    await Server.put(`/admin/user/${user.id}/password?newPassword=123456`)
+    ElMessage.success(`密码重置成功，新密码为：123456`)
   } catch (error) {
     if (error !== 'cancel') {
       console.error('重置密码失败:', error)
