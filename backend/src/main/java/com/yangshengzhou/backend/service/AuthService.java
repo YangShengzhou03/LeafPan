@@ -35,6 +35,12 @@ public class AuthService {
     @Autowired
     private OperationLogService operationLogService;
     
+    @Autowired
+    private EmailService emailService;
+    
+    @Autowired
+    private VerificationCodeService verificationCodeService;
+    
     /**
      * 用户登录
      */
@@ -164,10 +170,31 @@ public class AuthService {
     /**
      * 刷新Token
      */
-    public Map<String, Object> refreshToken(String refreshToken) {
-        // 这里需要实现token刷新逻辑
-        // 暂时返回空结果
-        throw new RuntimeException("Token刷新功能暂未实现");
+    public Map<String, Object> refreshToken(String token) {
+        try {
+            // 验证token是否有效
+            String username = jwtUtil.getUsernameFromToken(token);
+            
+            if (username == null) {
+                throw new RuntimeException("无效的token");
+            }
+            
+            // 获取用户信息
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
+            // 生成新的token
+            String newToken = jwtUtil.generateToken(username);
+            
+            // 返回新的token和用户信息
+            Map<String, Object> result = new HashMap<>();
+            result.put("token", newToken);
+            result.put("user", user);
+            
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Token刷新失败: " + e.getMessage());
+        }
     }
     
     /**
@@ -187,16 +214,46 @@ public class AuthService {
      * 发送密码重置邮件
      */
     public void sendPasswordResetEmail(String email) {
-        // 这里需要实现发送密码重置邮件的逻辑
-        throw new RuntimeException("密码重置邮件功能暂未实现");
+        try {
+            // 检查邮箱是否存在
+            if (!userRepository.existsByEmail(email)) {
+                throw new RuntimeException("该邮箱未注册");
+            }
+            
+            // 生成重置密码的验证码
+            String code = verificationCodeService.generateCode(email);
+            
+            // 发送密码重置邮件
+            emailService.sendPasswordResetCode(email, code);
+        } catch (Exception e) {
+            throw new RuntimeException("发送密码重置邮件失败: " + e.getMessage());
+        }
     }
     
     /**
-     * 重置密码（通过token）
+     * 重置密码
      */
-    public void resetPassword(String token, String newPassword) {
-        // 这里需要实现通过token重置密码的逻辑
-        throw new RuntimeException("通过token重置密码功能暂未实现");
+    public void resetPassword(String email, String code, String newPassword) {
+        try {
+            // 验证验证码
+            boolean isValid = verificationCodeService.verifyCode(email, code);
+            if (!isValid) {
+                throw new RuntimeException("验证码无效或已过期");
+            }
+            
+            // 查找用户
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
+            // 更新密码
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            
+            // 记录操作日志
+            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "用户重置密码");
+        } catch (Exception e) {
+            throw new RuntimeException("重置密码失败: " + e.getMessage());
+        }
     }
     
     /**
