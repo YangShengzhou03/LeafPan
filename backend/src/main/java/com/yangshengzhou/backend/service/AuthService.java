@@ -47,7 +47,7 @@ public class AuthService {
     public Map<String, Object> login(String email, String password, String ipAddress) {
         // 通过邮箱查找用户
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("邮箱不存在或密码错误"));
+            .orElseThrow(() -> new RuntimeException("邮箱或密码错误"));
         
         // 认证用户
         Authentication authentication = authenticationManager.authenticate(

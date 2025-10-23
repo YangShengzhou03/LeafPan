@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getToken } from './utils.js'
 
 const Server = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || '',
+  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:8081/api',
   timeout: 10000
 })
 

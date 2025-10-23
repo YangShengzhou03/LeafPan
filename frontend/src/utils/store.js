@@ -56,13 +56,20 @@ const store = {
     try {
       const response = await Server.post('/auth/login', credentials)
       
-      if (response.data.token) {
-        utils.saveToken(response.data.token)
-        await this.fetchCurrentUser()
-        return { success: true }
+      // 后端返回的数据结构是 {code: 200, message: "登录成功", data: {token: "...", user: {...}}}
+      if (response.data.code === 200 && response.data.data && response.data.data.token) {
+        utils.saveToken(response.data.data.token)
+        // 设置用户信息
+        if (response.data.data.user) {
+          this.setUser(response.data.data.user)
+        } else {
+          // 如果没有返回用户信息，需要额外获取
+          await this.fetchCurrentUser()
+        }
+        return { success: true, message: response.data.message }
       }
       
-      return { success: false, message: '登录失败' }
+      return { success: false, message: response.data.message || '登录失败' }
     } catch (error) {
       this.clearUser()
       return { success: false, message: error.response?.data?.message || error.message }

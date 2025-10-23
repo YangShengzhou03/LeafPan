@@ -319,10 +319,16 @@ const handleLogin = async () => {
     
     // 调用登录API
     const result = await store.login(loginForm)
+    console.log(result)
     
     if (result.success) {
       ElMessage.success('登录成功')
-      router.push('/')
+      // 根据用户角色跳转到不同页面
+      if (store.state.isAdmin) {
+        router.push('/admin')
+      } else {
+        router.push('/user')
+      }
     } else {
       ElMessage.error(result.message || '登录失败，请检查邮箱和密码')
     }
