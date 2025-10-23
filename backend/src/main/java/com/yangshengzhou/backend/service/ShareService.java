@@ -62,7 +62,7 @@ public class ShareService {
         
         Share share = new Share();
         share.setShareCode(shareCode);
-        share.setUserId(Long.parseLong(currentUser.getId()));
+        share.setUserId(currentUser.getId());
         share.setShareType(request.getShareType().byteValue());
         share.setPassword(request.getPassword());
         share.setIsActive(true);
@@ -96,7 +96,7 @@ public class ShareService {
             throw new RuntimeException("用户未登录");
         }
         
-        return shareRepository.findActiveSharesByUserId(Long.parseLong(currentUser.getId()), LocalDateTime.now());
+        return shareRepository.findActiveSharesByUserId(currentUser.getId(), LocalDateTime.now());
     }
     
     /**
@@ -109,7 +109,7 @@ public class ShareService {
         }
         
         Optional<Share> share = shareRepository.findById(id);
-        if (share.isPresent() && !share.get().getUserId().equals(Long.parseLong(currentUser.getId()))) {
+        if (share.isPresent() && !share.get().getUserId().equals(currentUser.getId())) {
             throw new RuntimeException("无权限访问此分享");
         }
         
@@ -132,7 +132,7 @@ public class ShareService {
         }
         
         Share share = shareOpt.get();
-        if (!share.getUserId().equals(Long.parseLong(currentUser.getId()))) {
+        if (!share.getUserId().equals(currentUser.getId())) {
             throw new RuntimeException("无权限修改此分享");
         }
         
@@ -171,7 +171,7 @@ public class ShareService {
         }
         
         Share share = shareOpt.get();
-        if (!share.getUserId().equals(Long.parseLong(currentUser.getId()))) {
+        if (!share.getUserId().equals(currentUser.getId())) {
             throw new RuntimeException("无权限删除此分享");
         }
         

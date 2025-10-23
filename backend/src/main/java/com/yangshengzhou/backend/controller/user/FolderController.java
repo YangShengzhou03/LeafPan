@@ -53,7 +53,7 @@ public class FolderController {
             createRequest.setName(name);
             createRequest.setParentId(parentId);
             
-            Folder folder = folderService.createFolder(Long.parseLong(currentUser.getId()), createRequest);
+            Folder folder = folderService.createFolder(currentUser.getId(), createRequest);
             
             // 记录创建文件夹日志
             operationLogService.logOperation(
@@ -84,7 +84,7 @@ public class FolderController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            List<Folder> folders = folderService.getUserFolders(Long.parseLong(currentUser.getId()));
+            List<Folder> folders = folderService.getUserFolders(currentUser.getId());
             return ResponseEntity.ok(ApiResponse.success(folders));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取文件夹列表失败: " + e.getMessage()));
@@ -120,7 +120,7 @@ public class FolderController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!folderService.hasPermission(Long.parseLong(currentUser.getId()), id)) {
+            if (!folderService.hasPermission(currentUser.getId(), id)) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件夹"));
             }
             
@@ -144,7 +144,7 @@ public class FolderController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!folderService.isFolderOwnedByUser(id, Long.parseLong(currentUser.getId()))) {
+            if (!folderService.isFolderOwnedByUser(id, currentUser.getId())) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权修改此文件夹"));
             }
             
@@ -175,7 +175,7 @@ public class FolderController {
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
-            if (!folderService.isFolderOwnedByUser(id, Long.parseLong(currentUser.getId()))) {
+            if (!folderService.isFolderOwnedByUser(id, currentUser.getId())) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权删除此文件夹"));
             }
             

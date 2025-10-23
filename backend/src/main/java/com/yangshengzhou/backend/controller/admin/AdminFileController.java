@@ -74,35 +74,9 @@ public class AdminFileController {
     public ResponseEntity<ApiResponse<String>> deleteFile(@PathVariable Long id, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
-            if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
-                return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
-            }
-            
+            return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
+
             // 获取文件信息用于日志
-            File file = fileService.getFile(id).orElse(null);
-            if (file == null) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("文件不存在"));
-            }
-            
-            boolean deleted = fileService.deleteFile(id, Long.parseLong(currentUser.getId()));
-            
-            if (deleted) {
-                // 记录操作日志
-                operationLogService.logOperation(
-                    currentUser.getId(),
-                    "DELETE_FILE",
-                    "FILE",
-                    file.getId().toString(),
-                    "管理员删除文件: " + file.getName(),
-                    getClientIpAddress(request),
-                    request.getHeader("User-Agent"),
-                    ""
-                );
-                
-                return ResponseEntity.ok(ApiResponse.success("文件删除成功"));
-            } else {
-                return ResponseEntity.badRequest().body(ApiResponse.error("文件删除失败"));
-            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("删除文件失败: " + e.getMessage()));
         }
