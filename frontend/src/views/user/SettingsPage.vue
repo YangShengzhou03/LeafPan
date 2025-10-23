@@ -5,7 +5,7 @@
       <div class="personal-info-card modern-card" :class="{ 'panel-hover': isHoveringPanel }">
         <div class="card-header">
           <div class="avatar-section">
-            <el-upload class="avatar-uploader" action="#" :show-file-list="false" :on-success="handleAvatarSuccess"
+            <el-upload class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleAvatarChange"
               :before-upload="beforeAvatarUpload">
               <img v-if="userProfile.avatarUrl" :src="userProfile.avatarUrl" class="avatar" />
               <el-icon v-else class="avatar-uploader-icon">
@@ -334,33 +334,50 @@ onMounted(() => {
   fetchUserInfo()
 })
 
-// 头像上传相关方法
-const handleAvatarSuccess = (res, file) => {
-  userProfile.avatarUrl = URL.createObjectURL(file.raw)
-  ElMessage.success('头像更新成功')
+// 头像选择变化处理
+const handleAvatarChange = (file) => {
+  // 当用户选择文件后，触发裁剪流程
+  beforeAvatarUpload(file.raw)
 }
 
+// 头像上传前验证
 const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif'
   const isLt2M = file.size / 1024 / 1024 < 2
 
   if (!isJPG) {
-    ElMessage.error('上传头像图片只能是 JPG 或 PNG 格式!')
+    ElMessage.error('头像图片只能是 JPG/PNG/GIF 格式!')
     return false
   }
   if (!isLt2M) {
-    ElMessage.error('上传头像图片大小不能超过 2MB!')
+    ElMessage.error('头像图片大小不能超过 2MB!')
     return false
   }
   
-  // 保存文件并打开裁剪对话框
-  currentFile.value = file
-  cropImageUrl.value = URL.createObjectURL(file.raw)
+  // 验证通过后打开裁剪对话框
+  cropImageUrl.value = URL.createObjectURL(file)
   cropDialogVisible.value = true
   
-  // 等待DOM更新后初始化cropper
+  // 保存当前文件用于后续裁剪
+  currentFile.value = file
+  
+  // 在下一个tick初始化裁剪器
   nextTick(() => {
-    initCropper()
+    if (cropImage.value) {
+      cropper = new Cropper(cropImage.value, {
+        aspectRatio: 1,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 0.8,
+        restore: false,
+        guides: false,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+      })
+    }
   })
   
   return false // 阻止自动上传
@@ -402,7 +419,7 @@ const handleCropDialogClose = () => {
 }
 
 // 裁剪并上传头像
-const cropAndUploadAvatar = () => {
+const cropAndUploadAvatar = async () => {
   if (!cropper || !currentFile.value) {
     ElMessage.error('裁剪失败，请重试')
     return
@@ -410,17 +427,23 @@ const cropAndUploadAvatar = () => {
   
   cropLoading.value = true
   
-  // 获取裁剪后的canvas
-  const canvas = cropper.getCroppedCanvas({
-    maxWidth: 4096,
-    maxHeight: 4096,
-    fillColor: '#fff',
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: 'high',
-  })
-  
-  // 将canvas转换为blob
-  canvas.toBlob((blob) => {
+  try {
+    // 获取裁剪后的canvas
+    const canvas = cropper.getCroppedCanvas({
+      maxWidth: 4096,
+      maxHeight: 4096,
+      fillColor: '#fff',
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    })
+    
+    // 将canvas转换为blob
+    const blob = await new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob)
+      }, currentFile.value.type, 0.9)
+    })
+    
     if (!blob) {
       ElMessage.error('图像处理失败，请重试')
       cropLoading.value = false
@@ -437,18 +460,27 @@ const cropAndUploadAvatar = () => {
     const formData = new FormData()
     formData.append('file', croppedFile)
     
-    // 这里应该调用上传API，目前先模拟上传成功
-    // 实际项目中应该替换为真实的API调用
-    // Server.post('/upload/avatar', formData).then(response => {...})
+    // 调用真实的上传API
+    const response = await Server.post('/user/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
     
-    // 模拟上传成功
-    setTimeout(() => {
-      userProfile.avatarUrl = URL.createObjectURL(blob)
+    if (response.data && response.data.code === 200) {
+      // 更新本地头像URL
+      userProfile.avatarUrl = response.data.data
       cropLoading.value = false
       handleCropDialogClose()
       ElMessage.success('头像更新成功')
-    }, 1000)
-  }, currentFile.value.type, 0.9)
+    } else {
+      throw new Error(response.data?.message || '上传失败')
+    }
+  } catch (error) {
+    console.error('头像上传失败:', error)
+    cropLoading.value = false
+    ElMessage.error('头像上传失败: ' + (error.message || '请重试'))
+  }
 }
 
 // 获取用户信息

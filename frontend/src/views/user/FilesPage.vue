@@ -692,7 +692,12 @@ const handleUpload = () => {
 
 // 处理文件选择变化
 const handleFileChange = (file, uploadFiles) => {
-    fileList.value = uploadFiles
+    // 只保留新选择的文件，避免重复添加
+    fileList.value = uploadFiles.filter((f, index, self) => 
+        index === self.findIndex(item => 
+            item.name === f.name && item.size === f.size
+        )
+    )
 }
 
 // 确认上传
@@ -718,8 +723,18 @@ const confirmUpload = async () => {
             }
         }
         
+        // 创建已上传文件名的集合，避免重复上传
+        const uploadedFiles = new Set()
+        
         // 逐个上传文件
         for (const fileItem of fileList.value) {
+            // 检查是否已经上传过同名同大小的文件
+            const fileKey = `${fileItem.name}_${fileItem.size}`
+            if (uploadedFiles.has(fileKey)) {
+                console.log(`跳过重复文件: ${fileItem.name}`)
+                continue
+            }
+            
             try {
                 const formData = new FormData()
                 formData.append('file', fileItem.raw || fileItem)
@@ -733,6 +748,7 @@ const confirmUpload = async () => {
                 })
                 
                 successCount++
+                uploadedFiles.add(fileKey)
             } catch (error) {
                 console.error(`上传文件 ${fileItem.name} 失败:`, error)
                 failCount++
@@ -748,6 +764,8 @@ const confirmUpload = async () => {
         }
         
         uploadDialogVisible.value = false
+        // 清空文件列表，避免下次上传重复
+        fileList.value = []
         // 重新加载数据
         await loadFiles()
     } catch (error) {
