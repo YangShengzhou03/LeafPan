@@ -331,7 +331,6 @@ import {
     Edit,
     More,
     CopyDocument,
-    Copy,
     Position,
     Delete,
     Folder,

@@ -5,12 +5,20 @@
       <div class="personal-info-card modern-card" :class="{ 'panel-hover': isHoveringPanel }">
         <div class="card-header">
           <div class="avatar-section">
-            <el-upload class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleAvatarChange"
-              :before-upload="beforeAvatarUpload">
-              <img v-if="userProfile.avatarUrl" :src="userProfile.avatarUrl" class="avatar" />
-              <el-icon v-else class="avatar-uploader-icon">
-                <Plus />
-              </el-icon>
+            <el-upload class="avatar-uploader" :auto-upload="false" :show-file-list="false"
+              :on-change="handleAvatarChange" :before-upload="beforeAvatarUpload">
+              <div class="avatar-container" @mouseenter="showAvatarOverlay = true"
+                @mouseleave="showAvatarOverlay = false">
+                <img v-if="userProfile.avatarUrl" :src="userProfile.avatarUrl" class="avatar" />
+                <el-icon v-else class="avatar-uploader-icon">
+                  <Plus />
+                </el-icon>
+                <div class="avatar-overlay" :class="{ 'show': showAvatarOverlay }">
+                  <el-icon class="edit-icon">
+                    <Edit />
+                  </el-icon>
+                </div>
+              </div>
             </el-upload>
             <div class="user-info">
               <h1 class="username">{{ userProfile.name }}</h1>
@@ -103,7 +111,7 @@
         <el-form-item label="姓名" prop="name">
           <el-input v-model="editForm.name" placeholder="请输入姓名" maxlength="12" show-word-limit />
         </el-form-item>
-        
+
         <el-form-item label="性别" prop="gender">
           <el-radio-group v-model="editForm.gender">
             <el-radio label="male">男</el-radio>
@@ -111,18 +119,18 @@
             <el-radio label="other">其他</el-radio>
           </el-radio-group>
         </el-form-item>
-        
+
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="editForm.email" placeholder="请输入邮箱地址" />
         </el-form-item>
-        
+
         <el-form-item label="手机号码" prop="phone">
           <el-input v-model="editForm.phone" placeholder="请输入手机号码" maxlength="11" />
         </el-form-item>
-        
+
         <!-- 移除不允许修改的字段：学院和班级 -->
       </el-form>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="handleDialogClose">取消</el-button>
@@ -132,9 +140,10 @@
         </span>
       </template>
     </el-dialog>
-    
+
     <!-- 图像裁剪对话框 -->
-    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose" @opened="initCropper">
+    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose"
+      @opened="initCropper">
       <div class="crop-container">
         <img ref="cropImage" :src="cropImageUrl" style="max-width: 100%; display: block;">
       </div>
@@ -160,6 +169,9 @@ import {
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
 import Cropper from 'cropperjs'
+
+// 头像遮罩层显示状态
+const showAvatarOverlay = ref(false)
 
 // 编辑对话框相关状态
 const editDialogVisible = ref(false)
@@ -206,9 +218,9 @@ const openEditDialog = () => {
   // 将当前用户信息填充到编辑表单
   Object.assign(editForm, {
     name: userProfile.name,
-    gender: userProfile.gender === 1 ? 'male' : 
-                    userProfile.gender === 2 ? 'female' : 
-                    'other', // 0(未知)或其他值映射为other
+    gender: userProfile.gender === 1 ? 'male' :
+      userProfile.gender === 2 ? 'female' :
+        'other', // 0(未知)或其他值映射为other
     email: userProfile.email,
     phone: userProfile.phone
   })
@@ -297,16 +309,16 @@ const handleDialogClose = () => {
 // 提交编辑表单
 const submitEditForm = async () => {
   if (!editFormRef.value) return
-  
+
   await editFormRef.value.validate(async (valid) => {
     if (valid) {
       submitLoading.value = true
       try {
         // 转换性别值：后端使用Byte类型，0-未知，1-男，2-女
-        const genderValue = editForm.gender === 'male' ? 1 : 
-                           editForm.gender === 'female' ? 2 : 
-                           0 // other映射为0(未知)
-        
+        const genderValue = editForm.gender === 'male' ? 1 :
+          editForm.gender === 'female' ? 2 :
+            0 // other映射为0(未知)
+
         // 使用后端期望的字段名，注意后端接收Map<String, String>，所有值必须是字符串
         const response = await Server.put('/user/profile', {
           nickname: editForm.name, // 前端的name对应后端的nickname
@@ -314,7 +326,7 @@ const submitEditForm = async () => {
           gender: genderValue.toString(), // 转换为字符串，因为后端接收Map<String, String>
           phone: editForm.phone // 添加phone字段
         })
-        
+
         // 检查响应结构，注意Server.js拦截器已经处理了响应
         // 如果后端返回{code: 200, message: "更新成功", data: User对象}
         // 拦截器会直接返回这个完整的响应对象
@@ -339,7 +351,7 @@ const submitEditForm = async () => {
           ElMessage.error(response?.message || '更新失败，请重试')
         }
       } catch (error) {
-    ElMessage.error('更新个人信息失败')
+        ElMessage.error('更新个人信息失败')
       } finally {
         submitLoading.value = false
       }
@@ -371,14 +383,14 @@ const beforeAvatarUpload = (file) => {
     ElMessage.error('头像图片大小不能超过 2MB!')
     return false
   }
-  
+
   // 验证通过后打开裁剪对话框
   cropImageUrl.value = URL.createObjectURL(file)
   cropDialogVisible.value = true
-  
+
   // 保存当前文件用于后续裁剪
   currentFile.value = file
-  
+
   return false // 阻止自动上传
 }
 
@@ -388,7 +400,7 @@ const initCropper = () => {
     cropper.destroy()
     cropper = null
   }
-  
+
   // 确保图片元素已经加载
   if (cropImage.value && cropImage.value.complete) {
     createCropper()
@@ -402,7 +414,7 @@ const initCropper = () => {
 // 创建裁剪器实例
 const createCropper = () => {
   if (!cropImage.value) return
-  
+
   cropper = new Cropper(cropImage.value, {
     aspectRatio: 1, // 设置为1:1的比例
     viewMode: 1,
@@ -449,9 +461,9 @@ const cropAndUploadAvatar = async () => {
     ElMessage.error('裁剪失败，请重试')
     return
   }
-  
+
   cropLoading.value = true
-  
+
   try {
     // 获取裁剪后的canvas
     const canvas = cropper.getCroppedCanvas({
@@ -461,41 +473,41 @@ const cropAndUploadAvatar = async () => {
       imageSmoothingEnabled: true,
       imageSmoothingQuality: 'high',
     })
-    
+
     if (!canvas) {
       throw new Error('无法获取裁剪后的图像')
     }
-    
+
     // 将canvas转换为blob
     const blob = await new Promise((resolve) => {
       canvas.toBlob((blob) => {
         resolve(blob)
       }, currentFile.value.type || 'image/jpeg', 0.9)
     })
-    
+
     if (!blob) {
       ElMessage.error('图像处理失败，请重试')
       cropLoading.value = false
       return
     }
-    
+
     // 创建新的File对象
     const croppedFile = new File([blob], 'avatar.' + (currentFile.value.type === 'image/png' ? 'png' : 'jpg'), {
       type: currentFile.value.type || 'image/jpeg',
       lastModified: Date.now(),
     })
-    
+
     // 创建FormData并上传
     const formData = new FormData()
     formData.append('file', croppedFile)
-    
+
     // 调用真实的上传API
     const response = await Server.post('/user/avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     })
-    
+
     if (response.data && response.data.code === 200) {
       // 更新本地头像URL
       userProfile.avatarUrl = response.data.data
@@ -528,12 +540,12 @@ const fetchUserInfo = async () => {
         lastLoginTime: userData.lastLoginTime || '--',
         avatarUrl: userData.avatar || userProfile.avatarUrl
       })
-      
+
       // 填充表单数据
       editForm.name = userProfile.name
-      editForm.gender = userProfile.gender === 1 ? 'male' : 
-                      userProfile.gender === 2 ? 'female' : 
-                      'other' // 0(未知)或其他值映射为other
+      editForm.gender = userProfile.gender === 1 ? 'male' :
+        userProfile.gender === 2 ? 'female' :
+          'other' // 0(未知)或其他值映射为other
       editForm.email = userProfile.email
       editForm.phone = userProfile.phone
     }
@@ -701,40 +713,62 @@ const fetchUserInfo = async () => {
 }
 
 .avatar-uploader {
-  .avatar {
+  .avatar-container {
+    position: relative;
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    object-fit: cover;
-    border: var(--avatar-border);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
+    overflow: hidden;
     cursor: pointer;
+    transition: all 0.3s ease;
 
     &:hover {
       transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-  }
 
-  .avatar-uploader-icon {
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: var(--uploader-border);
-    border-radius: 50%;
-    background-color: var(--uploader-bg);
-    color: var(--text-tertiary);
-    font-size: 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    .avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: var(--avatar-border);
+    }
 
-    &:hover {
-      border-color: var(--accent-color);
-      background-color: rgba(59, 130, 246, 0.1);
-      color: var(--accent-color);
+    .avatar-uploader-icon {
+      width: 100%;
+      height: 100%;
+      font-size: 40px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--uploader-bg);
+      border: var(--uploader-border);
+      border-radius: 50%;
+    }
+
+    .avatar-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+
+      &.show {
+        opacity: 1;
+      }
+
+      .edit-icon {
+        font-size: 24px;
+        color: white;
+      }
     }
   }
 }
@@ -796,7 +830,7 @@ const fetchUserInfo = async () => {
           flex: 1;
           min-width: 0;
           text-align: left;
-          
+
           .item-label {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -941,17 +975,3 @@ const fetchUserInfo = async () => {
   background-color: #409eff;
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
