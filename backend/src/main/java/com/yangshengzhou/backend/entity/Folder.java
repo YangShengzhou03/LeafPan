@@ -16,8 +16,8 @@ public class Folder {
     @Column(name = "parent_id", nullable = false)
     private Long parentId = 0L; // 0表示根目录
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_id", nullable = false, length = 36)
+    private String userId;
     
     @Column(nullable = false, length = 1000)
     private String path;
@@ -35,11 +35,10 @@ public class Folder {
     // 构造函数
     public Folder() {}
     
-    public Folder(String name, Long parentId, Long userId, String path) {
+    public Folder(String name, Long parentId, String userId) {
         this.name = name;
         this.parentId = parentId;
         this.userId = userId;
-        this.path = path;
     }
     
     // JPA生命周期回调
@@ -79,11 +78,11 @@ public class Folder {
         this.parentId = parentId;
     }
     
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
     

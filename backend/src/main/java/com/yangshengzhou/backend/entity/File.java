@@ -20,8 +20,8 @@ public class File {
     @Column(name = "folder_id", nullable = false)
     private Long folderId = 0L;
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_id", nullable = false, length = 36)
+    private String userId;
     
     @Column(nullable = false)
     private Long size = 0L;
@@ -54,13 +54,14 @@ public class File {
     // 构造函数
     public File() {}
     
-    public File(String name, String originalName, Long folderId, Long userId, Long size, String storageKey) {
-        this.name = name;
-        this.originalName = originalName;
+    public File(String filename, String originalFilename, String contentType, Long size, String path, Long folderId, String userId) {
+        this.name = filename;
+        this.originalName = originalFilename;
+        this.mimeType = contentType;
+        this.size = size;
+        this.storageKey = path;
         this.folderId = folderId;
         this.userId = userId;
-        this.size = size;
-        this.storageKey = storageKey;
     }
     
     // JPA生命周期回调
@@ -108,11 +109,11 @@ public class File {
         this.folderId = folderId;
     }
     
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
     

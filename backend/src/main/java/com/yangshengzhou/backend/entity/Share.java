@@ -19,8 +19,8 @@ public class Share {
     @Column(name = "folder_id")
     private Long folderId;
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_id", nullable = false, length = 36)
+    private String userId;
     
     @Column(name = "share_type", nullable = false)
     private Byte shareType = 0; // 0-公开，1-密码，2-私密
@@ -47,7 +47,7 @@ public class Share {
     // 构造函数
     public Share() {}
     
-    public Share(String shareCode, Long fileId, Long folderId, Long userId, Byte shareType) {
+    public Share(String shareCode, Long fileId, Long folderId, String userId, Byte shareType) {
         this.shareCode = shareCode;
         this.fileId = fileId;
         this.folderId = folderId;
@@ -94,11 +94,11 @@ public class Share {
         this.folderId = folderId;
     }
     
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
     
