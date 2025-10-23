@@ -283,8 +283,8 @@ const loadUsers = async () => {
       }
     })
     
-    if (response.code === 200) {
-      const userData = response.data
+    if (response.data.code === 200) {
+      const userData = response.data.data
       users.value = userData.content.map(user => ({
         id: user.id,
         email: user.email,
@@ -297,7 +297,7 @@ const loadUsers = async () => {
       }))
       totalUsers.value = userData.totalElements
     } else {
-      throw new Error(response.message)
+      throw new Error(response.data.message)
     }
   } catch (error) {
     console.error('加载用户数据失败:', error)
@@ -335,8 +335,8 @@ const resetPassword = async (user) => {
       }
     )
     
-    await Server.put(`/admin/user/${user.id}/password`)
-    ElMessage.success('密码重置成功')
+    await Server.put(`/admin/user/${user.id}/password?newPassword=123456`)
+    ElMessage.success('密码重置成功，新密码为：123456')
   } catch (error) {
     if (error !== 'cancel') {
       console.error('重置密码失败:', error)
@@ -399,8 +399,8 @@ const saveUser = async () => {
         role: userForm.role === 'admin' ? 1 : 0,
         status: userForm.status === 'active' ? 1 : 0
       }
-      // 这里需要调用注册接口或用户创建接口
-      await Server.post('/auth/register', newUser)
+      // 使用管理员创建用户接口
+      await Server.post('/admin/user', newUser)
     }
     
     ElMessage.success(editingUser.value ? '用户更新成功' : '用户添加成功')
@@ -420,9 +420,8 @@ const saveUser = async () => {
 const toggleUserStatus = async (user) => {
   try {
     const newStatus = user.status === 'active' ? 'disabled' : 'active'
-    await Server.put(`/admin/user/${user.id}/status`, {
-      status: newStatus === 'active' ? 1 : 0
-    })
+    // 切换用户状态
+    await Server.put(`/admin/user/${user.id}/status?enabled=${newStatus === 'active'}`)
     ElMessage.success(`用户已${newStatus === 'active' ? '启用' : '禁用'}`)
     loadUsers()
   } catch (error) {
