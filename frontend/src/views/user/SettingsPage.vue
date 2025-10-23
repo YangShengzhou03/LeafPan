@@ -298,6 +298,7 @@ const submitEditForm = async () => {
   
   await editFormRef.value.validate(async (valid) => {
     if (valid) {
+      submitLoading.value = true
       try {
         // 转换性别值：后端使用Byte类型，0-未知，1-男，2-女
         const genderValue = editForm.gender === 'male' ? 1 : 
@@ -324,6 +325,8 @@ const submitEditForm = async () => {
       } catch (error) {
         console.error('更新个人信息失败:', error)
         ElMessage.error('更新个人信息失败')
+      } finally {
+        submitLoading.value = false
       }
     }
   })

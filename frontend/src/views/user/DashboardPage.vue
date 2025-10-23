@@ -134,18 +134,23 @@ const fetchFileStats = async () => {
   try {
     console.log('开始获取文件统计数据...')
     
-    // 使用现有的文件列表和文件夹列表接口获取统计数据
+    // 使用正确的接口获取统计数据
+    // /file/list/page 接口返回分页数据包含totalElements字段
+    // /folder/list 接口返回文件夹数组
     const [filesResponse, foldersResponse] = await Promise.all([
-      Server.get('/file/list', { params: { page: 0, size: 1 } }),
-      Server.get('/folder/list', { params: { page: 0, size: 1 } })
+      Server.get('/file/list/page', { params: { page: 0, size: 1 } }),
+      Server.get('/folder/list')
     ])
     
     console.log('文件列表API响应:', filesResponse)
     console.log('文件夹列表API响应:', foldersResponse)
     
     // 从响应中提取总数
-    const fileCount = filesResponse.data?.data?.totalElements || 0
-    const folderCount = foldersResponse.data?.data?.totalElements || 0
+    // 注意：Server.js响应拦截器已将后端响应包装为response.data
+    // 文件列表数据结构是{content: Array, totalElements: number, ...}
+    // 文件夹列表数据结构是{code: 200, message: '操作成功', data: Array}
+    const fileCount = filesResponse.data?.totalElements || 0
+    const folderCount = foldersResponse.data?.data?.length || 0
     
     console.log('文件统计数据详情:', {
       fileCount,
