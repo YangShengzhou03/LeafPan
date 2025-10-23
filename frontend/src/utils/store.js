@@ -124,8 +124,11 @@ const store = {
       const response = await Server.get('/auth/me')
       this.setUser(response.data)
     } catch (error) {
-      this.clearUser()
       console.error('获取用户信息失败:', error)
+      // 只有在token无效或过期时才清除token
+      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        this.clearUser()
+      }
     }
   },
 
@@ -194,15 +197,15 @@ const store = {
         return true
       } catch (error) {
         console.error('初始化用户状态失败:', error)
-        this.clearUser()
+        // 只有在token无效或过期时才清除token
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          this.clearUser()
+        }
         return false
       }
     }
     return false
   }
 }
-
-// 初始化应用状态
-store.init()
 
 export default store

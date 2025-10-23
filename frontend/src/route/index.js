@@ -170,8 +170,10 @@ router.beforeEach(async (to, from, next) => {
         await store.fetchStorageInfo();
       } catch (error) {
         console.error('获取用户信息失败:', error);
-        // 获取用户信息失败，清除token并重定向到登录页
-        utils.removeToken();
+        // 只有在token无效或过期时才清除token
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          utils.removeToken();
+        }
         next('/login');
         return;
       }
