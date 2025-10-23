@@ -570,7 +570,7 @@ const loadFiles = async () => {
         
         // 合并文件夹和文件
         files.value = [...folderItems, ...fileList]
-        totalFiles.value = filesData ? filesData.totalElements || 0 : 0
+        totalFiles.value = filesData && filesData.success ? filesData.data?.totalElements || 0 : 0
     } catch (error) {
         console.error('加载文件列表失败:', error)
         ElMessage.error('加载文件列表失败')

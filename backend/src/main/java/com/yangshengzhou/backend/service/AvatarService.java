@@ -139,7 +139,7 @@ public class AvatarService {
                 return pathParts[pathParts.length - 1];
             }
         } catch (Exception e) {
-            System.err.println("提取文件名失败: " + e.getMessage());
+            // 提取文件名失败
         }
         
         return null;

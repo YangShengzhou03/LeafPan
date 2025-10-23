@@ -107,33 +107,15 @@ public class AuthService {
      * 获取当前登录用户
      */
     public User getCurrentUser() {
-        System.out.println("=== 获取当前用户开始 ===");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("认证对象: " + authentication);
         if (authentication != null) {
-            System.out.println("认证状态: " + authentication.isAuthenticated());
-            System.out.println("认证名称: " + authentication.getName());
-            System.out.println("认证详情: " + authentication.getDetails());
-            System.out.println("认证权限: " + authentication.getAuthorities());
             
             if (authentication.isAuthenticated()) {
                 String email = authentication.getName();
-                System.out.println("查找用户邮箱: " + email);
-                try {
-                    User user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new RuntimeException("用户不存在"));
-                    System.out.println("找到用户: " + user.getEmail());
-                    System.out.println("=== 获取当前用户结束 ===");
-                    return user;
-                } catch (Exception e) {
-                    System.err.println("查找用户失败: " + e.getMessage());
-                    e.printStackTrace();
-                }
+                User user = userRepository.findByEmail(email).orElse(null);
+                return user;
             }
-        } else {
-            System.out.println("认证对象为null");
         }
-        System.out.println("=== 获取当前用户结束，返回null ===");
         return null;
     }
     

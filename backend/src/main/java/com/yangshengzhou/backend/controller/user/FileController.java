@@ -93,7 +93,6 @@ public class FileController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<List<File>>> getUserFiles(
             @RequestParam(value = "folderId", required = false) Long folderId) {
-        System.out.println("到底读取文件列表");
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null) {
@@ -122,33 +121,21 @@ public class FileController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
-            System.out.println("=== 文件列表API调用开始 ===");
-            System.out.println("请求参数 - folderId: " + folderId + ", page: " + page + ", size: " + size);
-            
             User currentUser = authService.getCurrentUser();
-            System.out.println("当前用户: " + (currentUser != null ? currentUser.getEmail() : "null"));
             
             if (currentUser == null) {
-                System.out.println("错误: 用户未登录，返回401");
                 return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
             Page<File> files;
             if (folderId != null) {
-                System.out.println("获取指定文件夹下的文件，folderId: " + folderId);
                 files = fileService.getUserFilesByFolderId(currentUser.getId(), folderId, page, size);
             } else {
-                System.out.println("获取用户所有文件");
                 files = fileService.getUserFiles(currentUser.getId(), page, size);
             }
             
-            System.out.println("获取文件成功，数量: " + (files != null ? files.getTotalElements() : 0));
-            System.out.println("=== 文件列表API调用结束 ===");
-            
             return ResponseEntity.ok(ApiResponse.success(files));
         } catch (Exception e) {
-            System.err.println("文件列表API异常: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(ApiResponse.error("获取文件列表失败: " + e.getMessage()));
         }
     }
