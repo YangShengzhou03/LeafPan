@@ -899,8 +899,8 @@ const fetchUserInfo = async () => {
 
 .crop-container {
   width: 100%;
-  min-height: 500px;
-  max-height: 600px;
+  min-height: 200px;
+  max-height: 400px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -914,8 +914,8 @@ const fetchUserInfo = async () => {
 :deep(.cropper-container) {
   width: 100% !important;
   height: 100% !important;
-  max-height: 600px !important;
-  min-height: 500px !important;
+  max-height: 200px !important;
+  min-height: 400px !important;
 }
 
 :deep(.cropper-canvas) {
@@ -963,13 +963,13 @@ const fetchUserInfo = async () => {
 /* 响应式调整 */
 @media (max-width: 768px) {
   .crop-container {
-    min-height: 400px;
-    max-height: 500px;
+    min-height: 200px;
+    max-height: 400px;
   }
   
   :deep(.cropper-container) {
-    min-height: 400px !important;
-    max-height: 500px !important;
+    min-height: 200px !important;
+    max-height: 400px !important;
   }
 }
 </style>
