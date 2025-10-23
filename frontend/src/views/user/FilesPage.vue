@@ -550,13 +550,21 @@ const loadFiles = async () => {
             Server.get(`/folder/${folderId}/subfolders`)
         ])
         
+        // 调试：打印原始响应数据
+        console.log('文件列表响应:', filesResponse)
+        console.log('文件夹列表响应:', foldersResponse)
+        
         // 处理文件数据
         const filesData = filesResponse.data
-        const fileList = filesData && filesData.success ? filesData.data?.content || [] : []
+        console.log('文件数据:', filesData)
+        const fileList = filesData && filesData.code === 200 ? filesData.data?.content || [] : []
+        console.log('解析后的文件列表:', fileList)
         
         // 处理文件夹数据
         const foldersData = foldersResponse.data
-        const folderList = foldersData && foldersData.success ? foldersData.data || [] : []
+        console.log('文件夹数据:', foldersData)
+        const folderList = foldersData && foldersData.code === 200 ? foldersData.data || [] : []
+        console.log('解析后的文件夹列表:', folderList)
         
         // 将文件夹转换为文件项格式，并添加到文件列表前面
         const folderItems = folderList.map(folder => ({
@@ -570,7 +578,7 @@ const loadFiles = async () => {
         
         // 合并文件夹和文件
         files.value = [...folderItems, ...fileList]
-        totalFiles.value = filesData && filesData.success ? filesData.data?.totalElements || 0 : 0
+        totalFiles.value = filesData && filesData.code === 200 ? filesData.data?.totalElements || 0 : 0
     } catch (error) {
         console.error('加载文件列表失败:', error)
         ElMessage.error('加载文件列表失败')
