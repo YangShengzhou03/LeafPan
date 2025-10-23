@@ -14,7 +14,6 @@
                         </div>
                         <div class="user-details">
                             <span class="username" :title="currentUser?.nickname || currentUser?.username || '枫叶用户'">{{ formatLongText(currentUser?.nickname || currentUser?.username || '枫叶用户') }}</span>
-                            <span class="user-email" :title="currentUser?.email || ''">{{ formatLongText(currentUser?.email || '', 25) }}</span>
                         </div>
                         <i class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" aria-hidden="true"></i>
                     </div>
@@ -309,7 +308,6 @@ onUnmounted(() => {
 }
 
 .username {
-    font-weight: 600;
     color: #303133;
     font-size: 14px;
     white-space: nowrap;

@@ -13,7 +13,7 @@
               </el-icon>
             </el-upload>
             <div class="user-info">
-              <h2 class="username">{{ userProfile.name }}</h2>
+              <h1 class="username">{{ userProfile.name }}</h1>
             </div>
           </div>
           <el-button type="primary" size="small" @click="openEditDialog" class="edit-button" round>
@@ -101,7 +101,7 @@
     <el-dialog v-model="editDialogVisible" title="编辑个人信息" width="600px" :before-close="handleDialogClose">
       <el-form ref="editFormRef" :model="editForm" :rules="editFormRules" label-width="100px">
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="editForm.name" placeholder="请输入姓名" />
+          <el-input v-model="editForm.name" placeholder="请输入姓名" maxlength="12" show-word-limit />
         </el-form-item>
         
         <el-form-item label="性别" prop="gender">
@@ -117,7 +117,7 @@
         </el-form-item>
         
         <el-form-item label="手机号码" prop="phone">
-          <el-input v-model="editForm.phone" placeholder="请输入手机号码" />
+          <el-input v-model="editForm.phone" placeholder="请输入手机号码" maxlength="11" />
         </el-form-item>
         
         <!-- 移除不允许修改的字段：学院和班级 -->
@@ -184,6 +184,10 @@ const editForm = reactive({
 
 // 表单验证规则
 const editFormRules = {
+  name: [
+    { required: true, message: '请输入姓名', trigger: 'blur' },
+    { max: 12, message: '昵称长度不能超过12个字符', trigger: 'blur' }
+  ],
   gender: [
     { required: true, message: '请选择性别', trigger: 'change' }
   ],
@@ -193,7 +197,7 @@ const editFormRules = {
   ],
   phone: [
     { required: true, message: '请输入手机号码', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的11位手机号码', trigger: 'blur' }
   ]
 }
 
@@ -609,8 +613,6 @@ const fetchUserInfo = async () => {
     .user-info {
       .username {
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
         color: var(--text-primary);
         line-height: 1.3;
       }
