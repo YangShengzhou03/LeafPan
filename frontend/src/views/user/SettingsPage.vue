@@ -134,7 +134,7 @@
     </el-dialog>
     
     <!-- 图像裁剪对话框 -->
-    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose">
+    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose" @opened="initCropper">
       <div class="crop-container">
         <img ref="cropImage" :src="cropImageUrl" style="max-width: 100%; display: block;">
       </div>
@@ -361,25 +361,6 @@ const beforeAvatarUpload = (file) => {
   // 保存当前文件用于后续裁剪
   currentFile.value = file
   
-  // 在下一个tick初始化裁剪器
-  nextTick(() => {
-    if (cropImage.value) {
-      cropper = new Cropper(cropImage.value, {
-        aspectRatio: 1,
-        viewMode: 1,
-        dragMode: 'move',
-        autoCropArea: 0.8,
-        restore: false,
-        guides: false,
-        center: true,
-        highlight: false,
-        cropBoxMovable: true,
-        cropBoxResizable: true,
-        toggleDragModeOnDblclick: false,
-      })
-    }
-  })
-  
   return false // 阻止自动上传
 }
 
@@ -387,7 +368,22 @@ const beforeAvatarUpload = (file) => {
 const initCropper = () => {
   if (cropper) {
     cropper.destroy()
+    cropper = null
   }
+  
+  // 确保图片元素已经加载
+  if (cropImage.value && cropImage.value.complete) {
+    createCropper()
+  } else if (cropImage.value) {
+    cropImage.value.onload = () => {
+      createCropper()
+    }
+  }
+}
+
+// 创建裁剪器实例
+const createCropper = () => {
+  if (!cropImage.value) return
   
   cropper = new Cropper(cropImage.value, {
     aspectRatio: 1, // 设置为1:1的比例
@@ -401,6 +397,17 @@ const initCropper = () => {
     cropBoxMovable: true,
     cropBoxResizable: true,
     toggleDragModeOnDblclick: false,
+    minCropBoxWidth: 100,
+    minCropBoxHeight: 100,
+    ready() {
+      // 裁剪器准备就绪后，确保裁剪框是正方形
+      const cropBoxData = this.getCropBoxData()
+      const size = Math.min(cropBoxData.width, cropBoxData.height)
+      this.setCropBoxData({
+        width: size,
+        height: size
+      })
+    }
   })
 }
 
@@ -430,18 +437,22 @@ const cropAndUploadAvatar = async () => {
   try {
     // 获取裁剪后的canvas
     const canvas = cropper.getCroppedCanvas({
-      maxWidth: 4096,
-      maxHeight: 4096,
+      width: 200,
+      height: 200,
       fillColor: '#fff',
       imageSmoothingEnabled: true,
       imageSmoothingQuality: 'high',
     })
     
+    if (!canvas) {
+      throw new Error('无法获取裁剪后的图像')
+    }
+    
     // 将canvas转换为blob
     const blob = await new Promise((resolve) => {
       canvas.toBlob((blob) => {
         resolve(blob)
-      }, currentFile.value.type, 0.9)
+      }, currentFile.value.type || 'image/jpeg', 0.9)
     })
     
     if (!blob) {
@@ -451,8 +462,8 @@ const cropAndUploadAvatar = async () => {
     }
     
     // 创建新的File对象
-    const croppedFile = new File([blob], currentFile.value.name, {
-      type: currentFile.value.type,
+    const croppedFile = new File([blob], 'avatar.' + (currentFile.value.type === 'image/png' ? 'png' : 'jpg'), {
+      type: currentFile.value.type || 'image/jpeg',
       lastModified: Date.now(),
     })
     
@@ -868,22 +879,49 @@ const fetchUserInfo = async () => {
 }
 
 .crop-container {
-  height: 100%;
+  height: 400px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.crop-container img {
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* 覆盖cropperjs的默认样式，使其适应Element Plus的对话框 */
 :deep(.cropper-container) {
-  max-height: 100%;
+  max-height: 400px;
+  max-width: 100%;
 }
 
 :deep(.cropper-view-box) {
-  outline: 1px solid rgba(59, 130, 246, 0.5);
-  outline-color: rgba(59, 130, 246, 0.5);
+  outline: 2px solid #409eff;
+  outline-color: #409eff;
+  border-radius: 50%;
 }
 
 :deep(.cropper-face) {
   background-color: inherit;
+}
+
+:deep(.cropper-modal) {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+:deep(.cropper-point) {
+  background-color: #409eff;
+  width: 8px;
+  height: 8px;
+}
+
+:deep(.cropper-line) {
+  background-color: #409eff;
 }
 </style>
 
