@@ -74,7 +74,7 @@ public class FileController {
                     "UPLOAD", 
                     "FILE", 
                     uploadedFile.getId().toString(),
-                    "上传文件",
+                    "用户" + currentUser.getEmail() + "上传文件: " + uploadedFile.getName(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -167,7 +167,7 @@ public class FileController {
                 "DOWNLOAD", 
                 "FILE", 
                 id.toString(),
-                "下载文件",
+                "用户" + currentUser.getEmail() + "下载文件: " + file.getName(),
                 getClientIpAddress(request),
                 request.getHeader("User-Agent")
             );
@@ -206,7 +206,7 @@ public class FileController {
                 "DOWNLOAD", 
                 "FILE", 
                 file.getId().toString(),
-                "下载文件",
+                "用户" + currentUser.getEmail() + "下载文件: " + file.getName(),
                 getClientIpAddress(request),
                 request.getHeader("User-Agent")
             );
@@ -336,7 +336,7 @@ public class FileController {
                     "DELETE", 
                     "FILE", 
                     id.toString(),
-                    "删除文件: " + file.getName(), 
+                    "用户" + currentUser.getEmail() + "删除文件: " + file.getName(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -446,7 +446,7 @@ public class FileController {
                                     "DELETE", 
                                     "FILE", 
                                     fileId.toString(),
-                                    "批量删除文件: " + file.getName(),
+                                    "用户" + currentUser.getEmail() + "批量删除文件: " + file.getName(),
                                     getClientIpAddress(request),
                                     request.getHeader("User-Agent")
                                 );

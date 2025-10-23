@@ -28,7 +28,7 @@ public class AdminLogController {
      * 获取所有操作日志（分页）
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<OperationLog>>> getAllLogs(
+    public ResponseEntity<ApiResponse<Page<OperationLogVO>>> getAllLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String level,
@@ -43,7 +43,11 @@ public class AdminLogController {
             
             Page<OperationLog> logs = operationLogService.getAllOperationLogs(page, size, level, module, startDate, endDate);
             
-            return ResponseEntity.ok(ApiResponse.success(logs));
+            // 转换为VO对象
+            List<OperationLogVO> logVOs = operationLogService.convertToVOs(logs.getContent());
+            Page<OperationLogVO> voPage = new org.springframework.data.domain.PageImpl<>(logVOs, logs.getPageable(), logs.getTotalElements());
+            
+            return ResponseEntity.ok(ApiResponse.success(voPage));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取日志列表失败: " + e.getMessage()));
         }
@@ -93,6 +97,9 @@ public class AdminLogController {
                 request.getRemoteAddr(),
                 request.getHeader("User-Agent")
             );
+            
+            // 实际清空所有日志数据
+            operationLogService.clearAllLogs();
             
             return ResponseEntity.ok(ApiResponse.success("日志清空成功"));
         } catch (Exception e) {

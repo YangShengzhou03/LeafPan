@@ -89,7 +89,7 @@ public class AdminUserController {
                     "UPDATE_USER",
                     "USER",
                     updatedUser.getId(),
-                    "管理员更新用户信息",
+                    "管理员" + currentUser.getEmail() + "更新用户" + updatedUser.getEmail() + "的信息",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -131,7 +131,7 @@ public class AdminUserController {
                     "DELETE_USER",
                     "USER",
                     user.getId(),
-                    "管理员删除用户",
+                    "管理员" + currentUser.getEmail() + "删除用户" + user.getEmail(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -176,7 +176,7 @@ public class AdminUserController {
                     "UPDATE_USER_STATUS",
                     "USER",
                     user.getId(),
-                    "管理员" + (enabled ? "启用" : "禁用") + "用户",
+                    "管理员" + currentUser.getEmail() + (enabled ? "启用" : "禁用") + "用户" + user.getEmail(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -210,7 +210,7 @@ public class AdminUserController {
                     "CREATE_USER",
                     "USER",
                     createdUser.getId(),
-                    "管理员创建用户",
+                    "管理员" + currentUser.getEmail() + "创建用户" + createdUser.getEmail(),
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );
@@ -274,7 +274,7 @@ public class AdminUserController {
                     "RESET_USER_PASSWORD",
                     "USER",
                     user.getId(),
-                    "管理员重置用户密码",
+                    "管理员" + currentUser.getEmail() + "重置用户" + user.getEmail() + "的密码",
                     getClientIpAddress(request),
                     request.getHeader("User-Agent")
                 );

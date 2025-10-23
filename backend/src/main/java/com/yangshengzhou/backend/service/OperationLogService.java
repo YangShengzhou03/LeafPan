@@ -163,7 +163,7 @@ public class OperationLogService {
     /**
      * 转换为VO对象
      */
-    private List<OperationLogVO> convertToVOs(List<OperationLog> logs) {
+    public List<OperationLogVO> convertToVOs(List<OperationLog> logs) {
         List<OperationLogVO> vos = new ArrayList<>();
         
         for (OperationLog log : logs) {
@@ -219,5 +219,12 @@ public class OperationLogService {
         } catch (Exception e) {
             return targetType + "_" + targetId;
         }
+    }
+    
+    /**
+     * 清空所有日志数据
+     */
+    public void clearAllLogs() {
+        operationLogRepository.deleteAll();
     }
 }
