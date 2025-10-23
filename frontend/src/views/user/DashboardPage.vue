@@ -93,15 +93,28 @@ const fileStats = ref([
 const fetchStorageInfo = async () => {
   try {
     loading.value = true
-    const response = await Server.get('/api/user/storage')
+    console.log('开始获取存储信息...')
+    const response = await Server.get('/user/storage')
+    console.log('存储信息API响应:', response)
+    console.log('响应数据:', response.data)
+    
     if (response.data && response.data.data) {
       const data = response.data.data
+      console.log('存储数据详情:', data)
       // 后端返回的字段是storageQuota和usedStorage，单位是字节
       totalStorageGB.value = data.storageQuota / (1024 * 1024 * 1024) // 转换为GB
       usedStorageGB.value = data.usedStorage / (1024 * 1024 * 1024) // 转换为GB
+      
+      console.log('转换后的存储信息:', {
+        totalStorageGB: totalStorageGB.value,
+        usedStorageGB: usedStorageGB.value
+      })
+    } else {
+      console.warn('存储信息响应数据格式异常:', response.data)
     }
   } catch (error) {
     console.error('获取存储信息失败:', error)
+    console.error('错误详情:', error.response)
     // 设置默认值
     totalStorageGB.value = 1
     usedStorageGB.value = 0
@@ -114,9 +127,9 @@ const fetchStorageInfo = async () => {
 const fetchFileStats = async () => {
   try {
     // 获取文件列表
-    const fileResponse = await Server.get('/api/file/list?page=0&size=1000')
+    const fileResponse = await Server.get('/file/list?page=0&size=1000')
     // 获取文件夹列表
-    const folderResponse = await Server.get('/api/folder/list')
+    const folderResponse = await Server.get('/folder/list')
     
     let totalFiles = 0
     let totalFolders = 0

@@ -35,7 +35,7 @@
                         </el-icon>
                         上传文件
                     </el-button>
-                    <el-button class="modern-btn" @click="handleNewFolder">
+                    <el-button disabled = "true" class="modern-btn" @click="handleNewFolder">
                         新建文件夹
                     </el-button>
                 </div>
@@ -853,8 +853,7 @@ const handleFileCommand = async (command, item) => {
                     password: null,
                     expireTime: null
                 })
-                ElMessage.success('分享链接已生成')
-                // 可以在这里处理分享链接的显示
+                copyToClipboard('感谢使用LeafPan，分享链接已复制到剪贴板')
             } catch (error) {
                 ElMessage.error('分享失败')
             }
@@ -908,6 +907,18 @@ const handleFileCommand = async (command, item) => {
             break
     }
 }
+
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    ElMessage.success('复制成功')
+    return true;
+  } catch (err) {
+    ElMessage.error('复制失败')
+    return false;
+  }
+}
+
 
 // 确认重命名
 const confirmRename = async () => {
