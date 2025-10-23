@@ -186,7 +186,7 @@ public class FolderController {
             
             // TODO: 检查文件夹是否为空，如果不为空，需要先删除所有子文件夹和文件
             
-            boolean deleted = folderService.deleteFolder(id, Long.parseLong(currentUser.getId()));
+            boolean deleted = folderService.deleteFolder(id, currentUser.getId());
             
             if (deleted) {
                 // 记录删除日志

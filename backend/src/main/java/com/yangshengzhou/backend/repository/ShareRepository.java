@@ -16,21 +16,21 @@ public interface ShareRepository extends JpaRepository<Share, Long> {
     
     Optional<Share> findByShareCodeAndIsActiveTrue(String shareCode);
     
-    List<Share> findByUserIdAndIsActiveTrue(Long userId);
+    List<Share> findByUserIdAndIsActiveTrue(String userId);
     
-    List<Share> findByUserId(Long userId);
+    List<Share> findByUserId(String userId);
     
     @Query("SELECT s FROM Share s WHERE s.userId = :userId AND s.isActive = true AND (s.expireTime IS NULL OR s.expireTime > :now)")
-    List<Share> findActiveSharesByUserId(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+    List<Share> findActiveSharesByUserId(@Param("userId") String userId, @Param("now") LocalDateTime now);
     
     @Query("SELECT s FROM Share s WHERE s.shareCode = :shareCode AND s.isActive = true AND (s.expireTime IS NULL OR s.expireTime > :now)")
     Optional<Share> findValidShareByCode(@Param("shareCode") String shareCode, @Param("now") Date now);
     
     @Query("SELECT s FROM Share s WHERE s.userId = :userId AND s.fileId = :fileId AND s.isActive = true")
-    List<Share> findByUserIdAndFileIdAndIsActiveTrue(@Param("userId") Long userId, @Param("fileId") Long fileId);
+    List<Share> findByUserIdAndFileIdAndIsActiveTrue(@Param("userId") String userId, @Param("fileId") Long fileId);
     
     @Query("SELECT s FROM Share s WHERE s.userId = :userId AND s.folderId = :folderId AND s.isActive = true")
-    List<Share> findByUserIdAndFolderIdAndIsActiveTrue(@Param("userId") Long userId, @Param("folderId") Long folderId);
+    List<Share> findByUserIdAndFolderIdAndIsActiveTrue(@Param("userId") String userId, @Param("folderId") Long folderId);
     
     boolean existsByShareCode(String shareCode);
 

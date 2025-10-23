@@ -51,7 +51,7 @@ public class AdminUserController {
      * 根据ID获取用户
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable String id) {
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
@@ -59,7 +59,7 @@ public class AdminUserController {
             }
             
             try {
-                User user = userService.getUserById(id.toString());
+                User user = userService.getUserById(id);
                 return ResponseEntity.ok(ApiResponse.success(user));
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
@@ -73,14 +73,14 @@ public class AdminUserController {
      * 更新用户信息
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updateData, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable String id, @RequestBody Map<String, String> updateData, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
                 return ResponseEntity.status(403).body(ApiResponse.error("无权限访问"));
             }
             
-            User updatedUser = userService.updateUser(id.toString(), updateData);
+            User updatedUser = userService.updateUser(id, updateData);
             
             if (updatedUser != null) {
                 // 记录操作日志
@@ -108,7 +108,7 @@ public class AdminUserController {
      * 删除用户
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable String id, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
@@ -118,12 +118,12 @@ public class AdminUserController {
             // 获取用户信息用于日志
             User user;
             try {
-                user = userService.getUserById(id.toString());
+                user = userService.getUserById(id);
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            userService.deleteUser(id.toString());
+            userService.deleteUser(id);
             
             if (true) {
                 // 记录操作日志
@@ -152,7 +152,7 @@ public class AdminUserController {
      */
     @PutMapping("/{id}/status")
     public ResponseEntity<ApiResponse<String>> updateUserStatus(
-            @PathVariable Long id, 
+            @PathVariable String id, 
             @RequestParam boolean enabled,
             HttpServletRequest request) {
         try {
@@ -164,12 +164,12 @@ public class AdminUserController {
             // 获取用户信息用于日志
             User user;
             try {
-                user = userService.getUserById(id.toString());
+                user = userService.getUserById(id);
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            userService.updateUserStatus(id.toString(), enabled);
+            userService.updateUserStatus(id, enabled);
             
             if (true) {
                 // 记录操作日志
@@ -217,7 +217,7 @@ public class AdminUserController {
      */
     @PutMapping("/{id}/password")
     public ResponseEntity<ApiResponse<String>> resetUserPassword(
-            @PathVariable Long id, 
+            @PathVariable String id, 
             @RequestParam String newPassword,
             HttpServletRequest request) {
         try {
@@ -229,12 +229,12 @@ public class AdminUserController {
             // 获取用户信息用于日志
             User user;
             try {
-                user = userService.getUserById(id.toString());
+                user = userService.getUserById(id);
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(ApiResponse.error("用户不存在"));
             }
             
-            userService.resetUserPassword(id.toString(), newPassword);
+            userService.resetUserPassword(id, newPassword);
             
             if (true) {
                 // 记录操作日志

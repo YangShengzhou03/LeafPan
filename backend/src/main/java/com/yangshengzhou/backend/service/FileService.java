@@ -24,7 +24,7 @@ public class FileService {
     /**
      * 上传文件
      */
-    public File uploadFile(MultipartFile file, Long userId, Long folderId, String storageKey) {
+    public File uploadFile(MultipartFile file, String userId, Long folderId, String storageKey) {
         File fileEntity = new File();
         fileEntity.setName(file.getOriginalFilename());
         fileEntity.setOriginalName(file.getOriginalFilename());
@@ -53,14 +53,14 @@ public class FileService {
     /**
      * 获取用户的文件列表
      */
-    public List<File> getUserFiles(Long userId) {
+    public List<File> getUserFiles(String userId) {
         return fileRepository.findByUserId(userId);
     }
     
     /**
      * 获取用户指定文件夹下的文件列表
      */
-    public List<File> getUserFilesByFolderId(Long userId, Long folderId) {
+    public List<File> getUserFilesByFolderId(String userId, Long folderId) {
         return fileRepository.findByUserIdAndFolderId(userId, folderId);
     }
     
@@ -80,7 +80,7 @@ public class FileService {
     /**
      * 删除文件
      */
-    public boolean deleteFile(Long id, Long userId) {
+    public boolean deleteFile(Long id, String userId) {
         Optional<File> fileOptional = fileRepository.findById(id);
         if (fileOptional.isPresent() && fileOptional.get().getUserId().equals(userId)) {
             fileRepository.deleteById(id);
@@ -92,7 +92,7 @@ public class FileService {
     /**
      * 检查用户是否有权限访问文件
      */
-    public boolean hasPermission(Long userId, Long fileId) {
+    public boolean hasPermission(String userId, Long fileId) {
         Optional<File> fileOptional = fileRepository.findById(fileId);
         return fileOptional.isPresent() && fileOptional.get().getUserId().equals(userId);
     }
@@ -100,7 +100,7 @@ public class FileService {
     /**
      * 检查文件是否属于用户
      */
-    public boolean isFileOwnedByUser(Long fileId, Long userId) {
+    public boolean isFileOwnedByUser(Long fileId, String userId) {
         Optional<File> fileOptional = fileRepository.findById(fileId);
         return fileOptional.isPresent() && fileOptional.get().getUserId().equals(userId);
     }
@@ -108,21 +108,21 @@ public class FileService {
     /**
      * 按名称搜索文件
      */
-    public List<File> searchFilesByName(Long userId, String keyword) {
+    public List<File> searchFilesByName(String userId, String keyword) {
         return fileRepository.findByUserIdAndNameContaining(userId, keyword);
     }
     
     /**
      * 按扩展名获取文件
      */
-    public List<File> getFilesByExtension(Long userId, String extension) {
+    public List<File> getFilesByExtension(String userId, String extension) {
         return fileRepository.findByUserIdAndExtension(userId, extension);
     }
     
     /**
      * 获取用户文件总大小
      */
-    public Long getUserTotalFileSize(Long userId) {
+    public Long getUserTotalFileSize(String userId) {
         Long totalSize = fileRepository.sumSizeByUserId(userId);
         return totalSize != null ? totalSize : 0L;
     }
@@ -137,14 +137,14 @@ public class FileService {
     /**
      * 检查用户是否有相同存储键的文件
      */
-    public boolean existsByUserIdAndStorageKey(Long userId, String storageKey) {
+    public boolean existsByUserIdAndStorageKey(String userId, String storageKey) {
         return fileRepository.existsByUserIdAndStorageKey(userId, storageKey);
     }
     
     /**
      * 分页获取用户的文件列表
      */
-    public Page<File> getUserFiles(Long userId, int page, int size) {
+    public Page<File> getUserFiles(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
         return fileRepository.findByUserId(userId, pageable);
     }
@@ -152,7 +152,7 @@ public class FileService {
     /**
      * 分页获取用户指定文件夹下的文件列表
      */
-    public Page<File> getUserFilesByFolderId(Long userId, Long folderId, int page, int size) {
+    public Page<File> getUserFilesByFolderId(String userId, Long folderId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
         return fileRepository.findByUserIdAndFolderId(userId, folderId, pageable);
     }

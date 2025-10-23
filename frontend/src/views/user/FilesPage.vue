@@ -464,7 +464,7 @@ const loadFiles = async () => {
     try {
         const path = currentPath.value.join('/')
         // 添加分页参数
-        const response = await Server.get('/files', {
+        const response = await Server.get('/file/list', {
             params: {
                 path,
                 page: currentPage.value,
@@ -538,7 +538,7 @@ const confirmUpload = async () => {
             formData.append('path', path)
         }
         
-        await Server.post('/files/upload', formData, {
+        await Server.post('/file/upload', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             },
@@ -579,7 +579,7 @@ const confirmCreateFolder = async () => {
             try {
                 const parentId = currentPath.value.length > 0 ? 
                     currentPath.value[currentPath.value.length - 1] : 1
-                await Server.post('/folders', {
+                await Server.post('/folder/create', {
                     name: folderForm.name,
                     parentId: parentId
                 })
@@ -603,7 +603,7 @@ const handleFileCommand = async (command, item) => {
     switch (command) {
         case 'download':
             try {
-                const response = await Server.get(`/files/${item.id}/download`, {
+                const response = await Server.get(`/file/${item.id}/download`, {
                     responseType: 'blob'
                 })
                 // 创建下载链接
@@ -624,7 +624,7 @@ const handleFileCommand = async (command, item) => {
 
         case 'share':
             try {
-                const response = await Server.post(`/files/${item.id}/share`, {
+                const response = await Server.post('/share/create', {
                     targetId: item.id,
                     targetType: item.type === 'folder' ? 'folder' : 'file',
                     shareType: 0, // 默认公开分享
@@ -672,9 +672,9 @@ const handleFileCommand = async (command, item) => {
                 )
                 // 删除文件或文件夹
                 if (item.type === 'folder') {
-                    await Server.delete(`/folders/${item.id}`)
+                    await Server.delete(`/folder/${item.id}`)
                 } else {
-                    await Server.delete(`/files/${item.id}`)
+                    await Server.delete(`/file/${item.id}`)
                 }
                 ElMessage.success('删除成功')
                 // 重新加载数据
@@ -699,13 +699,9 @@ const confirmRename = async () => {
             try {
                 const item = selectedItem.value
                 if (item.type === 'folder') {
-                    await Server.put(`/folders/${item.id}/rename`, null, {
-                        params: { name: renameForm.name }
-                    })
+                    await Server.put(`/folder/${item.id}/rename`, { name: renameForm.name })
                 } else {
-                    await Server.put(`/files/${item.id}/rename`, null, {
-                        params: { name: renameForm.name }
-                    })
+                    await Server.put(`/file/${item.id}/rename`, { name: renameForm.name })
                 }
                 ElMessage.success('重命名成功')
                 renameDialogVisible.value = false

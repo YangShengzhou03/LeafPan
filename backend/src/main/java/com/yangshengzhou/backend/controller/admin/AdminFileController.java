@@ -106,7 +106,7 @@ public class AdminFileController {
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<Page>> getUserFiles(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         try {

@@ -12,25 +12,25 @@ import java.util.Optional;
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
     
-    List<Folder> findByUserIdAndIsDeletedFalse(Long userId);
+    List<Folder> findByUserIdAndIsDeletedFalse(String userId);
     
-    List<Folder> findByUserIdAndParentIdAndIsDeletedFalse(Long userId, Long parentId);
+    List<Folder> findByUserIdAndParentIdAndIsDeletedFalse(String userId, Long parentId);
     
-    Optional<Folder> findByUserIdAndNameAndParentIdAndIsDeletedFalse(Long userId, String name, Long parentId);
+    Optional<Folder> findByUserIdAndNameAndParentIdAndIsDeletedFalse(String userId, String name, Long parentId);
     
     @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.path LIKE :pathPrefix AND f.isDeleted = false")
-    List<Folder> findByUserIdAndPathStartingWith(@Param("userId") Long userId, @Param("pathPrefix") String pathPrefix);
+    List<Folder> findByUserIdAndPathStartingWith(@Param("userId") String userId, @Param("pathPrefix") String pathPrefix);
     
     @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.parentId = :parentId AND f.isDeleted = false ORDER BY f.name")
-    List<Folder> findByUserIdAndParentIdOrderByName(@Param("userId") Long userId, @Param("parentId") Long parentId);
+    List<Folder> findByUserIdAndParentIdOrderByName(@Param("userId") String userId, @Param("parentId") Long parentId);
     
-    List<Folder> findByUserId(Long userId);
+    List<Folder> findByUserId(String userId);
     
-    List<Folder> findByUserIdAndParentId(Long userId, Long parentId);
+    List<Folder> findByUserIdAndParentId(String userId, Long parentId);
     
     List<Folder> findByParentId(Long parentId);
     
-    boolean existsByUserIdAndName(Long userId, String name);
+    boolean existsByUserIdAndName(String userId, String name);
     
-    boolean existsByUserIdAndNameAndIdNot(Long userId, String name, Long id);
+    boolean existsByUserIdAndNameAndIdNot(String userId, String name, Long id);
 }

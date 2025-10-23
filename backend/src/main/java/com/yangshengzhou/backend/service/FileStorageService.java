@@ -33,7 +33,7 @@ public class FileStorageService {
     /**
      * 上传文件到MinIO
      */
-    public String uploadFile(MultipartFile multipartFile, Long userId, Long folderId) throws Exception {
+    public String uploadFile(MultipartFile multipartFile, String userId, Long folderId) throws Exception {
         // 验证文件扩展名
         String originalFilename = multipartFile.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {

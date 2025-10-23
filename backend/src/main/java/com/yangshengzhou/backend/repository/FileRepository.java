@@ -12,29 +12,29 @@ import java.util.Optional;
 @Repository
 public interface FileRepository extends JpaRepository<File, Long> {
     
-    List<File> findByUserId(Long userId);
+    List<File> findByUserId(String userId);
     
-    List<File> findByUserIdAndFolderId(Long userId, Long folderId);
+    List<File> findByUserIdAndFolderId(String userId, Long folderId);
     
-    List<File> findByUserIdAndNameContaining(Long userId, String name);
+    List<File> findByUserIdAndNameContaining(String userId, String name);
     
     @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.extension = :extension")
-    List<File> findByUserIdAndExtension(@Param("userId") Long userId, @Param("extension") String extension);
+    List<File> findByUserIdAndExtension(@Param("userId") String userId, @Param("extension") String extension);
     
     @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.folderId = :folderId ORDER BY f.name")
-    List<File> findByUserIdAndFolderIdOrderByName(@Param("userId") Long userId, @Param("folderId") Long folderId);
+    List<File> findByUserIdAndFolderIdOrderByName(@Param("userId") String userId, @Param("folderId") Long folderId);
     
     @Query("SELECT SUM(f.size) FROM File f WHERE f.userId = :userId")
-    Long sumSizeByUserId(@Param("userId") Long userId);
+    Long sumSizeByUserId(@Param("userId") String userId);
     
     @Query("SELECT SUM(f.size) FROM File f")
     Long sumSize();
     
-    boolean existsByUserIdAndStorageKey(Long userId, String storageKey);
+    boolean existsByUserIdAndStorageKey(String userId, String storageKey);
     
-    org.springframework.data.domain.Page<File> findByUserId(Long userId, org.springframework.data.domain.Pageable pageable);
+    org.springframework.data.domain.Page<File> findByUserId(String userId, org.springframework.data.domain.Pageable pageable);
     
-    org.springframework.data.domain.Page<File> findByUserIdAndFolderId(Long userId, Long folderId, org.springframework.data.domain.Pageable pageable);
+    org.springframework.data.domain.Page<File> findByUserIdAndFolderId(String userId, Long folderId, org.springframework.data.domain.Pageable pageable);
     
     boolean existsByStorageKey(String storageKey);
 }

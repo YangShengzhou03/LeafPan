@@ -26,21 +26,21 @@ public class FolderService {
     /**
      * 获取用户的文件夹列表
      */
-    public List<Folder> getUserFolders(Long userId) {
+    public List<Folder> getUserFolders(String userId) {
         return folderRepository.findByUserId(userId);
     }
     
     /**
      * 获取用户指定父文件夹下的子文件夹列表
      */
-    public List<Folder> getUserFoldersByParentId(Long userId, Long parentId) {
+    public List<Folder> getUserFoldersByParentId(String userId, Long parentId) {
         return folderRepository.findByUserIdAndParentId(userId, parentId);
     }
     
     /**
      * 创建文件夹
      */
-    public Folder createFolder(Long userId, CreateFolderRequest request) {
+    public Folder createFolder(String userId, CreateFolderRequest request) {
         Folder folder = new Folder();
         folder.setName(request.getName());
         folder.setParentId(request.getParentId());
@@ -77,7 +77,7 @@ public class FolderService {
     /**
      * 删除文件夹
      */
-    public boolean deleteFolder(Long id, Long userId) {
+    public boolean deleteFolder(Long id, String userId) {
         Optional<Folder> folderOptional = folderRepository.findById(id);
         if (folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId)) {
             folderRepository.deleteById(id);
@@ -89,14 +89,14 @@ public class FolderService {
     /**
      * 检查文件夹名称是否存在
      */
-    public boolean existsByUserIdAndName(Long userId, String name) {
+    public boolean existsByUserIdAndName(String userId, String name) {
         return folderRepository.existsByUserIdAndName(userId, name);
     }
     
     /**
      * 检查文件夹名称是否存在（排除指定ID）
      */
-    public boolean existsByUserIdAndNameAndIdNot(Long userId, String name, Long id) {
+    public boolean existsByUserIdAndNameAndIdNot(String userId, String name, Long id) {
         return folderRepository.existsByUserIdAndNameAndIdNot(userId, name, id);
     }
     
@@ -131,12 +131,12 @@ public class FolderService {
     /**
      * 检查用户是否有权限访问文件夹
      */
-    public boolean hasPermission(Long userId, Long folderId) {
+    public boolean hasPermission(String userId, Long folderId) {
         Optional<Folder> folderOptional = folderRepository.findById(folderId);
         return folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId);
     }
 
-    public boolean isFolderOwnedByUser(Long folderId, Long userId) {
+    public boolean isFolderOwnedByUser(Long folderId, String userId) {
         Optional<Folder> folderOptional = folderRepository.findById(folderId);
         return folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId);
     }
