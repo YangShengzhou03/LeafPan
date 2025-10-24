@@ -19,14 +19,32 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
         
-      # 验证ACR登录
-      - name: 验证ACR登录
+      # 验证ACR登录和仓库权限
+      - name: 验证ACR登录和仓库权限
         run: |
-          echo "验证ACR镜像仓库登录状态..."
+          echo "验证ACR镜像仓库登录状态和权限..."
           echo "ACR Registry: ${{ secrets.ACR_REGISTRY }}"
           echo "ACR Username: ${{ secrets.ACR_USERNAME }}"
+          
+          # 测试登录
           docker login ${{ secrets.ACR_REGISTRY }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+          
+          # 检查ACR registry访问权限
+          echo "检查ACR registry访问权限..."
+          curl -I https://${{ secrets.ACR_REGISTRY }}/v2/ || echo "无法访问ACR registry"
+          
+          # 检查仓库是否存在或创建测试
+          echo "检查仓库权限..."
+          curl -u ${{ secrets.ACR_USERNAME }}:${{ secrets.ACR_PASSWORD }} https://${{ secrets.ACR_REGISTRY }}/v2/_catalog || echo "无法获取仓库列表"
+          
+          # 列出当前镜像
           docker images
+          
+          # 尝试创建一个测试镜像来验证推送权限
+          echo "创建测试镜像验证推送权限..."
+          docker pull hello-world:latest
+          docker tag hello-world:latest ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/test-push:latest
+          docker push ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/test-push:latest || echo "推送测试镜像失败，可能需要先创建仓库"
 
       # 设置Docker Buildx
       - name: 设置Docker Buildx
@@ -52,8 +70,8 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.ACR_REGISTRY }}/leafpan-backend:${{ github.sha }}
-            ${{ secrets.ACR_REGISTRY }}/leafpan-backend:latest
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:${{ github.sha }}
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -80,8 +98,8 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.ACR_REGISTRY }}/leafpan-frontend:${{ github.sha }}
-            ${{ secrets.ACR_REGISTRY }}/leafpan-frontend:latest
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:${{ github.sha }}
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -116,7 +134,7 @@ jobs:
       # 步骤8：更新后端镜像
       - name: 部署后端
         run: |
-          kubectl set image deployment/backend backend=${{ secrets.ACR_REGISTRY }}/leafpan-backend:${{ github.sha }} -n leafpan
+          kubectl set image deployment/backend backend=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/backend -n leafpan
 
       # 步骤9：部署前端基础配置
@@ -126,7 +144,7 @@ jobs:
       # 步骤10：更新前端镜像
       - name: 部署前端
         run: |
-          kubectl set image deployment/frontend frontend=${{ secrets.ACR_REGISTRY }}/leafpan-frontend:${{ github.sha }} -n leafpan
+          kubectl set image deployment/frontend frontend=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/frontend -n leafpan
 
       # 步骤11：健康检查
