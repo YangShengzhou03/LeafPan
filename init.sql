@@ -1,4 +1,4 @@
--- 若数据库存在则删除并重建
+-- 若数据库存在则删除并重建啦
 DROP DATABASE IF EXISTS leafpan;
 CREATE DATABASE leafpan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE leafpan;
