@@ -23,7 +23,10 @@ jobs:
       - name: 验证ACR登录
         run: |
           echo "验证ACR镜像仓库登录状态..."
+          echo "ACR Registry: ${{ secrets.ACR_REGISTRY }}"
+          echo "ACR Username: ${{ secrets.ACR_USERNAME }}"
           docker login ${{ secrets.ACR_REGISTRY }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+          docker images
 
       # 设置Docker Buildx
       - name: 设置Docker Buildx
@@ -53,6 +56,7 @@ jobs:
             ${{ secrets.ACR_REGISTRY }}/leafpan-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64
 
       # 前端编译打包（生成dist目录）
       - name: 配置Node环境（用于前端编译）
@@ -80,6 +84,7 @@ jobs:
             ${{ secrets.ACR_REGISTRY }}/leafpan-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64
 
       # 步骤4：配置kubectl（确保能连接集群）
       - name: 配置kubectl
