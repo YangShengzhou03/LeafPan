@@ -141,35 +141,35 @@
       </template>
     </el-dialog>
 
-    <!-- 图像裁剪对话框 -->
-    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="800px" :before-close="handleCropDialogClose">
+    <!-- 图片裁剪对话框 -->
+    <el-dialog v-model="cropDialogVisible" title="裁剪头像" width="600px" :before-close="handleCropDialogClose">
       <div class="crop-container">
-        <vue-cropper 
-          ref="cropper" 
-          :src="cropImageUrl" 
-          :aspect-ratio="1"
-          :view-mode="1"
-          :auto-crop-area="0.8"
-          :movable="true"
-          :zoomable="true"
-          :rotatable="true"
-          :scalable="true"
-          :guides="true"
-          :background="true"
-          :responsive="true"
-          :restore="true"
-          :check-cross-origin="false"
-          :check-orientation="false"
-          :modal="true"
-          :highlight="true"
-          :center="true"
-          :min-container-width="300"
-          :min-container-height="300"
-          :min-crop-box-width="100"
-          :min-crop-box-height="100"
-          :ready="onCropperReady"
-          style="width: 100%; min-height: 500px;"
-        ></vue-cropper>
+        <Cropper
+          ref="cropperRef"
+          :src="cropImageUrl"
+          :stencil-props="{
+            aspectRatio: 1,
+          }"
+          :canvas="{
+            width: 300,
+            height: 300,
+          }"
+          :stencil-size="{
+            width: 250,
+            height: 250,
+          }"
+          image-restriction="stencil"
+          :resize-image="{
+            adjustStencil: false,
+          }"
+          :move-image="{
+            enabled: true,
+          }"
+          :default-size="{
+            width: 250,
+            height: 250,
+          }"
+        />
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -192,8 +192,8 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
-import 'vue-cropper/dist/index.css'
-import { VueCropper } from 'vue-cropper'
+import { Cropper } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css'
 
 // 头像遮罩层显示状态
 const showAvatarOverlay = ref(false)
@@ -207,8 +207,10 @@ const editFormRef = ref()
 const cropDialogVisible = ref(false)
 const cropLoading = ref(false)
 const cropImageUrl = ref('')
-const cropper = ref()
+const cropperRef = ref(null)
 const currentFile = ref(null)
+
+
 
 // 编辑表单数据
 const editForm = reactive({
@@ -379,116 +381,86 @@ onMounted(() => {
 
 // 头像选择变化处理
 const handleAvatarChange = (file) => {
-  // 当用户选择文件后，触发裁剪流程
-  beforeAvatarUpload(file.raw)
-}
-
-// 头像上传前验证
-const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif'
-  const isLt2M = file.size / 1024 / 1024 < 2
+  // 验证文件
+  const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png' || file.raw.type === 'image/gif'
+  const isLt2M = file.raw.size / 1024 / 1024 < 2
 
   if (!isJPG) {
     ElMessage.error('头像图片只能是 JPG/PNG/GIF 格式!')
-    return false
+    return
   }
   if (!isLt2M) {
     ElMessage.error('头像图片大小不能超过 2MB!')
-    return false
+    return
   }
 
-  // 验证通过后打开裁剪对话框
-  cropImageUrl.value = URL.createObjectURL(file)
+  // 保存文件并打开裁剪对话框
+  currentFile.value = file.raw
+  cropImageUrl.value = URL.createObjectURL(file.raw)
   cropDialogVisible.value = true
+}
 
-  // 保存当前文件用于后续裁剪
-  currentFile.value = file
+// 裁剪并上传头像
+const cropAndUploadAvatar = async () => {
+  if (!cropperRef.value) {
+    ElMessage.error('裁剪器未初始化')
+    return
+  }
 
-  return false // 阻止自动上传
+  cropLoading.value = true
+  try {
+    // 获取裁剪后的canvas
+    const { canvas } = cropperRef.value.getResult()
+    
+    // 将canvas转换为blob
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        ElMessage.error('图片处理失败')
+        cropLoading.value = false
+        return
+      }
+
+      try {
+        // 创建FormData并上传
+        const formData = new FormData()
+        formData.append('file', blob, 'avatar.jpg')
+
+        // 调用上传API
+        const response = await Server.post('/user/avatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+
+        if (response.data && response.data.code === 200) {
+          // 更新本地头像URL
+          userProfile.avatarUrl = response.data.data
+          cropDialogVisible.value = false
+          ElMessage.success('头像更新成功')
+        } else {
+          throw new Error(response.data?.message || '上传失败')
+        }
+      } catch (error) {
+        ElMessage.error('头像上传失败: ' + (error.message || '请重试'))
+      } finally {
+        cropLoading.value = false
+      }
+    }, 'image/jpeg', 0.9)
+  } catch (error) {
+    ElMessage.error('图片裁剪失败: ' + (error.message || '请重试'))
+    cropLoading.value = false
+  }
 }
 
 // 关闭裁剪对话框
 const handleCropDialogClose = () => {
   cropDialogVisible.value = false
+  // 释放URL对象
   if (cropImageUrl.value) {
     URL.revokeObjectURL(cropImageUrl.value)
     cropImageUrl.value = ''
   }
   currentFile.value = null
-}
-
-// 裁剪器准备完成回调
-const onCropperReady = () => {
-  // 裁剪器准备完成后，可以执行一些初始化操作
-  console.log('Cropper is ready')
-}
-
-// 裁剪并上传头像
-const cropAndUploadAvatar = async () => {
-  if (!cropper.value || !currentFile.value) {
-    ElMessage.error('裁剪失败，请重试')
-    return
-  }
-
-  cropLoading.value = true
-
-  try {
-    // 使用vue-cropper的getCroppedCanvas方法获取裁剪后的canvas
-    const canvas = cropper.value.getCroppedCanvas({
-      width: 200,
-      height: 200,
-      fillColor: '#fff',
-      imageSmoothingEnabled: true,
-      imageSmoothingQuality: 'high',
-    })
-
-    if (!canvas) {
-      throw new Error('无法获取裁剪后的图像')
-    }
-
-    // 将canvas转换为blob
-    const blob = await new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(blob)
-      }, currentFile.value.type || 'image/jpeg', 0.9)
-    })
-
-    if (!blob) {
-      ElMessage.error('图像处理失败，请重试')
-      cropLoading.value = false
-      return
-    }
-
-    // 创建新的File对象
-    const croppedFile = new File([blob], 'avatar.' + (currentFile.value.type === 'image/png' ? 'png' : 'jpg'), {
-      type: currentFile.value.type || 'image/jpeg',
-      lastModified: Date.now(),
-    })
-
-    // 创建FormData并上传
-    const formData = new FormData()
-    formData.append('file', croppedFile)
-
-    // 调用真实的上传API
-    const response = await Server.post('/user/avatar', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    if (response.data && response.data.code === 200) {
-      // 更新本地头像URL
-      userProfile.avatarUrl = response.data.data
-      cropLoading.value = false
-      handleCropDialogClose()
-      ElMessage.success('头像更新成功')
-    } else {
-      throw new Error(response.data?.message || '上传失败')
-    }
-  } catch (error) {
-    cropLoading.value = false
-    ElMessage.error('头像上传失败: ' + (error.message || '请重试'))
-  }
 }
 
 // 获取用户信息
@@ -897,79 +869,33 @@ const fetchUserInfo = async () => {
   }
 }
 
+
 .crop-container {
   width: 100%;
-  min-height: 200px;
-  max-height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
+  height: 400px;
+  margin: 0 auto;
 }
 
-/* 确保裁剪容器正确显示 */
-:deep(.cropper-container) {
-  width: 100% !important;
-  height: 100% !important;
-  max-height: 200px !important;
-  min-height: 400px !important;
+/* 裁剪器样式调整 */
+:deep(.vue-advanced-cropper) {
+  height: 100%;
 }
 
-:deep(.cropper-canvas) {
-  max-width: 100% !important;
-  max-height: 100% !important;
+:deep(.vue-advanced-cropper__canvas) {
+  max-width: 100%;
+  max-height: 100%;
 }
 
-:deep(.cropper-crop-box) {
-  border-radius: 50% !important;
+:deep(.vue-advanced-cropper__stencil) {
+  border: 2px solid #409eff;
 }
 
-:deep(.cropper-view-box) {
-  outline: 2px solid #409eff !important;
-  outline-color: #409eff !important;
-  border-radius: 50% !important;
+:deep(.vue-advanced-cropper__line) {
+  border-color: #409eff;
 }
 
-:deep(.cropper-face) {
-  background-color: transparent !important;
-}
-
-:deep(.cropper-modal) {
-  background-color: rgba(0, 0, 0, 0.5) !important;
-}
-
-:deep(.cropper-point) {
-  background-color: #409eff !important;
-  width: 8px !important;
-  height: 8px !important;
-}
-
-:deep(.cropper-point.point-se) {
-  background-color: #409eff !important;
-}
-
-:deep(.cropper-line) {
-  background-color: #409eff !important;
-}
-
-/* 确保裁剪框可见 */
-:deep(.cropper-crop-box) {
-  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.5) !important;
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .crop-container {
-    min-height: 200px;
-    max-height: 400px;
-  }
-  
-  :deep(.cropper-container) {
-    min-height: 200px !important;
-    max-height: 400px !important;
-  }
+:deep(.vue-advanced-cropper__handle) {
+  background-color: #409eff;
+  border-color: #fff;
 }
 </style>
