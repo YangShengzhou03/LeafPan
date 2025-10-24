@@ -52,8 +52,8 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.ACR_REGISTRY }}/leafpan-backend:${{ github.sha }}
-            ${{ secrets.ACR_REGISTRY }}/leafpan-backend:latest
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:${{ github.sha }}
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -80,8 +80,8 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.ACR_REGISTRY }}/leafpan-frontend:${{ github.sha }}
-            ${{ secrets.ACR_REGISTRY }}/leafpan-frontend:latest
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:${{ github.sha }}
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -116,7 +116,7 @@ jobs:
       # 步骤8：更新后端镜像
       - name: 部署后端
         run: |
-          kubectl set image deployment/backend backend=${{ secrets.ACR_REGISTRY }}/leafpan-backend:${{ github.sha }} -n leafpan
+          kubectl set image deployment/backend backend=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/backend -n leafpan
 
       # 步骤9：部署前端基础配置
@@ -126,7 +126,7 @@ jobs:
       # 步骤10：更新前端镜像
       - name: 部署前端
         run: |
-          kubectl set image deployment/frontend frontend=${{ secrets.ACR_REGISTRY }}/leafpan-frontend:${{ github.sha }} -n leafpan
+          kubectl set image deployment/frontend frontend=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/frontend -n leafpan
 
       # 步骤11：健康检查
