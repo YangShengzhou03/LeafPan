@@ -11,8 +11,8 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 8081
+      targetPort: 8081
   type: ClusterIP
 
 ---
@@ -39,7 +39,7 @@ spec:
       - name: backend
         image: crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 8081
         env:
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:mysql://mysql-service:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true"
@@ -86,14 +86,14 @@ spec:
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 8081
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 8081
           initialDelaySeconds: 30
           periodSeconds: 5
           timeoutSeconds: 3
@@ -122,4 +122,4 @@ spec:
           service:
             name: backend-service
             port:
-              number: 8080
+              number: 8081
