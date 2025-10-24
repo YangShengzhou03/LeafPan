@@ -426,7 +426,7 @@ const cropAndUploadAvatar = async () => {
         formData.append('file', blob, 'avatar.jpg')
 
         // 调用上传API
-        const response = await Server.post('/user/avatar', formData, {
+        const response = await Server.post('/user/avatar/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
