@@ -25,11 +25,9 @@ spring:
       max-file-size: 150MB
       max-request-size: 150MB
 
-  # Redis配置（通用）
+  # Redis配置（默认值，可被环境块覆盖）
   redis:
-    host: redis-service
     port: 6379
-    password: redis123
     database: 0
     timeout: 3000
     jedis:
@@ -39,15 +37,15 @@ spring:
         max-idle: 8
         min-idle: 0
 
-# 服务器配置（通用）
+# 服务器配置（默认值，可被环境块覆盖）
 server:
   port: 8081
   servlet:
     context-path: /api
 
-# MinIO配置（通用）
+# MinIO配置（默认值，可被环境块覆盖）
 minio:
-  endpoint: http://minio-service:9000
+  port: 9000
   access-key: minioadmin
   secret-key: minioadmin
   bucket-name: leafpan
@@ -62,7 +60,7 @@ email:
     server: smtp.qq.com
     port: 465
 
-# 应用自定义配置（通用，JWT配置在这里，所有环境都能读到）
+# 应用自定义配置（通用）
 app:
   jwt:
     secret: leafpan-secret-key-for-jwt-token-generation
@@ -78,25 +76,40 @@ app:
 #    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 ---
-# ====================== 开发环境配置（启动时指定：spring.profiles.active=dev） ======================
+# ====================== 开发环境配置（spring.profiles.active=dev） ======================
 spring:
   config:
     activate:
-      on-profile: dev  # 开发环境标识
-  datasource:  # 开发环境数据库（本地MySQL）
+      on-profile: dev
+  datasource:  # 开发数据库
     url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:  # 开发环境Redis（本地）
+    host: localhost  # 本地Redis地址
+    password: ""  # 开发环境可能无密码
+
+minio:  # 开发环境MinIO（本地）
+  endpoint: http://localhost:9000  # 本地MinIO地址
+  # 其他参数（端口、密钥等）与默认一致省略，不一致则覆盖
 
 ---
-# ====================== 生产环境配置（启动时指定：spring.profiles.active=prod） ======================
+# ====================== 生产环境配置（spring.profiles.active=prod） ======================
 spring:
   config:
     activate:
-      on-profile: prod  # 生产环境标识
-  datasource:  # 生产环境数据库（服务器MySQL）
+      on-profile: prod
+  datasource:  # 生产数据库
     url: jdbc:mysql://mysql-service:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: leafpan
     password: leafpan123
     driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:  # 生产环境Redis（服务器）
+    host: redis-service  # 生产服务器Redis域名/IP
+    password: redis123  # 生产环境Redis密码
+
+minio:  # 生产环境MinIO（服务器）
+  endpoint: http://minio-service:9000   # 生产服务器MinIO地址
+  access-key: minioadmin  # 明确指定生产环境MinIO访问密钥
+  secret-key: minioadmin  # 明确指定生产环境MinIO秘密密钥
