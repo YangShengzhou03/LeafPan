@@ -107,8 +107,8 @@ jobs:
       - name: 配置kubectl
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
-          kubectl get nodes  # 验证连接
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          kubectl get nodes  # 验证连接集群是否成功
 
       # 步骤5：创建命名空间
       - name: 创建命名空间
