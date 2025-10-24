@@ -79,6 +79,11 @@ build/
 
 ### VS Code ###
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.vscode/*
 *.swp
 *.swo
 *~
@@ -244,3 +249,41 @@ build/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Project specific ignores
+# ========================
+
+# Docker build artifacts
+.docker/
+*.dockerignore
+
+# Kubernetes configuration files (sensitive data)
+k8s/*-secret.yaml
+k8s/*-secret.yml
+
+# Local development configuration
+local-config/
+config/local*
+
+# Database dumps and backups
+*.sql
+*.dump
+backup/
+
+# IDE specific files (additional)
+*.sublime-project
+*.sublime-workspace
+.projectile
+
+# OS specific files (additional)
+*.lnk
+*.url
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Log files (additional)
+*.log.*
+logs/

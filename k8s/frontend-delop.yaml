@@ -42,7 +42,7 @@ spec:
         - containerPort: 80
         env:
         - name: VUE_APP_API_URL
-          value: "http://backend-service:8081/api"
+          value: "http://backend-service:8080/api"
         - name: VUE_APP_MINIO_ENDPOINT
           value: "http://minio-service:9000"
         resources:
@@ -76,6 +76,9 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
     # 启用HTTP到HTTPS重定向（如果配置了TLS）
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
