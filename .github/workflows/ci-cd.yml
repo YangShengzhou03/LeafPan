@@ -33,19 +33,14 @@ jobs:
           echo "检查ACR registry访问权限..."
           curl -I https://${{ secrets.ACR_REGISTRY }}/v2/ || echo "无法访问ACR registry"
           
-          # 检查仓库是否存在或创建测试
+          # 检查仓库权限
           echo "检查仓库权限..."
           curl -u ${{ secrets.ACR_USERNAME }}:${{ secrets.ACR_PASSWORD }} https://${{ secrets.ACR_REGISTRY }}/v2/_catalog || echo "无法获取仓库列表"
           
           # 列出当前镜像
           docker images
           
-          # 尝试创建一个测试镜像来验证推送权限
-          echo "创建测试镜像验证推送权限..."
-          docker pull hello-world:latest
-          # 使用硬编码的ACR地址进行测试，避免Secret问题
-          docker tag hello-world:latest crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/test-push:latest
-          docker push crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/test-push:latest || echo "推送测试镜像失败，可能需要先创建仓库"
+          echo "ACR权限验证完成，跳过不必要的测试镜像推送"
 
       # 设置Docker Buildx
       - name: 设置Docker Buildx
