@@ -11,36 +11,21 @@ jobs:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      # 步骤1：登录到阿里ACR镜像仓库
-      - name: 登录ACR镜像仓库
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ secrets.ACR_REGISTRY }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
-        
-      # 验证ACR登录和仓库权限
-      - name: 验证ACR登录和仓库权限
+      # 步骤1：验证ACR镜像仓库访问权限（公开仓库无需登录）
+      - name: 验证ACR镜像仓库访问权限
         run: |
-          echo "验证ACR镜像仓库登录状态和权限..."
+          echo "验证ACR镜像仓库访问权限..."
           echo "ACR Registry: ${{ secrets.ACR_REGISTRY }}"
-          echo "ACR Username: ${{ secrets.ACR_USERNAME }}"
           
-          # 测试登录
-          docker login ${{ secrets.ACR_REGISTRY }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
-          
-          # 检查ACR registry访问权限
+          # 检查ACR registry访问权限（公开仓库）
           echo "检查ACR registry访问权限..."
           curl -I https://${{ secrets.ACR_REGISTRY }}/v2/ || echo "无法访问ACR registry"
           
-          # 检查仓库权限
-          echo "检查仓库权限..."
-          curl -u ${{ secrets.ACR_USERNAME }}:${{ secrets.ACR_PASSWORD }} https://${{ secrets.ACR_REGISTRY }}/v2/_catalog || echo "无法获取仓库列表"
+          # 检查仓库列表（公开仓库）
+          echo "检查仓库列表..."
+          curl https://${{ secrets.ACR_REGISTRY }}/v2/_catalog || echo "无法获取仓库列表"
           
-          # 列出当前镜像
-          docker images
-          
-          echo "ACR权限验证完成，跳过不必要的测试镜像推送"
+          echo "ACR公开仓库权限验证完成"
 
       # 设置Docker Buildx
       - name: 设置Docker Buildx
@@ -114,9 +99,7 @@ jobs:
       - name: 创建命名空间
         run: kubectl apply -f k8s/namespace.yaml
 
-      # 步骤6：创建ACR镜像拉取密钥
-      - name: 创建ACR镜像拉取密钥
-        run: kubectl apply -f k8s/acr-secret.yaml
+
 
       # 步骤7：部署基础设施（MySQL、MinIO）
       - name: 部署基础设施

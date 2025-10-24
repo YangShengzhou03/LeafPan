@@ -33,8 +33,6 @@ spec:
       labels:
         app: frontend
     spec:
-      imagePullSecrets:
-      - name: acr-secret
       containers:
       - name: frontend
         image: crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-frontend:latest
@@ -70,8 +68,8 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  # 使用通配符主机名，支持通过IP或域名访问
-  - host: "*"
+  # 使用具体域名，支持通过域名访问
+  - host: "frontend.leafpan.local"
     http:
       paths:
       - path: /

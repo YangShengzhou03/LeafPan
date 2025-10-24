@@ -33,8 +33,6 @@ spec:
       labels:
         app: backend
     spec:
-      imagePullSecrets:
-      - name: acr-secret
       containers:
       - name: backend
         image: crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:latest
