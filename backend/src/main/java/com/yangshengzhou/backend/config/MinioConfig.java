@@ -102,4 +102,8 @@ public class MinioConfig {
     public String getAvatarBucket() {
         return avatarBucket;
     }
+    
+    public String getEndpoint() {
+        return endpoint;
+    }
 }

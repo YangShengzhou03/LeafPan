@@ -424,24 +424,35 @@ const cropAndUploadAvatar = async () => {
         // 创建FormData并上传
         const formData = new FormData()
         formData.append('file', blob, 'avatar.jpg')
+        console.log('前端：开始上传头像，FormData内容:', formData)
 
-        // 调用上传API
-        const response = await Server.post('/user/avatar/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
+        // 调用上传API - 注意：不要手动设置Content-Type，让浏览器自动处理
+        const response = await Server.post('/user/avatar/upload', formData)
+        console.log('前端：收到响应:', response)
 
-        if (response.data && response.data.code === 200) {
+        // 由于Server.js的响应拦截器，response已经是处理后的数据
+        if (response && response.code === 200) {
           // 更新本地头像URL
-          userProfile.avatarUrl = response.data.data
+          userProfile.avatarUrl = response.data
           cropDialogVisible.value = false
           ElMessage.success('头像更新成功')
         } else {
-          throw new Error(response.data?.message || '上传失败')
+          throw new Error(response?.message || '上传失败')
         }
       } catch (error) {
-        ElMessage.error('头像上传失败: ' + (error.message || '请重试'))
+        // 提供更详细的错误信息
+        let errorMessage = '头像上传失败'
+        if (error.response) {
+          // 服务器返回的错误
+          errorMessage = error.response.data?.message || `服务器错误: ${error.response.status}`
+        } else if (error.request) {
+          // 网络错误
+          errorMessage = '网络连接失败，请检查网络设置'
+        } else {
+          // 其他错误
+          errorMessage = error.message || '请重试'
+        }
+        ElMessage.error(errorMessage)
       } finally {
         cropLoading.value = false
       }

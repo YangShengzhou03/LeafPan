@@ -74,9 +74,6 @@ const http = {
   delete: (url, params = {}) => Server.delete(url, { params }),
   upload: (url, formData, onUploadProgress) => {
     return Server.post(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
       onUploadProgress
     })
   }

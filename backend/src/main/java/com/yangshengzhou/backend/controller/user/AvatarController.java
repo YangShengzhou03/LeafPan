@@ -24,15 +24,24 @@ public class AvatarController {
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse<String>> uploadAvatar(@RequestParam("file") MultipartFile file) {
         try {
-            // 获取当前登录用户ID
+            System.out.println("后端：收到头像上传请求");
+            System.out.println("后端：文件名: " + file.getOriginalFilename());
+            System.out.println("后端：文件大小: " + file.getSize() + " bytes");
+            System.out.println("后端：文件类型: " + file.getContentType());
+            
+            // 获取当前登录用户邮箱（JWT token的subject是邮箱）
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
+            String userEmail = authentication.getName();
+            System.out.println("后端：当前用户邮箱: " + userEmail);
             
             // 上传头像
-            String avatarUrl = avatarService.uploadAvatar(file, userId);
+            String avatarUrl = avatarService.uploadAvatar(file, userEmail);
+            System.out.println("后端：头像上传成功，URL: " + avatarUrl);
             
             return ResponseEntity.ok(ApiResponse.success(avatarUrl, "头像上传成功"));
         } catch (Exception e) {
+            System.out.println("后端：头像上传失败，错误信息: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }

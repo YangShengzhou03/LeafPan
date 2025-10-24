@@ -87,21 +87,25 @@ public class FileStorageService {
             );
         }
         
-        // 保存文件信息到数据库
-        File fileEntity = new File();
-        fileEntity.setName(fileName);
-        fileEntity.setOriginalName(originalFilename);
-        fileEntity.setSize(multipartFile.getSize());
-        fileEntity.setContentType(multipartFile.getContentType());
-        fileEntity.setUserId(userId);
-        fileEntity.setFolderId(folderId);
-        fileEntity.setPath(fileName);
-        fileEntity.setUploadTime(new Date());
-        
-        fileRepository.save(fileEntity);
-        
-        // 发布存储更新事件（异步处理）
-        eventPublisher.publishEvent(new StorageUpdateEvent(userId, multipartFile.getSize(), true));
+        // 如果是头像文件，不保存到数据库的文件表中
+        File fileEntity = null;
+        if (bucketType != BucketType.AVATAR) {
+            // 保存文件信息到数据库（仅非头像文件）
+            fileEntity = new File();
+            fileEntity.setName(fileName);
+            fileEntity.setOriginalName(originalFilename);
+            fileEntity.setSize(multipartFile.getSize());
+            fileEntity.setContentType(multipartFile.getContentType());
+            fileEntity.setUserId(userId);
+            fileEntity.setFolderId(folderId);
+            fileEntity.setPath(fileName);
+            fileEntity.setUploadTime(new Date());
+            
+            fileRepository.save(fileEntity);
+            
+            // 发布存储更新事件（异步处理）
+            eventPublisher.publishEvent(new StorageUpdateEvent(userId, multipartFile.getSize(), true));
+        }
         
         return fileEntity;
     }
