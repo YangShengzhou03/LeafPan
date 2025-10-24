@@ -33,9 +33,11 @@ spec:
       labels:
         app: backend
     spec:
+      imagePullSecrets:
+      - name: acr-secret
       containers:
       - name: backend
-        image: leafpan-backend:latest
+        image: crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:latest
         ports:
         - containerPort: 8080
         env:

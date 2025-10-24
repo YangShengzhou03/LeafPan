@@ -43,8 +43,9 @@ jobs:
           # 尝试创建一个测试镜像来验证推送权限
           echo "创建测试镜像验证推送权限..."
           docker pull hello-world:latest
-          docker tag hello-world:latest ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/test-push:latest
-          docker push ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/test-push:latest || echo "推送测试镜像失败，可能需要先创建仓库"
+          # 使用硬编码的ACR地址进行测试，避免Secret问题
+          docker tag hello-world:latest crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/test-push:latest
+          docker push crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/test-push:latest || echo "推送测试镜像失败，可能需要先创建仓库"
 
       # 设置Docker Buildx
       - name: 设置Docker Buildx
@@ -70,8 +71,8 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:${{ github.sha }}
-            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:latest
+            crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:${{ github.sha }}
+            crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -98,8 +99,8 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:${{ github.sha }}
-            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:latest
+            crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-frontend:${{ github.sha }}
+            crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -134,7 +135,7 @@ jobs:
       # 步骤8：更新后端镜像
       - name: 部署后端
         run: |
-          kubectl set image deployment/backend backend=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-backend:${{ github.sha }} -n leafpan
+          kubectl set image deployment/backend backend=crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/backend -n leafpan
 
       # 步骤9：部署前端基础配置
@@ -144,7 +145,7 @@ jobs:
       # 步骤10：更新前端镜像
       - name: 部署前端
         run: |
-          kubectl set image deployment/frontend frontend=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/leafpan-frontend:${{ github.sha }} -n leafpan
+          kubectl set image deployment/frontend frontend=crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-frontend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/frontend -n leafpan
 
       # 步骤11：健康检查

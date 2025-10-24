@@ -33,9 +33,11 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+      - name: acr-secret
       containers:
       - name: frontend
-        image: leafpan-frontend:latest
+        image: crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-frontend:latest
         ports:
         - containerPort: 80
         env:
