@@ -99,9 +99,7 @@ jobs:
       - name: 创建命名空间
         run: kubectl apply -f k8s/namespace.yaml
 
-
-
-      # 步骤7：部署基础设施（MySQL、MinIO）
+      # 步骤6：部署基础设施（MySQL、MinIO）
       - name: 部署基础设施
         run: |
           kubectl apply -f k8s/mysql-delop.yaml
