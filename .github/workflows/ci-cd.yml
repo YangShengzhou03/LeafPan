@@ -141,8 +141,12 @@ jobs:
     - name: 配置 kubeconfig
       run: |
         mkdir -p ~/.kube
-        echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-        kubectl config use-context ${{ secrets.KUBE_CONTEXT }}
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+        # 列出所有可用的上下文
+        kubectl config get-contexts
+        # 使用当前上下文（不需要KUBE_CONTEXT）
+        kubectl config current-context
+        kubectl config view
     
     - name: 创建命名空间
       run: |
@@ -190,8 +194,11 @@ jobs:
     - name: 配置 kubeconfig
       run: |
         mkdir -p ~/.kube
-        echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-        kubectl config use-context ${{ secrets.KUBE_CONTEXT }}
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+        # 列出所有可用的上下文
+        kubectl config get-contexts
+        # 使用当前上下文（不需要KUBE_CONTEXT）
+        kubectl config current-context
     
     - name: 部署后端和前端应用
       run: |

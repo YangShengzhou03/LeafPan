@@ -190,6 +190,19 @@ data:
 
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: leafpan
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: mysql-secret
@@ -281,10 +294,15 @@ spec:
         volumeMounts:
         - name: init-script
           mountPath: /docker-entrypoint-initdb.d
+        - name: mysql-data
+          mountPath: /var/lib/mysql
       volumes:
       - name: init-script
         configMap:
           name: mysql-init-script
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-pvc
 
 ---
 apiVersion: v1
