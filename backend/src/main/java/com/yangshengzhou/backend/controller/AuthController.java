@@ -35,7 +35,12 @@ public class AuthController {
             );
             return ResponseEntity.ok(ApiResponse.success("登录成功", result));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("登录失败: " + e.getMessage()));
+            // 处理用户禁用时的错误提示
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("用户已失效")) {
+                errorMessage = "用户已被禁用";
+            }
+            return ResponseEntity.badRequest().body(ApiResponse.error("登录失败: " + errorMessage));
         }
     }
     
