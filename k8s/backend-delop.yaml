@@ -67,15 +67,6 @@ spec:
               key: MINIO_SECRET_KEY
         - name: MINIO_BUCKET_NAME
           value: "data"
-        - name: SPRING_REDIS_HOST
-          value: "redis-service"
-        - name: SPRING_REDIS_PORT
-          value: "6379"
-        - name: SPRING_REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-secret
-              key: redis-password
         resources:
           requests:
             memory: "512Mi"

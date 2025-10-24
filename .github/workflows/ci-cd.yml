@@ -118,17 +118,15 @@ jobs:
       - name: 创建ACR镜像拉取密钥
         run: kubectl apply -f k8s/acr-secret.yaml
 
-      # 步骤7：部署基础设施（MySQL、MinIO、Redis）
+      # 步骤7：部署基础设施（MySQL、MinIO）
       - name: 部署基础设施
         run: |
           kubectl apply -f k8s/mysql-delop.yaml
           kubectl apply -f k8s/minio-delop.yaml
-          kubectl apply -f k8s/redis-delop.yaml
           
-          # 等待基础设施启动完成
+          # 等待基础设施就绪
           kubectl wait --for=condition=ready pod -l app=mysql -n leafpan --timeout=300s
           kubectl wait --for=condition=ready pod -l app=minio -n leafpan --timeout=300s
-          kubectl wait --for=condition=ready pod -l app=redis -n leafpan --timeout=300s
 
       # 步骤8：部署后端基础配置
       - name: 部署后端基础配置

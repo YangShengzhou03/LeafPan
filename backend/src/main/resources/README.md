@@ -24,7 +24,7 @@
 
 3. **服务配置**
    - 本地MinIO对象存储
-   - 本地Redis缓存
+   
 
 ## 生产环境配置
 
@@ -67,7 +67,7 @@
 1. 设置环境变量：
    ```bash
    export MYSQL_PASSWORD=your_mysql_password
-   export REDIS_PASSWORD=your_redis_password
+   
    export MINIO_ACCESS_KEY=your_minio_access_key
    export MINIO_SECRET_KEY=your_minio_secret_key
    export JWT_SECRET=your_jwt_secret
@@ -83,7 +83,7 @@
 生产环境支持以下环境变量：
 
 - `MYSQL_PASSWORD` - MySQL数据库密码
-- `REDIS_PASSWORD` - Redis密码
+
 - `MINIO_ACCESS_KEY` - MinIO访问密钥
 - `MINIO_SECRET_KEY` - MinIO秘密密钥
 - `EMAIL_SENDER` - 邮件发送者地址

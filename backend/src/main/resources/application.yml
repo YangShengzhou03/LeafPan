@@ -25,17 +25,7 @@ spring:
       max-file-size: 150MB
       max-request-size: 150MB
 
-  # Redis配置（默认值，可被环境块覆盖）
-  redis:
-    port: 6379
-    database: 0
-    timeout: 3000
-    jedis:
-      pool:
-        max-active: 8
-        max-wait: -1
-        max-idle: 8
-        min-idle: 0
+
 
 # 服务器配置（默认值，可被环境块覆盖）
 server:
@@ -86,9 +76,7 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
-  redis:  # 开发环境Redis（本地）
-    host: localhost  # 本地Redis地址
-    password: ""  # 开发环境可能无密码
+
 
 minio:  # 开发环境MinIO（本地）
   endpoint: http://localhost:9000  # 本地MinIO地址
@@ -105,9 +93,7 @@ spring:
     username: leafpan
     password: leafpan123
     driver-class-name: com.mysql.cj.jdbc.Driver
-  redis:  # 生产环境Redis（服务器）
-    host: redis-service  # 生产服务器Redis域名/IP
-    password: redis123  # 生产环境Redis密码
+
 
 minio:  # 生产环境MinIO（服务器）
   endpoint: http://minio-service:9000   # 生产服务器MinIO地址
