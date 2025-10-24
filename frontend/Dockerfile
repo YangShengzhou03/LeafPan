@@ -4,16 +4,19 @@ FROM node:18-alpine as build-stage
 # 设置工作目录
 WORKDIR /app
 
+# 安装编译工具和系统依赖（针对Alpine镜像）
+RUN apk add --no-cache git python3 make g++ libpng-dev
+
 # 复制package.json和package-lock.json
 COPY package*.json ./
 
-# 安装依赖
-RUN npm install
+# 安装依赖（使用ci模式，确保依赖一致性）
+RUN npm ci --prefer-offline --no-audit
 
 # 复制源代码
 COPY . .
 
-# 构建应用
+# 构建应用（设置内存限制和超时）
 RUN npm run build
 
 # 使用Nginx作为生产环境

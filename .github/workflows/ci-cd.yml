@@ -99,6 +99,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+          # 优化构建参数
+          build-args: |
+            NODE_OPTIONS=--max_old_space_size=4096
 
       # 步骤4：配置kubectl（确保能连接集群）
       - name: 配置kubectl

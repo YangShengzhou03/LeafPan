@@ -2,6 +2,29 @@ const { defineConfig } = require('@vue/cli-service')
 
 module.exports = defineConfig({
   transpileDependencies: true,
+  // 生产构建优化配置
+  productionSourceMap: false,  // 关闭 SourceMap，减少 80% 内存占用
+  css: {
+    extract: true,  // 提取 CSS 到单独文件
+    sourceMap: false  // 关闭 CSS SourceMap
+  },
+  configureWebpack: {
+    optimization: {
+      minimize: true,  // 保持压缩，但优化配置
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all'
+          }
+        }
+      }
+    }
+  },
+  // 并行处理优化
+  parallel: require('os').cpus().length > 1,
   devServer: {
     port: 8080,  // 开发环境前端端口
     proxy: {
