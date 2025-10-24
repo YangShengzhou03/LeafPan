@@ -52,20 +52,7 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 3
+
 
 ---
 apiVersion: networking.k8s.io/v1
