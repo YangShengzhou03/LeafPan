@@ -113,7 +113,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="描述" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
         <el-table-column prop="ipAddress" label="IP地址" width="130" />
         <el-table-column prop="createTime" label="时间" width="160" />
         <el-table-column label="操作" width="100" fixed="right">
