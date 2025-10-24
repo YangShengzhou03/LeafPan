@@ -116,7 +116,11 @@ jobs:
       - name: 创建命名空间
         run: kubectl apply -f k8s/namespace.yaml
 
-      # 步骤6：部署基础设施（MySQL、MinIO、Redis）
+      # 步骤6：创建ACR镜像拉取密钥
+      - name: 创建ACR镜像拉取密钥
+        run: kubectl apply -f k8s/acr-secret.yaml
+
+      # 步骤7：部署基础设施（MySQL、MinIO、Redis）
       - name: 部署基础设施
         run: |
           kubectl apply -f k8s/mysql-delop.yaml
@@ -128,27 +132,27 @@ jobs:
           kubectl wait --for=condition=ready pod -l app=minio -n leafpan --timeout=300s
           kubectl wait --for=condition=ready pod -l app=redis -n leafpan --timeout=300s
 
-      # 步骤7：部署后端基础配置
+      # 步骤8：部署后端基础配置
       - name: 部署后端基础配置
         run: kubectl apply -f k8s/backend-delop.yaml
 
-      # 步骤8：更新后端镜像
+      # 步骤9：更新后端镜像
       - name: 部署后端
         run: |
           kubectl set image deployment/backend backend=crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/backend -n leafpan
 
-      # 步骤9：部署前端基础配置
+      # 步骤10：部署前端基础配置
       - name: 部署前端基础配置
         run: kubectl apply -f k8s/frontend-delop.yaml
 
-      # 步骤10：更新前端镜像
+      # 步骤11：更新前端镜像
       - name: 部署前端
         run: |
           kubectl set image deployment/frontend frontend=crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-frontend:${{ github.sha }} -n leafpan
           kubectl rollout status deployment/frontend -n leafpan
 
-      # 步骤11：健康检查
+      # 步骤12：健康检查
       - name: 健康检查
         run: |
           kubectl get pods -n leafpan
