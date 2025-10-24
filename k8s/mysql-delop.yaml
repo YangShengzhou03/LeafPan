@@ -214,8 +214,6 @@ data:
   mysql-user: bGVhZnBhbg==
   mysql-password: bGVhZnBhbjEyMw==
 
-
-
 ---
 apiVersion: apps/v1
 kind: Deployment
