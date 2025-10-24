@@ -1,23 +1,9 @@
-# Spring Boot 应用配置
+# ====================== 默认配置（公共配置，所有环境共享） ======================
 spring:
   application:
-    name: leafpan-backend
+    name: leafpan-backend  # 应用名称，所有环境通用
 
-  # 生产数据库配置
-  datasource:
-    url: jdbc:mysql://mysql-service:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: leafpan
-    password: leafpan123
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  # # 开发数据库配置
-  # datasource:
-  #   url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-  #   username: root
-  #   password: 123456
-  #   driver-class-name: com.mysql.cj.jdbc.Driver
-
-  # JPA配置
+  # JPA配置（通用）
   jpa:
     hibernate:
       ddl-auto: validate
@@ -26,20 +12,20 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-        
-  # Jackson配置
+
+  # Jackson配置（通用）
   jackson:
     default-property-inclusion: non_null
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
-    
-  # 文件上传配置
+
+  # 文件上传配置（通用）
   servlet:
     multipart:
       max-file-size: 150MB
       max-request-size: 150MB
-      
-  # Redis配置
+
+  # Redis配置（通用）
   redis:
     host: redis-service
     port: 6379
@@ -53,94 +39,64 @@ spring:
         max-idle: 8
         min-idle: 0
 
----
-# 测试环境配置
-spring:
-  config:
-    activate:
-      on-profile: test
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
-    
-  # JPA配置
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
-        
-  # Jackson配置
-  jackson:
-    default-property-inclusion: non_null
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: Asia/Shanghai
-    
-  # 文件上传配置
-  servlet:
-    multipart:
-      max-file-size: 150MB
-      max-request-size: 150MB
-      
-  # Redis配置
-  redis:
-    host: redis-service
-    port: 6379
-    password: redis123
-    database: 0
-    timeout: 3000
-    jedis:
-      pool:
-        max-active: 8
-        max-wait: -1
-        max-idle: 8
-        min-idle: 0
-      
-# 服务器配置
+# 服务器配置（通用）
 server:
-  port: 8080
+  port: 8081
   servlet:
     context-path: /api
-    
-# MinIO配置
+
+# MinIO配置（通用）
 minio:
   endpoint: http://minio-service:9000
   access-key: minioadmin
   secret-key: minioadmin
   bucket-name: leafpan
-  # 两个桶配置
   data-bucket: data
   avatar-bucket: avatar
-  
-# 邮件配置
+
+# 邮件配置（通用）
 email:
   sender: 3555844679@qq.com
   password: xtibpzrdwnppchhi
   smtp:
     server: smtp.qq.com
     port: 465
-  
-# 应用自定义配置
+
+# 应用自定义配置（通用，JWT配置在这里，所有环境都能读到）
 app:
-  # JWT配置
   jwt:
     secret: leafpan-secret-key-for-jwt-token-generation
     expiration: 86400000  # 24小时
-    
-  # 文件存储配置
   storage:
     max-file-size: 150MB
-    
-# 日志配置
+
+# 日志配置（通用）
 #logging:
 #  level:
 #    com.yangshengzhou.backend: DEBUG
-#    org.springframework.security: DEBUG
-#    org.springframework.web: DEBUG
 #  pattern:
 #    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# ====================== 开发环境配置（启动时指定：spring.profiles.active=dev） ======================
+spring:
+  config:
+    activate:
+      on-profile: dev  # 开发环境标识
+  datasource:  # 开发环境数据库（本地MySQL）
+    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+---
+# ====================== 生产环境配置（启动时指定：spring.profiles.active=prod） ======================
+spring:
+  config:
+    activate:
+      on-profile: prod  # 生产环境标识
+  datasource:  # 生产环境数据库（服务器MySQL）
+    url: jdbc:mysql://mysql-service:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: leafpan
+    password: leafpan123
+    driver-class-name: com.mysql.cj.jdbc.Driver

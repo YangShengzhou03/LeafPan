@@ -13,5 +13,5 @@ EXPOSE 8080
 # 设置JVM参数
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
-# 运行应用
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# 运行应用（添加生产环境参数）
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --spring.profiles.active=prod"]
