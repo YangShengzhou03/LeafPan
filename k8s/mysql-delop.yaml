@@ -16,7 +16,7 @@ data:
         email VARCHAR(100) NOT NULL UNIQUE COMMENT '邮箱',
         password VARCHAR(255) NOT NULL COMMENT '加密密码',
         nickname VARCHAR(50) NULL COMMENT '昵称',
-        avatar VARCHAR(255) NULL COMMENT '头像URL',
+        avatar VARCHAR(500) NULL COMMENT '头像URL',
         gender TINYINT NULL COMMENT '性别：0-未知，1-男，2-女',
         phone VARCHAR(20) NULL COMMENT '手机号码',
         role TINYINT NOT NULL DEFAULT 0 COMMENT '角色：0-普通，1-管理员',
