@@ -2,13 +2,21 @@
 spring:
   application:
     name: leafpan-backend
-  
-  # 数据库配置
+
+
+  # 生产数据库配置
   datasource:
-    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
+    url: jdbc:mysql://mysql-service:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: leafpan
+    password: leafpan123
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # # 开发数据库配置
+  # datasource:
+  #   url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+  #   username: root
+  #   password: 123456
+  #   driver-class-name: com.mysql.cj.jdbc.Driver
     
   # JPA配置
   jpa:
@@ -34,9 +42,9 @@ spring:
       
   # Redis配置
   redis:
-    host: localhost
+    host: redis-service
     port: 6379
-    password: 
+    password: redis123
     database: 0
     timeout: 3000
     jedis:
@@ -54,7 +62,7 @@ server:
     
 # MinIO配置
 minio:
-  endpoint: http://localhost:9000
+  endpoint: http://minio-service:9000
   access-key: minioadmin
   secret-key: minioadmin
   bucket-name: leafpan
