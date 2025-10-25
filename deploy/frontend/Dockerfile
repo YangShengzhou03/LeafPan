@@ -4,8 +4,9 @@ FROM nginx:alpine
 # 把本地的 nginx.conf 复制到容器的 Nginx 配置目录
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# 把本地已打包好的前端文件，复制到 Nginx 的默认静态文件目录
-COPY . /usr/share/nginx/html
+# 关键修正：只复制 dist 目录下的所有文件到 Nginx 静态目录
+# 这样 css/、js/、index.html 会直接在 /usr/share/nginx/html 下
+COPY dist/ /usr/share/nginx/html/
 
 # 暴露 80 端口
 EXPOSE 80

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM openjdk:17-jre-alpine
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
 ENV TZ=Asia/Shanghai
 WORKDIR /app
