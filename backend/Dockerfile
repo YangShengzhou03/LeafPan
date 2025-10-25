@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
