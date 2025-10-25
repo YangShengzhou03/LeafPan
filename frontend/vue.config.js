@@ -2,6 +2,8 @@ const { defineConfig } = require('@vue/cli-service')
 
 module.exports = defineConfig({
   transpileDependencies: true,
+  // 关键：设置为根路径，确保打包后引用路径以 / 开头
+  publicPath: '/',
   // 生产构建优化配置
   productionSourceMap: false,  // 关闭 SourceMap，减少 80% 内存占用
   css: {

@@ -25,8 +25,8 @@ services:
   # 前端服务
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: deploy/frontend/Dockerfile
     container_name: leafpan-frontend
     restart: unless-stopped
     ports:
