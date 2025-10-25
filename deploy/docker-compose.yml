@@ -13,8 +13,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/leafpan
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_DATASOURCE_USERNAME=leafpan
+      - SPRING_DATASOURCE_PASSWORD=leafpan123
     volumes:
       - ./logs/backend:/app/logs
     depends_on:

@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 echo ========================================
@@ -7,7 +6,7 @@ echo    LeafPan Auto Build and Deploy Script
 echo ========================================
 echo.
 
-REM 检查是否在项目根目录
+REM Check if running from project root directory
 if not exist "frontend\package.json" (
     echo ERROR: Please run this script from project root directory!
     echo Current directory: %CD%
@@ -15,7 +14,7 @@ if not exist "frontend\package.json" (
     exit /b 1
 )
 
-REM 创建deploy目录结构
+REM Create deploy directory structure
 echo Creating deploy directory structure...
 if not exist "deploy\frontend" mkdir deploy\frontend
 if not exist "deploy\backend" mkdir deploy\backend
@@ -28,7 +27,7 @@ echo           Building Frontend
 echo ========================================
 echo.
 
-REM 检查前端依赖
+REM Check frontend dependencies
 echo Checking frontend dependencies...
 if not exist "frontend\node_modules" (
     echo Installing frontend dependencies...
@@ -36,13 +35,14 @@ if not exist "frontend\node_modules" (
     call npm install
     if !errorlevel! neq 0 (
         echo ERROR: Frontend dependency installation failed!
+        cd ..
         pause
         exit /b 1
     )
     cd ..
 )
 
-REM 构建前端
+REM Build frontend
 echo Building frontend for production...
 cd frontend
 call npm run build
@@ -54,7 +54,7 @@ if !errorlevel! neq 0 (
 )
 cd ..
 
-REM 复制前端构建文件到deploy目录
+REM Copy frontend build files to deploy directory
 echo Copying frontend build files to deploy directory...
 if exist "frontend\dist" (
     xcopy "frontend\dist\*" "deploy\frontend\" /E /Y /I >nul
@@ -71,7 +71,7 @@ echo           Building Backend
 echo ========================================
 echo.
 
-REM 检查Maven是否可用
+REM Check Maven availability
 echo Checking Maven availability...
 call mvn --version >nul 2>&1
 if !errorlevel! neq 0 (
@@ -86,7 +86,7 @@ if !errorlevel! neq 0 (
     set MVN_CMD=mvn
 )
 
-REM 构建后端
+REM Build backend
 echo Building backend...
 call %MVN_CMD% clean package -DskipTests
 if !errorlevel! neq 0 (
@@ -95,7 +95,7 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
-REM 查找并复制jar文件到deploy目录
+REM Find and copy JAR file to deploy directory
 echo Finding and copying JAR file...
 set JAR_FOUND=0
 for /r backend %%i in (*.jar) do (
@@ -136,7 +136,7 @@ echo           Build Completed!
 echo ========================================
 echo.
 
-REM 显示deploy目录结构
+REM Show deploy directory structure
 echo Deploy directory structure:
 tree deploy /F | more
 
