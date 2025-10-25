@@ -12,7 +12,7 @@ spec:
     - name: http
       protocol: TCP
       port: 8080
-      targetPort: 8080
+      targetPort: 8081
   type: ClusterIP
 
 ---
@@ -37,7 +37,7 @@ spec:
       - name: backend
         image: crpi-kczczesrmgxok6ke.cn-hangzhou.personal.cr.aliyuncs.com/yangshengzhou/leafpan-backend:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 8081
         env:
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:mysql://mysql-service:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true"
