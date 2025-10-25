@@ -1,5 +1,4 @@
-# 多阶段构建：构建阶段
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+FROM eclipse-temurin:17-jre-alpine
 
 # 设置工作目录
 WORKDIR /app
