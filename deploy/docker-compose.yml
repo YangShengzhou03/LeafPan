@@ -12,8 +12,13 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/leafpan
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=123456
     volumes:
       - ./logs/backend:/app/logs
+    depends_on:
+      - mysql
     networks:
       - leafpan-network
 
@@ -31,6 +36,26 @@ services:
     networks:
       - leafpan-network
 
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: leafpan-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: leafpan
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - leafpan-network
+
 networks:
   leafpan-network:
     driver: bridge
+
+volumes:
+  mysql_data:
