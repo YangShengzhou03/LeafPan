@@ -1,61 +1,28 @@
-version: '3.3'
+version: '3'
 
-services:
-  # 后端服务
-  backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    container_name: leafpan-backend
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/leafpan
-      - SPRING_DATASOURCE_USERNAME=leafpan
-      - SPRING_DATASOURCE_PASSWORD=leafpan123
-    volumes:
-      - ./logs/backend:/app/logs
-    depends_on:
-      - mysql
-    networks:
-      - leafpan-network
-
-  # 前端服务
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    container_name: leafpan-frontend
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - leafpan-network
-
-  # MySQL数据库
-  mysql:
-    image: mysql:8.0
-    container_name: leafpan-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: leafpan
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
-    command: --default-authentication-plugin=mysql_native_password
-    networks:
-      - leafpan-network
-
+# 定义共享网络（前后端容器在同一网络，可通过服务名通信）
 networks:
-  leafpan-network:
+  app-network:
     driver: bridge
 
-volumes:
-  mysql_data:
+services:
+  # 前端服务
+  frontend:
+    # 构建前端镜像（基于 frontend 目录的 Dockerfile）
+    build: ./frontend
+    container_name: vue-frontend
+    ports:
+      - "80:80"  # 宿主机80端口映射到前端容器80端口
+    networks:
+      - app-network  # 加入共享网络
+    restart: always
+
+  # 后端服务
+  backend:
+    # 构建后端镜像（基于 backend 目录的 Dockerfile）
+    build: ./backend
+    container_name: java-backend
+    # 后端端口不暴露给宿主机（通过前端Nginx代理访问）
+    networks:
+      - app-network  # 加入共享网络，与前端通信
+    restart: always
