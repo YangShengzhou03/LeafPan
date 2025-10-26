@@ -424,11 +424,9 @@ const cropAndUploadAvatar = async () => {
         // 创建FormData并上传
         const formData = new FormData()
         formData.append('file', blob, 'avatar.jpg')
-        console.log('前端：开始上传头像，FormData内容:', formData)
 
         // 调用上传API - 注意：不要手动设置Content-Type，让浏览器自动处理
         const response = await Server.post('/user/avatar/upload', formData)
-        console.log('前端：收到响应:', response)
 
         // 由于Server.js的响应拦截器，response已经是处理后的数据
         if (response && response.code === 200) {

@@ -196,45 +196,32 @@ public class FileController {
      */
     @GetMapping("/{id}/download")
     public void downloadFile(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
-        User currentUser = null;
         File file = null;
         InputStream inputStream = null;
-        
-        System.out.println("🚀 开始处理文件下载请求，文件ID: " + id);
-        System.out.println("📥 请求URL: " + request.getRequestURL());
-        System.out.println("🔑 请求头Authorization: " + request.getHeader("Authorization"));
-        System.out.println("📊 请求头Accept: " + request.getHeader("Accept"));
         
         try {
             currentUser = authService.getCurrentUser();
             if (currentUser == null) {
-                System.out.println("❌ 用户未登录，返回401");
                 response.setStatus(401);
                 return;
             }
-            System.out.println("✅ 当前用户: " + currentUser.getEmail());
             
             if (!fileService.hasPermission(currentUser.getId(), id)) {
-                System.out.println("❌ 用户无权限，返回403");
                 response.setStatus(403);
                 return;
             }
             
             file = fileService.getFile(id).orElse(null);
             if (file == null) {
-                System.out.println("❌ 文件不存在，返回404");
                 response.setStatus(404);
                 return;
             }
-            System.out.println("📄 文件信息 - 名称: " + file.getName() + ", 存储Key: " + file.getStorageKey());
             
             // 获取文件大小信息
             long fileSize = fileStorageService.getFileSize(file.getStorageKey());
-            System.out.println("📊 文件大小: " + fileSize + " 字节");
             
             // 获取文件输入流
             inputStream = fileStorageService.downloadFile(file.getStorageKey());
-            System.out.println("✅ 获取到文件输入流");
             
             // 设置响应头 - 完全模仿MinIO的正常响应
             String encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8.toString());
@@ -244,9 +231,6 @@ public class FileController {
             if (contentType == null || contentType.isEmpty()) {
                 contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
             }
-            
-            System.out.println("📄 设置响应头 - Content-Type: " + contentType);
-            System.out.println("📄 设置响应头 - Content-Length: " + fileSize);
             
             response.setContentType(contentType);
             response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
@@ -263,18 +247,14 @@ public class FileController {
             // 关键修复：确保流只被写入一次
             // 使用try-with-resources确保资源正确关闭
             try (OutputStream outputStream = response.getOutputStream()) {
-                System.out.println("📤 开始传输文件流...");
                 long startTime = System.currentTimeMillis();
                 
                 // 只调用一次IOUtils.copy，确保数据只传输一次
                 IOUtils.copy(inputStream, outputStream);
                 
                 long endTime = System.currentTimeMillis();
-                System.out.println("✅ 文件流传输完成，耗时: " + (endTime - startTime) + "ms");
                 // 不要调用flush()，因为IOUtils.copy会自动处理
             }
-            
-            System.out.println("🎉 文件下载处理完成");
             
             // 异步记录下载日志（避免阻塞文件流）
             final User finalUser = currentUser;
@@ -290,15 +270,12 @@ public class FileController {
                         getClientIpAddress(request),
                         request.getHeader("User-Agent")
                     );
-                    System.out.println("📝 下载日志记录完成");
                 } catch (Exception e) {
                     // 日志记录失败不影响文件下载
-                    System.err.println("❌ 下载日志记录失败: " + e.getMessage());
                 }
             }).start();
             
         } catch (Exception e) {
-            System.err.println("❌ 文件下载异常: " + e.getMessage());
             e.printStackTrace();
             // 发生异常时，只设置状态码，不输出任何内容
             response.setStatus(400);
@@ -307,10 +284,8 @@ public class FileController {
             if (inputStream != null) {
                 try {
                     inputStream.close();
-                    System.out.println("🔒 文件输入流已关闭");
                 } catch (Exception e) {
                     // 忽略关闭异常
-                    System.err.println("⚠️ 关闭输入流异常: " + e.getMessage());
                 }
             }
         }

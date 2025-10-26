@@ -836,38 +836,11 @@ const handleFileCommand = async (command, item) => {
     switch (command) {
         case 'download':
             try {
-                console.log('🚀 开始下载文件:', item.name, 'ID:', item.id)
-                console.log('📥 发送下载请求到:', `/file/${item.id}/download`)
-                
                 // 使用Server的download方法，自动设置responseType为blob
                 const response = await Server.download(`/file/${item.id}/download`)
                 
-                console.log('✅ 后端响应状态:', response.status)
-                console.log('📊 响应头Content-Type:', response.headers['content-type'])
-                console.log('📊 响应头Content-Length:', response.headers['content-length'])
-                
-                // 验证是否正确获取到Blob对象
-                console.log('🔍 响应数据类型:', typeof response.data)
-                console.log('🔍 是否为Blob:', response.data instanceof Blob)
-                
                 // response.data 应该是Blob对象
                 const blob = response.data
-                console.log('📦 Blob数据大小:', blob.size, '字节')
-                console.log('🔍 Blob数据类型:', blob.type)
-                
-                // 检查Blob数据的前100个字节
-                const blobSlice = blob.slice(0, 100)
-                const reader = new FileReader()
-                reader.onload = function(e) {
-                    const arrayBuffer = e.target.result
-                    const uint8Array = new Uint8Array(arrayBuffer)
-                    console.log('🔬 Blob前100字节十六进制:', Array.from(uint8Array).map(b => b.toString(16).padStart(2, '0')).join(' '))
-                    console.log('🔬 Blob前100字节ASCII:', Array.from(uint8Array).map(b => String.fromCharCode(b)).join('').replace(/[^\x20-\x7E]/g, '.'))
-                }
-                reader.readAsArrayBuffer(blobSlice)
-                
-                console.log('📄 最终Blob大小:', blob.size, '字节')
-                console.log('📄 最终Blob类型:', blob.type)
                 
                 const url = window.URL.createObjectURL(blob)
                 const link = document.createElement('a')
@@ -878,7 +851,6 @@ const handleFileCommand = async (command, item) => {
                 document.body.removeChild(link)
                 window.URL.revokeObjectURL(url)
                 
-                console.log('🎉 下载完成，文件大小:', blob.size, '字节')
                 ElMessage.success(`下载完成: ${item.originalName || item.name}`)
             } catch (error) {
                 console.error('❌ 下载失败:', error)
