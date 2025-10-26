@@ -12,7 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/log")
@@ -28,7 +30,7 @@ public class AdminLogController {
      * 获取所有操作日志（分页）
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<OperationLogVO>>> getAllLogs(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getAllLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String level,
@@ -45,9 +47,18 @@ public class AdminLogController {
             
             // 转换为VO对象
             List<OperationLogVO> logVOs = operationLogService.convertToVOs(logs.getContent());
-            Page<OperationLogVO> voPage = new org.springframework.data.domain.PageImpl<>(logVOs, logs.getPageable(), logs.getTotalElements());
             
-            return ResponseEntity.ok(ApiResponse.success(voPage));
+            // 创建分页响应对象，避免直接返回PageImpl
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", logVOs);
+            response.put("pageNumber", logs.getNumber());
+            response.put("pageSize", logs.getSize());
+            response.put("totalElements", logs.getTotalElements());
+            response.put("totalPages", logs.getTotalPages());
+            response.put("first", logs.isFirst());
+            response.put("last", logs.isLast());
+            
+            return ResponseEntity.ok(ApiResponse.success(response));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取日志列表失败: " + e.getMessage()));
         }

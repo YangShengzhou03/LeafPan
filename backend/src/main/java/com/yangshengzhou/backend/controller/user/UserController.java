@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -86,7 +87,7 @@ public class UserController {
      * 获取用户操作日志
      */
     @GetMapping("/logs")
-    public ResponseEntity<ApiResponse<Page>> getUserOperationLogs(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getUserOperationLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String type) {
@@ -103,7 +104,17 @@ public class UserController {
                 logs = userService.getUserOperationLogs(currentUser.getId(), page, size);
             }
             
-            return ResponseEntity.ok(ApiResponse.success(logs));
+            // 创建分页响应对象，避免直接返回PageImpl
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", logs.getContent());
+            response.put("pageNumber", logs.getNumber());
+            response.put("pageSize", logs.getSize());
+            response.put("totalElements", logs.getTotalElements());
+            response.put("totalPages", logs.getTotalPages());
+            response.put("first", logs.isFirst());
+            response.put("last", logs.isLast());
+            
+            return ResponseEntity.ok(ApiResponse.success(response));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取操作日志失败: " + e.getMessage()));
         }

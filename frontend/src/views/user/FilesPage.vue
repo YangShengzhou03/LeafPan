@@ -836,18 +836,28 @@ const handleFileCommand = async (command, item) => {
     switch (command) {
         case 'download':
             try {
-                // 直接使用a标签下载，避免blob处理导致文件损坏
-                const downloadUrl = `${process.env.VUE_APP_API_URL || '/api'}/file/${item.id}/download`
+                // 使用Server发送请求，确保携带认证令牌
+                const response = await Server.get(`/file/${item.id}/download`, {
+                    responseType: 'blob'
+                })
+                
+                // 创建blob URL并下载
+                const blob = new Blob([response.data])
+                const url = window.URL.createObjectURL(blob)
                 const link = document.createElement('a')
-                link.href = downloadUrl
+                link.href = url
                 link.setAttribute('download', item.originalName || item.name)
-                link.setAttribute('target', '_blank')
                 document.body.appendChild(link)
                 link.click()
                 document.body.removeChild(link)
+                window.URL.revokeObjectURL(url)
                 ElMessage.success(`下载完成: ${item.originalName || item.name}`)
             } catch (error) {
-                ElMessage.error('下载失败')
+                if (error.response && error.response.status === 403) {
+                    ElMessage.error('下载失败：权限不足，请重新登录')
+                } else {
+                    ElMessage.error('下载失败')
+                }
             }
             break
 

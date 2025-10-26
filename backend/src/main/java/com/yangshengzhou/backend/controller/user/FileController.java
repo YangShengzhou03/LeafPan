@@ -117,7 +117,7 @@ public class FileController {
      * 分页获取用户文件列表
      */
     @GetMapping("/list/page")
-    public ResponseEntity<ApiResponse<Page<File>>> getUserFilesPage(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getUserFilesPage(
             @RequestParam(value = "folderId", required = false) Long folderId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
@@ -135,7 +135,17 @@ public class FileController {
                 files = fileService.getUserFiles(currentUser.getId(), page, size);
             }
             
-            return ResponseEntity.ok(ApiResponse.success(files));
+            // 创建分页响应对象，避免直接返回PageImpl
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", files.getContent());
+            response.put("pageNumber", files.getNumber());
+            response.put("pageSize", files.getSize());
+            response.put("totalElements", files.getTotalElements());
+            response.put("totalPages", files.getTotalPages());
+            response.put("first", files.isFirst());
+            response.put("last", files.isLast());
+            
+            return ResponseEntity.ok(ApiResponse.success(response));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取文件列表失败: " + e.getMessage()));
         }
@@ -182,15 +192,15 @@ public class FileController {
      * 下载文件
      */
     @GetMapping("/{id}/download")
-    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<?> downloadFile(@PathVariable Long id, HttpServletRequest request) {
         try {
             User currentUser = authService.getCurrentUser();
             if (currentUser == null) {
-                return ResponseEntity.status(401).build();
+                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
             }
             
             if (!fileService.hasPermission(currentUser.getId(), id)) {
-                return ResponseEntity.status(403).build();
+                return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件"));
             }
             
             File file = fileService.getFile(id).orElse(null);
@@ -220,7 +230,7 @@ public class FileController {
                 .contentLength(file.getSize())
                 .body(new InputStreamResource(inputStream));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(ApiResponse.error("文件下载失败: " + e.getMessage()));
         }
     }
     

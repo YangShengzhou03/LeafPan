@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -30,7 +31,7 @@ public class AdminUserController {
      * 获取所有用户列表
      */
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<Page<User>>> getAllUsers(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         try {
@@ -41,7 +42,17 @@ public class AdminUserController {
             
             Page<User> users = userService.getAllUsers(page, size);
             
-            return ResponseEntity.ok(ApiResponse.success(users));
+            // 创建分页响应对象，避免直接返回PageImpl
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", users.getContent());
+            response.put("pageNumber", users.getNumber());
+            response.put("pageSize", users.getSize());
+            response.put("totalElements", users.getTotalElements());
+            response.put("totalPages", users.getTotalPages());
+            response.put("first", users.isFirst());
+            response.put("last", users.isLast());
+            
+            return ResponseEntity.ok(ApiResponse.success(response));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("获取用户列表失败: " + e.getMessage()));
         }

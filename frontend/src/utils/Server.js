@@ -19,6 +19,11 @@ Server.interceptors.request.use(config => {
 // 响应拦截器
 Server.interceptors.response.use(
   response => {
+    // 如果是blob响应（文件下载），直接返回原始响应
+    if (response.config.responseType === 'blob') {
+      return response
+    }
+    
     // 统一处理响应数据格式
     if (response.data && response.data.code !== undefined) {
       if (response.data.code === 200) {
