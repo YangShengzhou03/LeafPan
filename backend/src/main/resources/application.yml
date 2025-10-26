@@ -39,7 +39,6 @@ minio:
   bucket-name: data  # 默认桶名
   data-bucket: data
   avatar-bucket: avatar
-  public-endpoint: http://120.55.50.51/minio/  # 改为Nginx代理路径（关键！）
 
 # 邮件配置（通用）
 email:
@@ -92,6 +91,6 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 minio:  # 生产环境MinIO（服务器本地，去掉docker的minio-service）
-  endpoint: http://localhost:9000  # 服务器本地MinIO地址（关键！）
+  endpoint: http://120.55.50.51:9000  # 服务器公网MinIO地址（关键！）
   access-key: minioadmin  # 与服务器MinIO的实际access-key一致
   secret-key: minioadmin  # 与服务器MinIO的实际secret-key一致
