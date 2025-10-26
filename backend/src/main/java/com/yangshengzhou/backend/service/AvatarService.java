@@ -60,13 +60,16 @@ public class AvatarService {
         // 上传新头像到avatar桶（不保存到文件表）
         String avatarFileName = uploadAvatarFileToMinio(avatarFile, user.getId());
         
-        // 获取头像URL
+        // 获取头像URL - 使用公网地址替换本地地址
         String avatarUrl = fileStorageService.getFileUrl(avatarFileName, FileStorageService.BucketType.AVATAR);
-        
+
+        // 替换本地地址为公网地址
+        avatarUrl = replaceLocalUrlWithPublicUrl(avatarUrl);
+
         // 如果URL过长，使用简化的直接访问URL
         if (avatarUrl.length() > 500) {
             // 使用MinIO的直接访问URL格式：http://endpoint/bucket/object
-            avatarUrl = minioConfig.getEndpoint() + "/" + minioConfig.getAvatarBucket() + "/" + avatarFileName;
+            avatarUrl = replaceLocalUrlWithPublicUrl(minioConfig.getEndpoint()) + "/" + minioConfig.getAvatarBucket() + "/" + avatarFileName;
         }
         
         // 更新用户头像URL
@@ -191,5 +194,33 @@ public class AvatarService {
             return "";
         }
         return filename.substring(lastDotIndex + 1).toLowerCase();
+    }
+    
+    /**
+     * 替换本地地址为公网地址
+     * @param url 原始URL
+     * @return 替换后的URL
+     */
+    private String replaceLocalUrlWithPublicUrl(String url) {
+        if (url == null || url.isEmpty()) {
+            return url;
+        }
+        
+        // 从配置中获取公网地址，如果没有配置则使用默认值
+        String publicEndpoint = minioConfig.getPublicEndpoint();
+        if (publicEndpoint == null || publicEndpoint.isEmpty()) {
+            // 如果没有配置公网地址，则使用当前环境的endpoint
+            publicEndpoint = minioConfig.getEndpoint();
+        }
+        
+        // 替换本地地址
+        if (url.contains("localhost:9000")) {
+            return url.replace("http://localhost:9000", publicEndpoint);
+        }
+        if (url.contains("127.0.0.1:9000")) {
+            return url.replace("http://127.0.0.1:9000", publicEndpoint);
+        }
+        
+        return url;
     }
 }

@@ -41,6 +41,7 @@ minio:
   bucket-name: leafpan
   data-bucket: data
   avatar-bucket: avatar
+  public-endpoint: http://120.55.50.51:9000  # 公网访问地址
 
 # 邮件配置（通用）
 email:

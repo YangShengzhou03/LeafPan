@@ -836,19 +836,16 @@ const handleFileCommand = async (command, item) => {
     switch (command) {
         case 'download':
             try {
-                const response = await Server.get(`/file/${item.id}/download`, {
-                    responseType: 'blob'
-                })
-                // 创建下载链接
-                const url = window.URL.createObjectURL(new Blob([response.data]))
+                // 直接使用a标签下载，避免blob处理导致文件损坏
+                const downloadUrl = `${process.env.VUE_APP_API_URL || '/api'}/file/${item.id}/download`
                 const link = document.createElement('a')
-                link.href = url
-                link.setAttribute('download', item.name)
+                link.href = downloadUrl
+                link.setAttribute('download', item.originalName || item.name)
+                link.setAttribute('target', '_blank')
                 document.body.appendChild(link)
                 link.click()
                 document.body.removeChild(link)
-                window.URL.revokeObjectURL(url)
-                ElMessage.success(`下载完成: ${item.name}`)
+                ElMessage.success(`下载完成: ${item.originalName || item.name}`)
             } catch (error) {
                 ElMessage.error('下载失败')
             }

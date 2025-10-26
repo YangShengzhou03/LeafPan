@@ -55,6 +55,7 @@ public class AuthController {
             User user = authService.register(
                 registerRequest.getEmail(), 
                 registerRequest.getPassword(), 
+                registerRequest.getPhone(), 
                 ipAddress
             );
             // 不返回密码

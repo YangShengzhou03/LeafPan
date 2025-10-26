@@ -81,7 +81,7 @@ public class AuthService {
     /**
      * 用户注册
      */
-    public User register(String email, String password, String ipAddress) {
+    public User register(String email, String password, String phone, String ipAddress) {
         // 检查邮箱是否已存在
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("邮箱已存在");
@@ -92,6 +92,7 @@ public class AuthService {
         user.setId(UUID.randomUUID().toString());
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
+        user.setPhone(phone); // 设置手机号
         user.setNickname("JaSun"); // 设置默认昵称
         user.setRole((byte) 0); // 使用byte类型
         user.setCreatedTime(LocalDateTime.now());

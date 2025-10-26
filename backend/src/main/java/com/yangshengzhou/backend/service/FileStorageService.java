@@ -157,7 +157,7 @@ public class FileStorageService {
      */
     public String getFileUrl(String fileName, BucketType bucketType) throws Exception {
         String bucketName = getBucketNameByType(bucketType);
-        return minioClient.getPresignedObjectUrl(
+        String presignedUrl = minioClient.getPresignedObjectUrl(
             GetPresignedObjectUrlArgs.builder()
                 .method(Method.GET)
                 .bucket(bucketName)
@@ -165,6 +165,9 @@ public class FileStorageService {
                 .expiry(1, TimeUnit.HOURS)
                 .build()
         );
+        
+        // 替换本地地址为公网地址
+        return replaceLocalUrlWithPublicUrl(presignedUrl);
     }
     
     /**
@@ -218,5 +221,29 @@ public class FileStorageService {
         return filename.substring(lastDotIndex + 1).toLowerCase();
     }
     
+    /**
+     * 替换本地地址为公网地址
+     * @param url 原始URL
+     * @return 替换后的URL
+     */
+    private String replaceLocalUrlWithPublicUrl(String url) {
+        if (url == null || url.isEmpty()) {
+            return url;
+        }
+        
+        // 替换localhost为公网IP或域名
+        // 这里需要根据实际部署环境配置公网地址
+        String publicEndpoint = "http://120.55.50.51:9000"; // 替换为实际的公网地址
+        
+        // 替换本地地址
+        if (url.contains("localhost:9000")) {
+            return url.replace("http://localhost:9000", publicEndpoint);
+        }
+        if (url.contains("127.0.0.1:9000")) {
+            return url.replace("http://127.0.0.1:9000", publicEndpoint);
+        }
+        
+        return url;
+    }
 
 }

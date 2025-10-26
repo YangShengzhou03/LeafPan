@@ -37,6 +37,9 @@ public class MinioConfig {
     @Value("${minio.avatar-bucket}")
     private String avatarBucket;
     
+    @Value("${minio.public-endpoint:}")
+    private String publicEndpoint;
+    
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
@@ -105,5 +108,9 @@ public class MinioConfig {
     
     public String getEndpoint() {
         return endpoint;
+    }
+    
+    public String getPublicEndpoint() {
+        return publicEndpoint;
     }
 }
