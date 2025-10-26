@@ -25,8 +25,6 @@ spring:
       max-file-size: 150MB
       max-request-size: 150MB
 
-
-
 # 服务器配置（默认值，可被环境块覆盖）
 server:
   port: 8081
@@ -41,7 +39,7 @@ minio:
   bucket-name: leafpan
   data-bucket: data
   avatar-bucket: avatar
-  public-endpoint: http://120.55.50.51:9000  # 公网访问地址
+  public-endpoint: http://120.55.50.51/minio/  # 改为Nginx代理路径（关键！）
 
 # 邮件配置（通用）
 email:
@@ -72,16 +70,14 @@ spring:
   config:
     activate:
       on-profile: dev
-  datasource:  # 开发数据库
+  datasource:
     url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-
 minio:  # 开发环境MinIO（本地）
   endpoint: http://localhost:9000  # 本地MinIO地址
-  # 其他参数（端口、密钥等）与默认一致省略，不一致则覆盖
 
 ---
 # ====================== 生产环境配置（spring.profiles.active=prod） ======================
@@ -89,14 +85,13 @@ spring:
   config:
     activate:
       on-profile: prod
-  datasource:  # 生产数据库
-    url: jdbc:mysql://mysql-service:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: leafpan
-    password: leafpan123
+  datasource:  # 生产数据库（服务器本地MySQL，去掉docker的mysql-service）
+    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: leafpan  # 服务器MySQL的实际用户名
+    password: leafpan123  # 服务器MySQL的实际密码
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-
-minio:  # 生产环境MinIO（服务器）
-  endpoint: http://minio-service:9000   # 生产服务器MinIO地址
-  access-key: minioadmin  # 明确指定生产环境MinIO访问密钥
-  secret-key: minioadmin  # 明确指定生产环境MinIO秘密密钥
+minio:  # 生产环境MinIO（服务器本地，去掉docker的minio-service）
+  endpoint: http://localhost:9000  # 服务器本地MinIO地址（关键！）
+  access-key: minioadmin  # 与服务器MinIO的实际access-key一致
+  secret-key: minioadmin  # 与服务器MinIO的实际secret-key一致
