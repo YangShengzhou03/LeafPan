@@ -197,6 +197,7 @@ public class FileController {
     @GetMapping("/{id}/download")
     public void downloadFile(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
         File file = null;
+        User currentUser = null;
         InputStream inputStream = null;
         
         try {
