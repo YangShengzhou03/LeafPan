@@ -182,10 +182,15 @@ public class FileStorageService {
      */
     public String getDirectFileUrl(String fileName, BucketType bucketType) throws Exception {
         String bucketName = getBucketNameByType(bucketType);
-        String publicEndpoint = "http://120.55.50.51:9000"; // 公网地址
+        String baseUrl = minioConfig.getEndpoint(); // 使用配置的endpoint
         
         // 构建直接访问URL格式：http://endpoint/bucket/object
-        String directUrl = publicEndpoint + "/" + bucketName + "/" + fileName;
+        String directUrl = baseUrl + "/" + bucketName + "/" + fileName;
+        
+        // 只有在生产环境才需要替换本地地址为公网地址
+        if (!baseUrl.contains("localhost") && !baseUrl.contains("127.0.0.1")) {
+            directUrl = replaceLocalUrlWithPublicUrl(directUrl);
+        }
         
         return directUrl;
     }
