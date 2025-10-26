@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import io.minio.SetBucketPolicyArgs;
 
 import java.io.InputStream;
 import java.util.Date;
@@ -135,6 +136,11 @@ public class FileStorageService {
         boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         if (!isExist) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            
+            // 如果是头像桶，设置公共读取权限
+            if (bucketType == BucketType.AVATAR) {
+                setBucketPublicReadPolicy(bucketName);
+            }
         }
     }
     
@@ -169,6 +175,19 @@ public class FileStorageService {
         
         // 替换本地地址为公网地址
         return replaceLocalUrlWithPublicUrl(presignedUrl);
+    }
+    
+    /**
+     * 获取文件的直接访问URL（无签名，用于头像等公开文件）
+     */
+    public String getDirectFileUrl(String fileName, BucketType bucketType) throws Exception {
+        String bucketName = getBucketNameByType(bucketType);
+        String publicEndpoint = "http://120.55.50.51:9000"; // 公网地址
+        
+        // 构建直接访问URL格式：http://endpoint/bucket/object
+        String directUrl = publicEndpoint + "/" + bucketName + "/" + fileName;
+        
+        return directUrl;
     }
     
     /**
@@ -241,6 +260,25 @@ public class FileStorageService {
             return "";
         }
         return filename.substring(lastDotIndex + 1).toLowerCase();
+    }
+    
+    /**
+     * 设置桶的公共读取权限
+     */
+    private void setBucketPublicReadPolicy(String bucketName) {
+        try {
+            // 设置桶策略为公共读取
+            String policy = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::" + bucketName + "/*\"]}]}";
+            
+            minioClient.setBucketPolicy(
+                io.minio.SetBucketPolicyArgs.builder()
+                    .bucket(bucketName)
+                    .config(policy)
+                    .build()
+            );
+        } catch (Exception e) {
+            // 设置失败不影响正常功能，只是头像无法直接访问
+        }
     }
     
     /**

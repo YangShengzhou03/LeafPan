@@ -66,6 +66,9 @@ public class MinioConfig {
             // 创建并检查头像存储桶
             createBucketIfNotExists(client, avatarBucket);
             
+            // 设置头像存储桶为公共读取权限
+            setBucketPublicReadPolicy(client, avatarBucket);
+            
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
             logger.error("初始化MinIO失败: {}", e.getMessage());
         }
@@ -91,6 +94,28 @@ public class MinioConfig {
             logger.info("MinIO bucket '{}' 创建成功", bucketName);
         } else {
             logger.info("MinIO bucket '{}' 已存在", bucketName);
+        }
+    }
+    
+    /**
+     * 设置桶的公共读取权限
+     */
+    private void setBucketPublicReadPolicy(MinioClient client, String bucketName) 
+            throws MinioException, IOException, InvalidKeyException, NoSuchAlgorithmException {
+        try {
+            // 设置桶策略为公共读取
+            String policy = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::" + bucketName + "/*\"]}]}";
+            
+            client.setBucketPolicy(
+                io.minio.SetBucketPolicyArgs.builder()
+                    .bucket(bucketName)
+                    .config(policy)
+                    .build()
+            );
+            
+            logger.info("MinIO bucket '{}' 已设置为公共读取权限", bucketName);
+        } catch (Exception e) {
+            logger.warn("设置桶 '{}' 公共读取权限失败: {}", bucketName, e.getMessage());
         }
     }
     

@@ -60,17 +60,8 @@ public class AvatarService {
         // 上传新头像到avatar桶（不保存到文件表）
         String avatarFileName = uploadAvatarFileToMinio(avatarFile, user.getId());
         
-        // 获取头像URL - 使用公网地址替换本地地址
-        String avatarUrl = fileStorageService.getFileUrl(avatarFileName, FileStorageService.BucketType.AVATAR);
-
-        // 替换本地地址为公网地址
-        avatarUrl = replaceLocalUrlWithPublicUrl(avatarUrl);
-
-        // 如果URL过长，使用简化的直接访问URL
-        if (avatarUrl.length() > 500) {
-            // 使用MinIO的直接访问URL格式：http://endpoint/bucket/object
-            avatarUrl = replaceLocalUrlWithPublicUrl(minioConfig.getEndpoint()) + "/" + minioConfig.getAvatarBucket() + "/" + avatarFileName;
-        }
+        // 获取头像URL - 使用直接访问URL（无签名）
+        String avatarUrl = fileStorageService.getDirectFileUrl(avatarFileName, FileStorageService.BucketType.AVATAR);
         
         // 更新用户头像URL
         user.setAvatar(avatarUrl);

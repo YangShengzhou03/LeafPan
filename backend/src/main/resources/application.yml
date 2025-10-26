@@ -36,7 +36,7 @@ minio:
   port: 9000
   access-key: minioadmin
   secret-key: minioadmin
-  bucket-name: leafpan
+  bucket-name: data  # 默认桶名
   data-bucket: data
   avatar-bucket: avatar
   public-endpoint: http://120.55.50.51/minio/  # 改为Nginx代理路径（关键！）
@@ -85,10 +85,10 @@ spring:
   config:
     activate:
       on-profile: prod
-  datasource:  # 生产数据库（服务器本地MySQL，去掉docker的mysql-service）
+  datasource:
     url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: leafpan  # 服务器MySQL的实际用户名
-    password: leafpan123  # 服务器MySQL的实际密码
+    username: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 minio:  # 生产环境MinIO（服务器本地，去掉docker的minio-service）
