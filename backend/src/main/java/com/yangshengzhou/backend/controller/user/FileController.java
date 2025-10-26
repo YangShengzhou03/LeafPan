@@ -11,13 +11,16 @@ import com.yangshengzhou.backend.service.OperationLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -189,48 +192,127 @@ public class FileController {
     }
     
     /**
-     * 下载文件
+     * 下载文件 - 修复重复写入流的问题
      */
     @GetMapping("/{id}/download")
-    public ResponseEntity<?> downloadFile(@PathVariable Long id, HttpServletRequest request) {
+    public void downloadFile(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+        User currentUser = null;
+        File file = null;
+        InputStream inputStream = null;
+        
+        System.out.println("🚀 开始处理文件下载请求，文件ID: " + id);
+        System.out.println("📥 请求URL: " + request.getRequestURL());
+        System.out.println("🔑 请求头Authorization: " + request.getHeader("Authorization"));
+        System.out.println("📊 请求头Accept: " + request.getHeader("Accept"));
+        
         try {
-            User currentUser = authService.getCurrentUser();
+            currentUser = authService.getCurrentUser();
             if (currentUser == null) {
-                return ResponseEntity.status(401).body(ApiResponse.error("未登录"));
+                System.out.println("❌ 用户未登录，返回401");
+                response.setStatus(401);
+                return;
             }
+            System.out.println("✅ 当前用户: " + currentUser.getEmail());
             
             if (!fileService.hasPermission(currentUser.getId(), id)) {
-                return ResponseEntity.status(403).body(ApiResponse.error("无权访问此文件"));
+                System.out.println("❌ 用户无权限，返回403");
+                response.setStatus(403);
+                return;
             }
             
-            File file = fileService.getFile(id).orElse(null);
+            file = fileService.getFile(id).orElse(null);
             if (file == null) {
-                return ResponseEntity.notFound().build();
+                System.out.println("❌ 文件不存在，返回404");
+                response.setStatus(404);
+                return;
             }
+            System.out.println("📄 文件信息 - 名称: " + file.getName() + ", 存储Key: " + file.getStorageKey());
             
-            InputStream inputStream = fileStorageService.downloadFile(file.getStorageKey());
+            // 获取文件大小信息
+            long fileSize = fileStorageService.getFileSize(file.getStorageKey());
+            System.out.println("📊 文件大小: " + fileSize + " 字节");
             
-            // 记录下载日志
-            operationLogService.logOperation(
-                currentUser.getId(), 
-                "DOWNLOAD", 
-                "FILE", 
-                file.getId().toString(),
-                "用户" + currentUser.getEmail() + "下载文件: " + file.getName(),
-                getClientIpAddress(request),
-                request.getHeader("User-Agent")
-            );
+            // 获取文件输入流
+            inputStream = fileStorageService.downloadFile(file.getStorageKey());
+            System.out.println("✅ 获取到文件输入流");
             
-            // 设置响应头
+            // 设置响应头 - 完全模仿MinIO的正常响应
             String encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8.toString());
             
-            return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .contentLength(file.getSize())
-                .body(new InputStreamResource(inputStream));
+            // 根据文件类型设置正确的Content-Type
+            String contentType = file.getMimeType();
+            if (contentType == null || contentType.isEmpty()) {
+                contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
+            
+            System.out.println("📄 设置响应头 - Content-Type: " + contentType);
+            System.out.println("📄 设置响应头 - Content-Length: " + fileSize);
+            
+            response.setContentType(contentType);
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
+            response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate");
+            response.setHeader(HttpHeaders.PRAGMA, "no-cache");
+            response.setHeader(HttpHeaders.EXPIRES, "0");
+            
+            // 关键：设置Content-Length，禁用分块传输
+            response.setContentLengthLong(fileSize);
+            
+            // 禁用Tomcat缓冲，直接传输原始字节
+            response.setBufferSize(0);
+            
+            // 关键修复：确保流只被写入一次
+            // 使用try-with-resources确保资源正确关闭
+            try (OutputStream outputStream = response.getOutputStream()) {
+                System.out.println("📤 开始传输文件流...");
+                long startTime = System.currentTimeMillis();
+                
+                // 只调用一次IOUtils.copy，确保数据只传输一次
+                IOUtils.copy(inputStream, outputStream);
+                
+                long endTime = System.currentTimeMillis();
+                System.out.println("✅ 文件流传输完成，耗时: " + (endTime - startTime) + "ms");
+                // 不要调用flush()，因为IOUtils.copy会自动处理
+            }
+            
+            System.out.println("🎉 文件下载处理完成");
+            
+            // 异步记录下载日志（避免阻塞文件流）
+            final User finalUser = currentUser;
+            final File finalFile = file;
+            new Thread(() -> {
+                try {
+                    operationLogService.logOperation(
+                        finalUser.getId(), 
+                        "DOWNLOAD", 
+                        "FILE", 
+                        finalFile.getId().toString(),
+                        "用户" + finalUser.getEmail() + "下载文件: " + finalFile.getName(),
+                        getClientIpAddress(request),
+                        request.getHeader("User-Agent")
+                    );
+                    System.out.println("📝 下载日志记录完成");
+                } catch (Exception e) {
+                    // 日志记录失败不影响文件下载
+                    System.err.println("❌ 下载日志记录失败: " + e.getMessage());
+                }
+            }).start();
+            
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("文件下载失败: " + e.getMessage()));
+            System.err.println("❌ 文件下载异常: " + e.getMessage());
+            e.printStackTrace();
+            // 发生异常时，只设置状态码，不输出任何内容
+            response.setStatus(400);
+        } finally {
+            // 确保输入流被正确关闭
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                    System.out.println("🔒 文件输入流已关闭");
+                } catch (Exception e) {
+                    // 忽略关闭异常
+                    System.err.println("⚠️ 关闭输入流异常: " + e.getMessage());
+                }
+            }
         }
     }
     

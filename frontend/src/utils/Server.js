@@ -81,6 +81,15 @@ const http = {
     return Server.post(url, formData, {
       onUploadProgress
     })
+  },
+  // 添加支持完整配置的请求方法，特别是用于文件下载
+  request: (url, config = {}) => Server.get(url, config),
+  // 专门的下载方法，自动设置responseType为blob
+  download: (url, config = {}) => {
+    return Server.get(url, {
+      ...config,
+      responseType: 'blob'
+    })
   }
 }
 

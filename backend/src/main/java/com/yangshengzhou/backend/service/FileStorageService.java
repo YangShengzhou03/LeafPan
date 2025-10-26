@@ -6,6 +6,7 @@ import com.yangshengzhou.backend.event.StorageUpdateEvent;
 import com.yangshengzhou.backend.repository.FileRepository;
 import io.minio.*;
 import io.minio.http.Method;
+import io.minio.StatObjectResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -208,6 +209,27 @@ public class FileStorageService {
                 .object(fileName)
                 .build()
         );
+    }
+    
+    /**
+     * 获取文件大小信息
+     */
+    public long getFileSize(String fileName) throws Exception {
+        return getFileSize(fileName, BucketType.DATA);
+    }
+    
+    /**
+     * 获取文件大小信息（指定桶类型）
+     */
+    public long getFileSize(String fileName, BucketType bucketType) throws Exception {
+        String bucketName = getBucketNameByType(bucketType);
+        StatObjectResponse stat = minioClient.statObject(
+            StatObjectArgs.builder()
+                .bucket(bucketName)
+                .object(fileName)
+                .build()
+        );
+        return stat.size();
     }
     
     /**
