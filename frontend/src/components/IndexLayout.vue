@@ -134,17 +134,17 @@
           <div class="footer-section">
             <h4>帮助支持</h4>
             <ul>
-              <li><a href="#">使用指南</a></li>
-              <li><a href="#">联系我们</a></li>
-              <li><a href="#">常见问题</a></li>
+              <li><a href="/user-guide" target="_blank">使用指南</a></li>
+              <li><a href="/contact-us" target="_blank">联系我们</a></li>
+              <li><a href="/faq" target="_blank">常见问题</a></li>
             </ul>
           </div>
           <div class="footer-section">
             <h4>法律信息</h4>
             <ul>
-              <li><a href="#">作者介绍</a></li>
-              <li><a href="#">隐私保护</a></li>
-              <li><a href="#">服务条款</a></li>
+              <li><a href="/author-info" target="_blank">作者介绍</a></li>
+              <li><a href="/privacy-policy" target="_blank">隐私保护</a></li>
+              <li><a href="/terms-of-service" target="_blank">服务条款</a></li>
             </ul>
           </div>
         </div>

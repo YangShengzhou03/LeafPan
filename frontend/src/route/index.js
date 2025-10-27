@@ -8,6 +8,13 @@ import DashboardPage from '@/views/user/DashboardPage.vue';
 import SharedPage from '@/views/user/SharedPage.vue';
 import TrashPage from '@/views/user/TrashPage.vue';
 import SettingsPage from '@/views/user/SettingsPage.vue';
+import UserGuidePage from '@/views/index/UserGuidePage.vue';
+import ContactUsPage from '@/views/index/ContactUsPage.vue';
+import FAQPage from '@/views/index/FaqPage.vue';
+import LegalInfoPage from '@/views/index/LegalInfoPage.vue';
+import AuthorInfoPage from '@/views/index/AuthorInfoPage.vue';
+import PrivacyPolicyPage from '@/views/index/PrivacyPolicyPage.vue';
+import TermsOfServicePage from '@/views/index/TermsOfServicePage.vue';
 import store from '@/utils/store.js';
 import * as utils from '@/utils/utils.js';
 
@@ -136,6 +143,73 @@ const routes = [
         }
       },
     ]
+  },
+
+  // 帮助支持页面
+  {
+    path: '/user-guide',
+    name: 'UserGuidePage',
+    component: UserGuidePage,
+    meta: {
+      title: '使用指南 - 枫叶网盘',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/contact-us',
+    name: 'ContactUsPage',
+    component: ContactUsPage,
+    meta: {
+      title: '联系我们 - 枫叶网盘',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/faq',
+    name: 'FAQPage',
+    component: FAQPage,
+    meta: {
+      title: '常见问题 - 枫叶网盘',
+      requiresAuth: false
+    }
+  },
+
+  // 法律信息页面
+  {
+    path: '/legal-info',
+    name: 'LegalInfoPage',
+    component: LegalInfoPage,
+    meta: {
+      title: '法律信息 - 枫叶网盘',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/author-info',
+    name: 'AuthorInfoPage',
+    component: AuthorInfoPage,
+    meta: {
+      title: '作者介绍 - 枫叶网盘',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicyPage',
+    component: PrivacyPolicyPage,
+    meta: {
+      title: '隐私保护 - 枫叶网盘',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/terms-of-service',
+    name: 'TermsOfServicePage',
+    component: TermsOfServicePage,
+    meta: {
+      title: '服务条款 - 枫叶网盘',
+      requiresAuth: false
+    }
   },
 
   // 错误路径重定向（仅保留这一条）
