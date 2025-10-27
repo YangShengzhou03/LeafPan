@@ -135,6 +135,25 @@
       :title="editingUser ? '编辑用户' : '添加用户'"
       width="500px"
     >
+      <!-- 用户头像显示区域 -->
+      <div v-if="editingUser" class="avatar-section">
+        <div class="avatar-display">
+          <el-avatar 
+            v-if="editingUser.avatar" 
+            :size="80" 
+            :src="editingUser.avatar" 
+            fit="cover"
+          />
+          <el-avatar 
+            v-else 
+            :size="80" 
+            :style="{ backgroundColor: '#409EFF' }"
+          >
+            {{ '默认头像' }}
+          </el-avatar>
+        </div>
+      </div>
+      
       <el-form :model="userForm" :rules="userRules" ref="userFormRef" label-width="80px">
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="userForm.email" />
@@ -290,6 +309,7 @@ const loadUsers = async () => {
       users.value = userData.content.map(user => ({
         id: user.id,
         email: user.email,
+        avatar: user.avatar || null,
         gender: user.gender === 1 ? 'MALE' : user.gender === 2 ? 'FEMALE' : 'NOT_SET',
         phone: user.phone || '',
         role: user.role === 1 ? 'admin' : 'user',
@@ -600,5 +620,36 @@ onMounted(() => {
 :deep(.el-button--danger) {
   background-color: #F56C6C;
   border-color: #F56C6C;
+}
+
+/* 头像显示区域样式 */
+.avatar-section {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.avatar-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.avatar-display {
+  margin-bottom: 8px;
+}
+
+.avatar-info {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* 对话框样式调整 */
+:deep(.el-dialog__body) {
+  padding-top: 20px;
 }
 </style>
