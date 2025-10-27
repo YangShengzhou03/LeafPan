@@ -8,7 +8,6 @@
 [![GitHub issues](https://img.shields.io/github/issues/YangShengzhou03/LeafPan?style=for-the-badge)](https://github.com/YangShengzhou03/LeafPan/issues)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](https://github.com/YangShengzhou03/LeafPan/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](https://github.com/YangShengzhou03/LeafPan/blob/main/CONTRIBUTING.md)
-[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103&style=for-the-badge)](https://github.com/YangShengzhou03/LeafPan)
 
 </div>
 
@@ -28,7 +27,7 @@
   - [📋 目录](#-目录)
   - [✨ 项目亮点](#-项目亮点)
   - [🚀 快速开始](#-快速开始)
-    - [🐳 Docker 一键部署（推荐）](#-docker-一键部署推荐)
+    - [🐳 Docker 一键部署](#-docker-一键部署推荐)
     - [🔧 手动部署](#-手动部署)
   - [🎯 功能特性](#-功能特性)
     - [🔐 安全认证](#-安全认证)
@@ -102,22 +101,17 @@
 #### 🚀 部署步骤
 
 ```bash
-# 1. 克隆项目到本地
-git clone https://github.com/YangShengzhou03/LeafPan.git
-cd LeafPan
+# 1. 停止当前进程
+ps -ef | grep backend.jar | grep -v grep | awk '{print $2}' | xargs kill -9
 
-# 2. 启动所有服务（后台模式）
-docker-compose up -d
+# 2. 重新启动（确保用prod环境）
+cd /root/project/backend
+nohup ./jdk-17.0.17+10-jre/bin/java -jar backend.jar \
+  --spring.config.location=file:./application.yml \
+  --spring.profiles.active=prod > backend.log 2>&1 &
 
-# 3. 等待服务启动完成（约2-3分钟）
-echo "正在启动服务，请稍候..."
-sleep 120
-
-# 4. 检查服务状态
-docker-compose ps
-
-# 5. 查看服务日志（可选）
-docker-compose logs -f
+# 3. 查看日志确认是否启动成功
+tail -f backend.log
 ```
 
 #### 🔍 服务验证
