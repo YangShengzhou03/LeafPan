@@ -93,18 +93,18 @@ const fileStats = ref([
 const fetchStorageInfo = async () => {
   try {
     loading.value = true
-    const response = await Server.get('/user/storage')
+    const response = await Server.get('/file/storage/usage')
     
     if (response.data && response.data.data) {
       const data = response.data.data
-      // 后端返回的字段是storageQuota和usedStorage，单位是字节
-      totalStorageGB.value = data.storageQuota / (1024 * 1024 * 1024) // 转换为GB
-      usedStorageGB.value = data.usedStorage / (1024 * 1024 * 1024) // 转换为GB
-    } else if (response.data && response.data.availableStorage) {
+      // 后端返回的字段是quota和totalSize，单位是字节
+      totalStorageGB.value = (data.quota || 1073741824) / (1024 * 1024 * 1024) // 转换为GB，默认1GB
+      usedStorageGB.value = (data.totalSize || 0) / (1024 * 1024 * 1024) // 转换为GB
+    } else if (response.data) {
       // 如果数据直接位于response.data中（没有嵌套data字段）
       const data = response.data
-      totalStorageGB.value = data.storageQuota / (1024 * 1024 * 1024) // 转换为GB
-      usedStorageGB.value = data.usedStorage / (1024 * 1024 * 1024) // 转换为GB
+      totalStorageGB.value = (data.quota || 1073741824) / (1024 * 1024 * 1024) // 转换为GB，默认1GB
+      usedStorageGB.value = (data.totalSize || 0) / (1024 * 1024 * 1024) // 转换为GB
     }
   } catch (error) {
     // 设置默认值

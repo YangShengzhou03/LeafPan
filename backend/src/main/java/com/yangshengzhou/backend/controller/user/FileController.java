@@ -8,6 +8,7 @@ import com.yangshengzhou.backend.service.AuthService;
 import com.yangshengzhou.backend.service.FileService;
 import com.yangshengzhou.backend.service.FileStorageService;
 import com.yangshengzhou.backend.service.OperationLogService;
+import com.yangshengzhou.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -43,6 +44,9 @@ public class FileController {
     private AuthService authService;
     
     @Autowired
+    private UserService userService;
+    
+    @Autowired
     private OperationLogService operationLogService;
     
     @Autowired
@@ -65,6 +69,16 @@ public class FileController {
             // 如果没有指定文件夹，默认使用根目录
             if (folderId == null) {
                 folderId = 1L; // 根目录ID
+            }
+            
+            // 检查存储容量是否足够
+            Long fileSize = file.getSize();
+            if (!userService.hasSufficientStorage(currentUser.getId(), fileSize)) {
+                Long availableStorage = userService.getAvailableStorage(currentUser.getId());
+                return ResponseEntity.badRequest().body(ApiResponse.error(
+                    "存储空间不足。可用空间: " + formatFileSize(availableStorage) + 
+                    ", 文件大小: " + formatFileSize(fileSize)
+                ));
             }
             
             // 上传文件到存储服务并保存文件信息到数据库
@@ -553,5 +567,21 @@ public class FileController {
         }
         
         return request.getRemoteAddr();
+    }
+    
+    /**
+     * 格式化文件大小显示
+     */
+    private String formatFileSize(Long bytes) {
+        if (bytes == null || bytes == 0) return "0 B";
+        
+        final String[] units = {"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(bytes) / Math.log10(1024));
+        
+        if (digitGroups >= units.length) {
+            digitGroups = units.length - 1;
+        }
+        
+        return String.format("%.2f %s", bytes / Math.pow(1024, digitGroups), units[digitGroups]);
     }
 }

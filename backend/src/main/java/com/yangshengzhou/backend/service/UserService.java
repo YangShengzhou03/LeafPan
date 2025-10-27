@@ -310,6 +310,28 @@ public class UserService {
     }
     
     /**
+     * 检查用户存储容量是否足够
+     * @param userId 用户ID
+     * @param fileSize 文件大小（字节）
+     * @return true表示容量足够，false表示容量不足
+     */
+    public boolean hasSufficientStorage(String userId, Long fileSize) {
+        User user = getUserById(userId);
+        Long availableStorage = user.getStorageQuota() - user.getUsedStorage();
+        return availableStorage >= fileSize;
+    }
+    
+    /**
+     * 获取用户可用存储空间
+     * @param userId 用户ID
+     * @return 可用存储空间（字节）
+     */
+    public Long getAvailableStorage(String userId) {
+        User user = getUserById(userId);
+        return Math.max(0, user.getStorageQuota() - user.getUsedStorage());
+    }
+    
+    /**
      * 根据状态获取用户列表
      */
     public List<User> getUsersByStatus(Integer status) {

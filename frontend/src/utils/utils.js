@@ -22,7 +22,7 @@ export function getToken() {
 
 // 格式化文件大小
 export function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes'
+  if (bytes === null || bytes === undefined || bytes === 0) return '0 Bytes'
   
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
