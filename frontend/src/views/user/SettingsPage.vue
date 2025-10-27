@@ -243,6 +243,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Plus, User, Edit, ArrowRight, Lock,
   Calendar, Notification, Phone, Setting, Bell,
@@ -252,6 +253,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Server from '@/utils/Server.js'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
+import store from '@/utils/store.js'
 
 // 头像遮罩层显示状态
 const showAvatarOverlay = ref(false)
@@ -675,8 +677,18 @@ const submitNewPassword = async () => {
         })
 
         if (response.code === 200) {
-          ElMessage.success('密码修改成功')
+          ElMessage.success('密码修改成功，请重新登录')
+          
+          // 清除用户token和状态
+          store.clearUser()
+          
+          // 关闭对话框
           handleChangePasswordDialogClose()
+          
+          // 延迟跳转到登录页面，确保消息显示完整
+          setTimeout(() => {
+            window.location.href = '/login'
+          }, 1500)
         } else {
           ElMessage.error(response.message || '密码修改失败')
         }
