@@ -1,123 +1,67 @@
 <template>
   <div class="user-guide-page">
+    <!-- 简洁的头部区域 -->
     <header class="page-header">
       <div class="container">
         <h1>使用指南</h1>
-        <p>了解如何充分利用枫叶网盘的功能</p>
+        <p>LeafPan网盘系统的完整使用教程和操作说明</p>
       </div>
     </header>
 
     <main class="page-content">
       <div class="container">
         <div class="guide-sections">
+          <!-- 快速入门部分 -->
           <section class="guide-section">
-            <h2>快速入门</h2>
-            <div class="guide-steps">
-              <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                  <h3>注册账户</h3>
-                  <p>点击首页的"注册"按钮，填写基本信息完成账户注册</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                  <h3>登录系统</h3>
-                  <p>使用注册的账户信息登录枫叶网盘</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                  <h3>上传文件</h3>
-                  <p>在文件管理页面点击"上传"按钮，选择要上传的文件</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-number">4</div>
-                <div class="step-content">
-                  <h3>管理文件</h3>
-                  <p>使用拖拽、右键菜单等功能管理您的文件</p>
-                </div>
-              </div>
+            <div class="section-header">
+              <h2>快速入门</h2>
+              <p>新手用户快速上手LeafPan网盘系统</p>
             </div>
-          </section>
-
-          <section class="guide-section">
-            <h2>文件管理</h2>
-            <div class="feature-grid">
-              <div class="feature-item">
-                <h3>📁 文件上传</h3>
-                <p>支持单个文件上传和批量上传，最大支持150MB的文件</p>
-              </div>
-              <div class="feature-item">
-                <h3>📂 文件夹管理</h3>
-                <p>创建文件夹，分类管理您的文件</p>
-              </div>
-              <div class="feature-item">
-                <h3>🔍 文件搜索</h3>
-                <p>通过文件名快速搜索您需要的文件</p>
-              </div>
-              <div class="feature-item">
-                <h3>📋 文件操作</h3>
-                <p>支持复制、移动、重命名、删除等操作</p>
-              </div>
-            </div>
-          </section>
-
-          <section class="guide-section">
-            <h2>文件分享</h2>
-            <div class="feature-grid">
-              <div class="feature-item">
-                <h3>🔗 创建分享链接</h3>
-                <p>为文件生成分享链接，设置有效期和访问密码</p>
-              </div>
-              <div class="feature-item">
-                <h3>👥 权限管理</h3>
-                <p>控制分享文件的访问权限和下载权限</p>
-              </div>
-              <div class="feature-item">
-                <h3>📊 分享统计</h3>
-                <p>查看分享链接的访问次数和下载次数</p>
-              </div>
-            </div>
-          </section>
-
-          <section class="guide-section">
-            <h2>常见问题解答</h2>
-            <div class="faq-list">
-              <div class="faq-item">
-                <h3>Q: 免费用户有哪些限制？</h3>
-                <p>A: 免费用户享有1GB存储空间，支持基础文件管理功能，下载速度不受限制。</p>
-              </div>
-              <div class="faq-item">
-                <h3>Q: 如何升级到付费版本？</h3>
-                <p>A: 登录后在设置页面选择"升级套餐"，选择适合您的付费方案。</p>
-              </div>
-              <div class="faq-item">
-                <h3>Q: 文件安全性如何保障？</h3>
-                <p>A: 我们采用三重加密技术，确保您的文件在传输和存储过程中的安全。</p>
-              </div>
+            <div class="guide-content">
+              <el-collapse v-model="activeNames" accordion>
+                <el-collapse-item name="register" title="注册账号">
+                  <div class="collapse-content">
+                    <p>访问LeafPan首页，点击"注册"按钮，填写用户名、邮箱和密码完成注册。注册后需要验证邮箱才能使用完整功能。用户名要求3-20个字符，支持中英文、数字和下划线，密码要求8-20个字符且必须包含字母和数字。</p>
+                  </div>
+                </el-collapse-item>
+                
+                <el-collapse-item name="login" title="登录系统">
+                  <div class="collapse-content">
+                    <p>在登录页面输入用户名/邮箱和密码即可登录。支持记住登录状态和自动登录功能，登录失败超过5次会暂时锁定账户。</p>
+                  </div>
+                </el-collapse-item>
+                
+                <el-collapse-item name="upload" title="上传文件">
+                  <div class="collapse-content">
+                    <p>登录后进入文件管理页面，点击"上传"按钮选择文件或直接将文件拖拽到上传区域。支持所有常见文件格式，单个文件大小限制为2GB，支持断点续传和批量上传。</p>
+                  </div>
+                </el-collapse-item>
+                
+                <el-collapse-item name="manage" title="管理文件">
+                  <div class="collapse-content">
+                    <p>在文件列表中可以创建文件夹、移动文件、重命名、删除等操作。支持多选、拖拽移动，搜索功能可以按文件名和内容搜索，删除文件会在回收站保留30天。</p>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
             </div>
           </section>
         </div>
       </div>
     </main>
-
-    <footer class="page-footer">
-      <div class="container">
-        <p>需要更多帮助？<router-link to="/contact-us">联系我们</router-link></p>
-      </div>
-    </footer>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
   name: 'UserGuidePage',
   setup() {
-    return {};
+    const activeNames = ref(['register']);
+    
+    return {
+      activeNames
+    };
   }
 }
 </script>
@@ -125,168 +69,136 @@ export default {
 <style scoped>
 .user-guide-page {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #f8fafc;
 }
 
 .page-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2d3748;
   color: white;
   padding: 60px 0;
   text-align: center;
 }
 
 .page-header h1 {
-  font-size: 48px;
-  margin-bottom: 20px;
+  font-size: 36px;
+  margin-bottom: 16px;
+  font-weight: 700;
 }
 
 .page-header p {
   font-size: 18px;
   opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .page-content {
-  padding: 60px 0;
+  padding: 60px 0 80px;
+}
+
+.guide-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
 }
 
 .guide-section {
   background: white;
   border-radius: 8px;
-  padding: 40px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.guide-section h2 {
-  color: #303133;
-  font-size: 28px;
-  margin-bottom: 30px;
-  border-bottom: 2px solid #409EFF;
-  padding-bottom: 10px;
-}
-
-.guide-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.step {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-}
-
-.step-number {
-  background: #409EFF;
+.section-header {
+  background: #2d3748;
+  padding: 24px 32px;
   color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: bold;
-  flex-shrink: 0;
 }
 
-.step-content h3 {
-  color: #303133;
-  font-size: 20px;
-  margin-bottom: 10px;
+.section-header h2 {
+  font-size: 24px;
+  margin: 0;
+  font-weight: 600;
 }
 
-.step-content p {
-  color: #606266;
+.guide-content {
+  padding: 32px;
+}
+
+.collapse-content {
+  padding: 16px 0;
+}
+
+.collapse-content p {
+  color: #4a5568;
   line-height: 1.6;
+  margin: 0;
+  font-size: 14px;
+  text-align: justify; /* 两端对齐 */
+  text-align-last: left; /* 最后一行左对齐 */
 }
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+/* 自定义手风琴样式 */
+:deep(.el-collapse) {
+  border: none;
 }
 
-.feature-item {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  border-left: 4px solid #409EFF;
-}
-
-.feature-item h3 {
-  color: #303133;
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.feature-item p {
-  color: #606266;
-  line-height: 1.5;
-}
-
-.faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.faq-item {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.faq-item h3 {
-  color: #303133;
+:deep(.el-collapse-item__header) {
   font-size: 16px;
-  margin-bottom: 10px;
+  font-weight: 600;
+  color: #2c3e50;
+  padding: 16px 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.faq-item p {
-  color: #606266;
-  line-height: 1.5;
+:deep(.el-collapse-item__content) {
+  padding-bottom: 0;
 }
 
-.page-footer {
-  background: #303133;
-  color: white;
-  padding: 30px 0;
-  text-align: center;
+:deep(.el-collapse-item:last-child .el-collapse-item__header) {
+  border-bottom: none;
 }
 
-.page-footer a {
-  color: #409EFF;
-  text-decoration: none;
-}
-
-.page-footer a:hover {
-  text-decoration: underline;
+:deep(.el-collapse-item__arrow) {
+  color: #4a5568;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
 @media (max-width: 768px) {
   .page-header h1 {
-    font-size: 36px;
+    font-size: 28px;
   }
   
-  .guide-section {
+  .page-header p {
+    font-size: 16px;
+  }
+  
+  .section-header {
     padding: 20px;
   }
   
-  .feature-grid {
-    grid-template-columns: 1fr;
+  .section-header h2 {
+    font-size: 20px;
   }
   
-  .step {
-    flex-direction: column;
-    text-align: center;
+  .guide-content {
+    padding: 24px 20px;
+  }
+  
+  :deep(.el-collapse-item__header) {
+    font-size: 14px;
+    padding: 12px 0;
+  }
+  
+  .collapse-content p {
+    font-size: 13px;
+    text-align: left; /* 移动端使用左对齐 */
+    text-align-last: left;
   }
 }
 </style>

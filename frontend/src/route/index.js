@@ -11,10 +11,8 @@ import SettingsPage from '@/views/user/SettingsPage.vue';
 import UserGuidePage from '@/views/index/UserGuidePage.vue';
 import ContactUsPage from '@/views/index/ContactUsPage.vue';
 import FAQPage from '@/views/index/FaqPage.vue';
-import LegalInfoPage from '@/views/index/LegalInfoPage.vue';
 import AuthorInfoPage from '@/views/index/AuthorInfoPage.vue';
 import PrivacyPolicyPage from '@/views/index/PrivacyPolicyPage.vue';
-import TermsOfServicePage from '@/views/index/TermsOfServicePage.vue';
 import store from '@/utils/store.js';
 import * as utils from '@/utils/utils.js';
 
@@ -176,15 +174,6 @@ const routes = [
 
   // 法律信息页面
   {
-    path: '/legal-info',
-    name: 'LegalInfoPage',
-    component: LegalInfoPage,
-    meta: {
-      title: '法律信息 - 枫叶网盘',
-      requiresAuth: false
-    }
-  },
-  {
     path: '/author-info',
     name: 'AuthorInfoPage',
     component: AuthorInfoPage,
@@ -202,15 +191,7 @@ const routes = [
       requiresAuth: false
     }
   },
-  {
-    path: '/terms-of-service',
-    name: 'TermsOfServicePage',
-    component: TermsOfServicePage,
-    meta: {
-      title: '服务条款 - 枫叶网盘',
-      requiresAuth: false
-    }
-  },
+
 
   // 错误路径重定向（仅保留这一条）
   { path: '/:pathMatch(.*)*', redirect: '/' }
