@@ -56,6 +56,7 @@ public class AuthController {
                 registerRequest.getEmail(), 
                 registerRequest.getPassword(), 
                 registerRequest.getPhone(), 
+                registerRequest.getVerificationCode(),
                 ipAddress
             );
             return ResponseEntity.ok(ApiResponse.success("注册成功", result));

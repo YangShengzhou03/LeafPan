@@ -5,6 +5,7 @@ public class RegisterRequest {
     private String email;
     private String password;
     private String phone;
+    private String verificationCode;
     
     public RegisterRequest() {}
     
@@ -44,5 +45,13 @@ public class RegisterRequest {
     
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+    
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+    
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 }

@@ -81,10 +81,20 @@ public class AuthService {
     /**
      * 用户注册
      */
-    public Map<String, Object> register(String email, String password, String phone, String ipAddress) {
+    public Map<String, Object> register(String email, String password, String phone, String verificationCode, String ipAddress) {
         // 检查邮箱是否已存在
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("邮箱已存在");
+        }
+        
+        // 验证验证码
+        if (verificationCode == null || verificationCode.trim().isEmpty()) {
+            throw new RuntimeException("验证码不能为空");
+        }
+        
+        boolean isCodeValid = verificationCodeService.verifyCode(email, verificationCode);
+        if (!isCodeValid) {
+            throw new RuntimeException("验证码错误或已过期");
         }
         
         // 创建新用户

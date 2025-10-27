@@ -3,6 +3,7 @@ package com.yangshengzhou.backend.controller;
 import com.yangshengzhou.backend.dto.ApiResponse;
 import com.yangshengzhou.backend.service.VerificationCodeService;
 import com.yangshengzhou.backend.service.EmailService;
+import com.yangshengzhou.backend.service.UserService;
 import com.yangshengzhou.backend.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ public class VerificationController {
     
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private UserService userService;
 
     /**
      * 发送验证码
@@ -35,6 +39,11 @@ public class VerificationController {
         
         if (!ValidationUtils.isValidEmail(email)) {
             return ApiResponse.error(400, "邮箱格式不正确");
+        }
+        
+        // 检查邮箱是否已存在，如果存在则不发送验证码
+        if (userService.existsByEmail(email)) {
+            return ApiResponse.error(400, "该邮箱已注册，请直接登录");
         }
         
         try {
