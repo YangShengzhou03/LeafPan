@@ -605,10 +605,9 @@ const sendVerificationCode = async () => {
 
   sendingCode.value = true
   try {
-    const response = await Server.post('/user/send-verification-code', {
-      email: changePasswordForm.email,
-      type: 'password_reset'
-    })
+    const response = await Server.post('/verification/send', {
+          email: changePasswordForm.email
+        })
 
     if (response.code === 200) {
       ElMessage.success('验证码已发送到您的邮箱')
@@ -638,14 +637,16 @@ const verifyCodeAndNext = async () => {
     if (valid) {
       verifyingCode.value = true
       try {
-        const response = await Server.post('/user/verify-code', {
+        const response = await Server.post('/verification/verify', {
           email: changePasswordForm.email,
           code: changePasswordForm.verificationCode,
-          type: 'password_reset'
+          type: 'password_reset' // 指定为密码重置类型
         })
 
         if (response.code === 200) {
           ElMessage.success('验证码验证成功')
+          // 保存重置令牌
+          changePasswordForm.resetToken = response.data.resetToken
           currentStep.value = 2
         } else {
           ElMessage.error(response.message || '验证码验证失败')
@@ -667,9 +668,9 @@ const submitNewPassword = async () => {
     if (valid) {
       submittingPassword.value = true
       try {
-        const response = await Server.post('/user/reset-password', {
+        const response = await Server.post('/auth/reset-password', {
           email: changePasswordForm.email,
-          code: changePasswordForm.verificationCode,
+          resetToken: changePasswordForm.resetToken,
           newPassword: changePasswordForm.newPassword
         })
 

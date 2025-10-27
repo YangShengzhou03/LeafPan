@@ -157,14 +157,16 @@ public class AuthController {
     
     /**
      * 重置密码
+     * @param request 包含邮箱、重置令牌和新密码的请求体
+     * @return 重置结果
      */
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> request) {
         try {
             String email = request.get("email");
-            String code = request.get("code");
+            String resetToken = request.get("resetToken");
             String newPassword = request.get("newPassword");
-            authService.resetPassword(email, code, newPassword);
+            authService.resetPasswordWithToken(email, resetToken, newPassword);
             return ResponseEntity.ok(ApiResponse.success("密码重置成功"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("密码重置失败: " + e.getMessage()));

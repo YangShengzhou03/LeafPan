@@ -4,6 +4,9 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -85,5 +88,48 @@ public class VerificationCodeService {
         }
         
         return isValid;
+    }
+    
+
+    
+    /**
+     * 删除指定邮箱的验证码
+     * @param email 邮箱地址
+     */
+    public void deleteCode(String email) {
+        codeStorage.remove(CODE_PREFIX + email);
+    }
+    
+    /**
+     * 生成密码重置令牌
+     * @param email 邮箱地址
+     * @return 重置令牌
+     */
+    public String generateResetToken(String email) {
+        // 生成一个简单的重置令牌（实际项目中应该使用更安全的方式）
+        String token = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        
+        // 存储令牌和邮箱的映射关系，设置过期时间（10分钟）
+        String tokenKey = "RESET_TOKEN_" + token;
+        long expiryTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10);
+        codeStorage.put(tokenKey, new CodeEntry(email, expiryTime));
+        
+        return token;
+    }
+    
+    /**
+     * 验证重置令牌
+     * @param token 重置令牌
+     * @return 邮箱地址，如果令牌无效返回null
+     */
+    public String verifyResetToken(String token) {
+        String tokenKey = "RESET_TOKEN_" + token;
+        CodeEntry entry = codeStorage.get(tokenKey);
+        
+        if (entry == null || entry.isExpired()) {
+            return null; // 令牌不存在或已过期
+        }
+        
+        return entry.code; // 返回存储的邮箱地址
     }
 }

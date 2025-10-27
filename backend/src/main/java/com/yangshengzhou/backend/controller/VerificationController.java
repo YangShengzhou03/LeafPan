@@ -63,6 +63,7 @@ public class VerificationController {
     public ApiResponse<Object> verifyCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String code = request.get("code");
+        String type = request.get("type"); // 新增：验证类型
         
         if (email == null || email.trim().isEmpty()) {
             return ApiResponse.error(400, "邮箱不能为空");
@@ -85,6 +86,13 @@ public class VerificationController {
         if (isValid) {
             Map<String, Object> result = new HashMap<>();
             result.put("message", "验证码验证成功");
+            
+            // 如果是密码重置验证，生成重置令牌
+            if ("password_reset".equals(type)) {
+                String resetToken = verificationCodeService.generateResetToken(email);
+                result.put("resetToken", resetToken);
+            }
+            
             return ApiResponse.success(result);
         } else {
             return ApiResponse.error(400, "验证码错误或已过期");

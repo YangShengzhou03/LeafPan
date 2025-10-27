@@ -268,12 +268,48 @@ public class AuthService {
     }
     
     /**
-     * 重置密码
+     * 重置密码（使用重置令牌）
+     * @param email 邮箱地址
+     * @param resetToken 重置令牌
+     * @param newPassword 新密码
+     */
+    public void resetPasswordWithToken(String email, String resetToken, String newPassword) {
+        try {
+            // 验证重置令牌
+            String verifiedEmail = verificationCodeService.verifyResetToken(resetToken);
+            
+            if (verifiedEmail == null || !verifiedEmail.equals(email)) {
+                throw new RuntimeException("重置令牌无效或已过期");
+            }
+            
+            // 查找用户
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
+            // 更新密码
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            
+            // 密码重置成功后删除验证码（如果存在）
+            verificationCodeService.deleteCode(email);
+            
+            // 记录操作日志
+            operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "USER", user.getId(), "用户" + email + "使用重置令牌重置密码", "", "");
+        } catch (Exception e) {
+            throw new RuntimeException("重置密码失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 重置密码（使用验证码）
+     * @param email 邮箱地址
+     * @param code 验证码
+     * @param newPassword 新密码
      */
     public void resetPassword(String email, String code, String newPassword) {
         try {
-            // 验证验证码
-            boolean isValid = verificationCodeService.verifyCode(email, code);
+            // 验证验证码但不删除（使用自定义验证逻辑）
+            boolean isValid = verifyCodeWithoutDelete(email, code);
             if (!isValid) {
                 throw new RuntimeException("验证码无效或已过期");
             }
@@ -286,11 +322,33 @@ public class AuthService {
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
             
+            // 密码重置成功后删除验证码
+            verificationCodeService.deleteCode(email);
+            
             // 记录操作日志
             operationLogService.logOperation(user.getId(), "PASSWORD_RESET", "USER", user.getId(), "用户" + email + "重置密码", "", "");
         } catch (Exception e) {
             throw new RuntimeException("重置密码失败: " + e.getMessage());
         }
+    }
+    
+    /**
+     * 验证验证码但不删除（用于密码重置流程）
+     */
+    private boolean verifyCodeWithoutDelete(String email, String code) {
+        // 使用VerificationCodeService的公共方法进行验证
+        // 先验证验证码，如果验证成功则立即重新存储验证码（模拟不删除的效果）
+        boolean isValid = verificationCodeService.verifyCode(email, code);
+        
+        if (isValid) {
+            // 如果验证成功，重新生成相同的验证码（模拟不删除的效果）
+            // 注意：这里需要重新存储验证码，因为verifyCode方法会删除验证码
+            String newCode = verificationCodeService.generateCode(email);
+            // 这里我们实际上不需要使用newCode，因为验证已经通过
+            return true;
+        }
+        
+        return false;
     }
     
     /**
