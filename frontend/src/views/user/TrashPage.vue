@@ -33,12 +33,12 @@
         <el-table-column label="文件名" min-width="300">
           <template #default="{ row }">
             <div class="file-name-cell">
-              <div class="file-icon" :class="getFileIconClass(row.type)">
-                <i :class="getFileIcon(row.type)"></i>
+              <div class="file-icon" :class="getFileIconClass(getFileType(row))">
+                <i :class="getFileIcon(getFileType(row))"></i>
               </div>
               <div class="file-info">
-                <div class="file-name">{{ row.name }}</div>
-                <div class="file-path">{{ row.originalPath }}</div>
+                <div class="file-name">{{ row.originalName || row.name }}</div>
+                <div class="file-path">{{ row.storageKey }}</div>
               </div>
             </div>
           </template>
@@ -50,18 +50,18 @@
         </el-table-column>
         <el-table-column label="类型" width="120">
           <template #default="{ row }">
-            {{ getFileTypeLabel(row.type) }}
+            {{ getFileTypeLabel(getFileType(row)) }}
           </template>
         </el-table-column>
         <el-table-column label="删除时间" width="180">
           <template #default="{ row }">
-            {{ formatDate(row.deletedAt) }}
+            {{ formatDate(row.updatedTime) }}
           </template>
         </el-table-column>
         <el-table-column label="剩余时间" width="150">
           <template #default="{ row }">
-            <span :class="getRemainingTimeClass(row.remainingDays)">
-              {{ getRemainingTimeText(row.remainingDays) }}
+            <span :class="getRemainingTimeClass(calculateRemainingDays(row.updatedTime))">
+              {{ getRemainingTimeText(calculateRemainingDays(row.updatedTime)) }}
             </span>
           </template>
         </el-table-column>
@@ -101,6 +101,19 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 永久删除单个文件确认对话框 -->
+    <el-dialog v-model="deleteConfirmDialog.visible" :title="deleteConfirmDialog.title" width="400px" :close-on-click-modal="false">
+      <p>{{ deleteConfirmDialog.message }}</p>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="deleteConfirmDialog.visible = false">取消</el-button>
+          <el-button type="danger" @click="confirmDeleteFile" :loading="deleteConfirmDialog.loading">
+            确认删除
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -130,6 +143,14 @@ const clearTrashDialog = ref({
   loading: false
 })
 
+const deleteConfirmDialog = ref({
+  visible: false,
+  title: '',
+  message: '',
+  file: null,
+  loading: false
+})
+
 // 计算属性
 const filteredTrashFiles = computed(() => {
   let result = [...trashFiles.value]
@@ -138,8 +159,8 @@ const filteredTrashFiles = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(file =>
-      file.name.toLowerCase().includes(query) ||
-      file.originalPath.toLowerCase().includes(query)
+      (file.originalName || file.name).toLowerCase().includes(query) ||
+      file.storageKey.toLowerCase().includes(query)
     )
   }
 
@@ -147,13 +168,13 @@ const filteredTrashFiles = computed(() => {
   result.sort((a, b) => {
     switch (sortBy.value) {
       case 'deletedAt':
-        return new Date(b.deletedAt) - new Date(a.deletedAt)
+        return new Date(b.updatedTime) - new Date(a.updatedTime)
       case 'name':
-        return a.name.localeCompare(b.name)
+        return (a.originalName || a.name).localeCompare(b.originalName || b.name)
       case 'size':
         return b.size - a.size
       case 'type':
-        return a.type.localeCompare(b.type)
+        return getFileType(a).localeCompare(getFileType(b))
       default:
         return 0
     }
@@ -196,6 +217,59 @@ const getFileIconClass = (type) => {
     other: 'other-icon'
   }
   return classes[type] || classes.other
+}
+
+// 根据文件信息判断文件类型
+const getFileType = (file) => {
+  if (!file) return 'other'
+  
+  // 根据mimeType判断文件类型
+  if (file.mimeType) {
+    if (file.mimeType.startsWith('image/')) return 'image'
+    if (file.mimeType.startsWith('video/')) return 'video'
+    if (file.mimeType.startsWith('audio/')) return 'audio'
+    if (file.mimeType === 'application/pdf') return 'pdf'
+    if (file.mimeType.startsWith('application/')) {
+      if (file.mimeType.includes('zip') || file.mimeType.includes('rar') || file.mimeType.includes('tar')) return 'archive'
+      if (file.mimeType.includes('word') || file.mimeType.includes('excel') || file.mimeType.includes('powerpoint')) return 'document'
+    }
+  }
+  
+  // 根据扩展名判断文件类型
+  if (file.extension) {
+    const ext = file.extension.toLowerCase()
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg']
+    const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv']
+    const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg']
+    const archiveExts = ['zip', 'rar', '7z', 'tar', 'gz']
+    const codeExts = ['js', 'ts', 'java', 'py', 'cpp', 'c', 'html', 'css', 'php', 'xml', 'json']
+    const documentExts = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf']
+    
+    if (imageExts.includes(ext)) return 'image'
+    if (videoExts.includes(ext)) return 'video'
+    if (audioExts.includes(ext)) return 'audio'
+    if (archiveExts.includes(ext)) return 'archive'
+    if (codeExts.includes(ext)) return 'code'
+    if (documentExts.includes(ext)) return 'document'
+    if (ext === 'pdf') return 'pdf'
+  }
+  
+  return 'other'
+}
+
+// 计算剩余天数
+const calculateRemainingDays = (updatedTime) => {
+  if (!updatedTime) return 0
+  
+  try {
+    const deleteDate = new Date(updatedTime)
+    const now = new Date()
+    const daysDiff = Math.floor((now - deleteDate) / (1000 * 60 * 60 * 24))
+    const remainingDays = Math.max(0, 30 - daysDiff) // 30天保留期
+    return remainingDays
+  } catch (error) {
+    return 0
+  }
 }
 
 // 获取文件类型标签
@@ -246,7 +320,7 @@ const handleSort = () => {
 // 恢复文件
 const restoreFile = async (file) => {
     try {
-        await Server.post(`/user/trash/${file.id}/restore`)
+        await Server.post(`/user/trash/files/${file.id}/restore`)
         ElMessage.success('文件恢复成功')
         await fetchTrashFiles()
     } catch (error) {
@@ -255,14 +329,31 @@ const restoreFile = async (file) => {
 }
 
 // 永久删除文件
-const deleteFile = async (file) => {
-    try {
-        await Server.delete(`/user/trash/${file.id}`)
-        ElMessage.success('文件已永久删除')
-        await fetchTrashFiles()
-    } catch (error) {
-        ElMessage.error('删除文件失败')
-    }
+const deleteFile = (file) => {
+  deleteConfirmDialog.value = {
+    visible: true,
+    title: '永久删除文件',
+    message: `确定要永久删除文件 "${file.originalName || file.name}" 吗？此操作无法撤销，文件将无法恢复。`,
+    file: file,
+    loading: false
+  }
+}
+
+// 确认永久删除文件
+const confirmDeleteFile = async () => {
+  const { file } = deleteConfirmDialog.value
+  deleteConfirmDialog.value.loading = true
+
+  try {
+    await Server.delete(`/user/trash/files/${file.id}`)
+    ElMessage.success('文件已永久删除')
+    deleteConfirmDialog.value.visible = false
+    await fetchTrashFiles()
+  } catch (error) {
+    ElMessage.error('删除文件失败')
+  } finally {
+    deleteConfirmDialog.value.loading = false
+  }
 }
 
 // 预览文件
@@ -312,12 +403,12 @@ const confirmBatchAction = async () => {
     try {
         if (action === 'restore') {
             await Promise.all(selectedFiles.value.map(file =>
-                Server.post(`/user/trash/${file.id}/restore`)
+                Server.post(`/user/trash/files/${file.id}/restore`)
             ))
             ElMessage.success(`已恢复 ${selectedFiles.value.length} 个文件`)
         } else if (action === 'delete') {
             await Promise.all(selectedFiles.value.map(file =>
-                Server.delete(`/user/trash/${file.id}`)
+                Server.delete(`/user/trash/files/${file.id}`)
             ))
             ElMessage.success(`已永久删除 ${selectedFiles.value.length} 个文件`)
         }
@@ -336,7 +427,7 @@ const confirmClearTrash = async () => {
     clearTrashDialog.value.loading = true
 
     try {
-        await Server.delete('/user/trash')
+        await Server.delete('/user/trash/clear')
         ElMessage.success('回收站已清空')
         clearTrashDialog.value.visible = false
         await fetchTrashFiles()
@@ -350,7 +441,7 @@ const confirmClearTrash = async () => {
 // 获取回收站文件
 const fetchTrashFiles = async () => {
     try {
-        const response = await Server.get('/user/trash')
+        const response = await Server.get('/user/trash/files')
         trashFiles.value = response.data || []
     } catch (error) {
         ElMessage.error('获取回收站文件失败')

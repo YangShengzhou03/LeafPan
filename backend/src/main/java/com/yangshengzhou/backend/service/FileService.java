@@ -78,12 +78,40 @@ public class FileService {
     }
     
     /**
-     * 删除文件
+     * 删除文件（标记删除）
      */
     public boolean deleteFile(Long id, String userId) {
         Optional<File> fileOptional = fileRepository.findById(id);
         if (fileOptional.isPresent() && fileOptional.get().getUserId().equals(userId)) {
+            File file = fileOptional.get();
+            file.setIsDeleted(true);
+            fileRepository.save(file);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 永久删除文件
+     */
+    public boolean permanentDeleteFile(Long id, String userId) {
+        Optional<File> fileOptional = fileRepository.findById(id);
+        if (fileOptional.isPresent() && fileOptional.get().getUserId().equals(userId)) {
             fileRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 恢复文件
+     */
+    public boolean restoreFile(Long id, String userId) {
+        Optional<File> fileOptional = fileRepository.findById(id);
+        if (fileOptional.isPresent() && fileOptional.get().getUserId().equals(userId)) {
+            File file = fileOptional.get();
+            file.setIsDeleted(false);
+            fileRepository.save(file);
             return true;
         }
         return false;
@@ -215,5 +243,19 @@ public class FileService {
         statistics.put("otherFiles", 0);
         
         return statistics;
+    }
+    
+    /**
+     * 获取回收站文件列表（不分页）
+     */
+    public List<File> getTrashFiles(String userId) {
+        return fileRepository.findDeletedFilesByUserId(userId);
+    }
+    
+    /**
+     * 获取回收站文件列表（分页）
+     */
+    public Page<File> getTrashFiles(String userId, Pageable pageable) {
+        return fileRepository.findDeletedFilesByUserId(userId, pageable);
     }
 }

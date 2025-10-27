@@ -14,16 +14,19 @@ import java.util.Optional;
 @Repository
 public interface FileRepository extends JpaRepository<File, Long> {
     
-    List<File> findByUserId(String userId);
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.isDeleted = false")
+    List<File> findByUserId(@Param("userId") String userId);
     
-    List<File> findByUserIdAndFolderId(String userId, Long folderId);
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.folderId = :folderId AND f.isDeleted = false")
+    List<File> findByUserIdAndFolderId(@Param("userId") String userId, @Param("folderId") Long folderId);
     
-    List<File> findByUserIdAndNameContaining(String userId, String name);
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.name LIKE %:name% AND f.isDeleted = false")
+    List<File> findByUserIdAndNameContaining(@Param("userId") String userId, @Param("name") String name);
     
-    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.extension = :extension")
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.extension = :extension AND f.isDeleted = false")
     List<File> findByUserIdAndExtension(@Param("userId") String userId, @Param("extension") String extension);
     
-    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.folderId = :folderId ORDER BY f.name")
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.folderId = :folderId AND f.isDeleted = false ORDER BY f.name")
     List<File> findByUserIdAndFolderIdOrderByName(@Param("userId") String userId, @Param("folderId") Long folderId);
     
     @Query("SELECT SUM(f.size) FROM File f WHERE f.userId = :userId")
@@ -34,9 +37,23 @@ public interface FileRepository extends JpaRepository<File, Long> {
     
     boolean existsByUserIdAndStorageKey(String userId, String storageKey);
     
-    Page<File> findByUserId(String userId, Pageable pageable);
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.isDeleted = false")
+    Page<File> findByUserId(@Param("userId") String userId, Pageable pageable);
     
-    Page<File> findByUserIdAndFolderId(String userId, Long folderId, Pageable pageable);
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.folderId = :folderId AND f.isDeleted = false")
+    Page<File> findByUserIdAndFolderId(@Param("userId") String userId, @Param("folderId") Long folderId, Pageable pageable);
     
     boolean existsByStorageKey(String storageKey);
+    
+    /**
+     * 获取用户的回收站文件列表
+     */
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.isDeleted = true")
+    List<File> findDeletedFilesByUserId(@Param("userId") String userId);
+    
+    /**
+     * 分页获取用户的回收站文件列表
+     */
+    @Query("SELECT f FROM File f WHERE f.userId = :userId AND f.isDeleted = true")
+    Page<File> findDeletedFilesByUserId(@Param("userId") String userId, Pageable pageable);
 }

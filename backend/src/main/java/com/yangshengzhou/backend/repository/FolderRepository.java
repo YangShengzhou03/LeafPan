@@ -24,11 +24,14 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.parentId = :parentId AND f.isDeleted = false ORDER BY f.name")
     List<Folder> findByUserIdAndParentIdOrderByName(@Param("userId") String userId, @Param("parentId") Long parentId);
     
-    List<Folder> findByUserId(String userId);
+    @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.isDeleted = false")
+    List<Folder> findByUserId(@Param("userId") String userId);
     
-    List<Folder> findByUserIdAndParentId(String userId, Long parentId);
+    @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.parentId = :parentId AND f.isDeleted = false")
+    List<Folder> findByUserIdAndParentId(@Param("userId") String userId, @Param("parentId") Long parentId);
     
-    List<Folder> findByParentId(Long parentId);
+    @Query("SELECT f FROM Folder f WHERE f.parentId = :parentId AND f.isDeleted = false")
+    List<Folder> findByParentId(@Param("parentId") Long parentId);
     
     boolean existsByUserIdAndName(String userId, String name);
     
@@ -39,4 +42,10 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
      */
     @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.parentId = :parentId AND f.isDeleted = false")
     Optional<Folder> findUserRootFolder(@Param("userId") String userId, @Param("parentId") Long parentId);
+    
+    /**
+     * 获取用户的回收站文件夹列表
+     */
+    @Query("SELECT f FROM Folder f WHERE f.userId = :userId AND f.isDeleted = true")
+    List<Folder> findDeletedFoldersByUserId(@Param("userId") String userId);
 }

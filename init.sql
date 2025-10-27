@@ -32,11 +32,13 @@ CREATE TABLE folders (
     user_id CHAR(36) NOT NULL COMMENT '所属用户ID',
     path VARCHAR(500) NOT NULL COMMENT '完整路径',
     is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除：0-否，1-是',
+    deleted_time DATETIME NULL COMMENT '删除时间',
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_user_parent (user_id, parent_id),
     INDEX idx_user_path (user_id, path(200)),
     INDEX idx_is_deleted (is_deleted),
+    INDEX idx_deleted_time (deleted_time),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件夹表';
 
@@ -53,6 +55,7 @@ CREATE TABLE files (
     storage_key VARCHAR(255) NOT NULL COMMENT 'MinIO存储key',
     md5 VARCHAR(32) NULL COMMENT 'MD5值',
     is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除：0-否，1-是',
+    deleted_time DATETIME NULL COMMENT '删除时间',
     version INT NOT NULL DEFAULT 1 COMMENT '版本号',
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -60,6 +63,7 @@ CREATE TABLE files (
     INDEX idx_storage_key (storage_key),
     INDEX idx_md5 (md5),
     INDEX idx_is_deleted (is_deleted),
+    INDEX idx_deleted_time (deleted_time),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件表';
 
@@ -133,11 +137,11 @@ BEGIN
     
     DECLARE file_cursor CURSOR FOR 
         SELECT id FROM files 
-        WHERE is_deleted = 1 AND updated_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
+        WHERE is_deleted = 1 AND deleted_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
     
     DECLARE folder_cursor CURSOR FOR 
         SELECT id FROM folders 
-        WHERE is_deleted = 1 AND updated_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
+        WHERE is_deleted = 1 AND deleted_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
     
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     

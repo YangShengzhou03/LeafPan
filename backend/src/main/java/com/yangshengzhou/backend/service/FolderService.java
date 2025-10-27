@@ -75,12 +75,40 @@ public class FolderService {
     }
     
     /**
-     * 删除文件夹
+     * 删除文件夹（标记删除）
      */
     public boolean deleteFolder(Long id, String userId) {
         Optional<Folder> folderOptional = folderRepository.findById(id);
         if (folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId)) {
+            Folder folder = folderOptional.get();
+            folder.setIsDeleted(true);
+            folderRepository.save(folder);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 永久删除文件夹
+     */
+    public boolean permanentDeleteFolder(Long id, String userId) {
+        Optional<Folder> folderOptional = folderRepository.findById(id);
+        if (folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId)) {
             folderRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 恢复文件夹
+     */
+    public boolean restoreFolder(Long id, String userId) {
+        Optional<Folder> folderOptional = folderRepository.findById(id);
+        if (folderOptional.isPresent() && folderOptional.get().getUserId().equals(userId)) {
+            Folder folder = folderOptional.get();
+            folder.setIsDeleted(false);
+            folderRepository.save(folder);
             return true;
         }
         return false;
@@ -156,5 +184,12 @@ public class FolderService {
      */
     public Optional<Folder> getUserRootFolder(String userId) {
         return folderRepository.findUserRootFolder(userId, 0L);
+    }
+    
+    /**
+     * 获取回收站文件夹列表
+     */
+    public List<Folder> getTrashFolders(String userId) {
+        return folderRepository.findDeletedFoldersByUserId(userId);
     }
 }
