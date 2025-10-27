@@ -61,7 +61,7 @@ public class AuthService {
             String token = jwtUtil.generateToken(user.getEmail());
             
             // 记录登录日志
-            operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), "用户登录", ipAddress, "");
+            operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), "用户" + user.getEmail() + "登录", ipAddress, "");
             
             // 更新最后登录时间
             user.setLastLoginTime(LocalDateTime.now());
@@ -112,7 +112,7 @@ public class AuthService {
         user = userRepository.save(user);
         
         // 记录注册日志
-        operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), "用户注册: " + email, ipAddress, "");
+        operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), "用户" + email + "注册", ipAddress, "");
         
         // 注册成功后自动登录
         try {
@@ -130,7 +130,7 @@ public class AuthService {
             userRepository.save(user);
             
             // 记录登录日志
-            operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), "用户注册后自动登录", ipAddress, "");
+            operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), "用户" + user.getEmail() + "注册后自动登录", ipAddress, "");
             
             // 不返回密码
             user.setPassword(null);
