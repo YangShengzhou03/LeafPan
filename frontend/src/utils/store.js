@@ -91,8 +91,33 @@ const store = {
   async register(userData) {
     state.loading = true
     try {
-      await Server.post('/auth/register', userData)
-      return { success: true, message: '注册成功' }
+      const response = await Server.post('/auth/register', userData)
+      
+      // 后端返回的数据结构是 {code: 200, message: "注册成功", data: {token: "...", user: {...}}}
+      // 注意：Server.js的响应拦截器已经将后端返回的完整响应包装成了response.data
+      if (response && response.code === 200 && response.data) {
+        const { token, user } = response.data
+        
+        if (token) {
+          // 保存token
+          utils.saveToken(token)
+          
+          // 设置用户信息
+          if (user) {
+            this.setUser(user)
+          } else {
+            // 如果没有返回用户信息，需要额外获取
+            await this.fetchCurrentUser()
+          }
+          
+          return { success: true, message: response.message || '注册成功', user, token }
+        } else {
+          // 如果后端没有返回token，注册成功但需要手动登录
+          return { success: true, message: response.message || '注册成功，请登录' }
+        }
+      }
+      
+      return { success: false, message: response?.message || '注册失败' }
     } catch (error) {
       return { success: false, message: error.response?.data?.message || error.message }
     } finally {

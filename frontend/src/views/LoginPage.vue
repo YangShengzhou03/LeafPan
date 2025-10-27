@@ -352,9 +352,22 @@ const handleRegister = async () => {
     const result = await store.register(registerForm)
     
     if (result.success) {
-      ElMessage.success('注册成功，请登录')
-      activeTab.value = 'login'
-      registerFormRef.value.resetFields()
+      if (result.token) {
+        // 注册成功后自动登录
+        ElMessage.success('注册成功，已自动登录')
+        
+        // 根据用户角色跳转到不同页面
+        if (store.state.isAdmin) {
+          router.push('/admin')
+        } else {
+          router.push('/user')
+        }
+      } else {
+        // 如果后端没有返回token，注册成功但需要手动登录
+        ElMessage.success('注册成功，请登录')
+        activeTab.value = 'login'
+        registerFormRef.value.resetFields()
+      }
     } else {
       ElMessage.error(result.message || '注册失败，请稍后重试')
     }

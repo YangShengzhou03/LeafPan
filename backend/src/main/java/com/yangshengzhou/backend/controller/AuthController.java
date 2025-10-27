@@ -48,19 +48,17 @@ public class AuthController {
      * 用户注册
      */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(@RequestBody RegisterRequest registerRequest, 
+    public ResponseEntity<ApiResponse<Map<String, Object>>> register(@RequestBody RegisterRequest registerRequest, 
                                                      HttpServletRequest request) {
         try {
             String ipAddress = getClientIpAddress(request);
-            User user = authService.register(
+            Map<String, Object> result = authService.register(
                 registerRequest.getEmail(), 
                 registerRequest.getPassword(), 
                 registerRequest.getPhone(), 
                 ipAddress
             );
-            // 不返回密码
-            user.setPassword(null);
-            return ResponseEntity.ok(ApiResponse.success("注册成功", user));
+            return ResponseEntity.ok(ApiResponse.success("注册成功", result));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error("注册失败: " + e.getMessage()));
         }

@@ -180,6 +180,64 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 修改密码对话框 -->
+    <el-dialog v-model="changePasswordDialogVisible" title="修改密码" width="500px" :before-close="handleChangePasswordDialogClose">
+      <el-form ref="changePasswordFormRef" :model="changePasswordForm" :rules="changePasswordRules" label-width="100px">
+        <!-- 第一步：邮箱验证 -->
+        <div v-if="currentStep === 1">
+          <el-form-item label="邮箱地址" prop="email">
+            <el-input v-model="changePasswordForm.email" placeholder="请输入您的邮箱地址" />
+          </el-form-item>
+          <el-form-item label="验证码" prop="verificationCode">
+            <div class="verification-code-input">
+              <el-input v-model="changePasswordForm.verificationCode" placeholder="请输入验证码" maxlength="6" />
+              <el-button 
+                type="primary" 
+                :disabled="countdown > 0" 
+                @click="sendVerificationCode"
+                :loading="sendingCode"
+                class="send-code-btn"
+              >
+                {{ countdown > 0 ? `${countdown}秒后重发` : '发送验证码' }}
+              </el-button>
+            </div>
+          </el-form-item>
+        </div>
+
+        <!-- 第二步：设置新密码 -->
+        <div v-if="currentStep === 2">
+          <el-form-item label="新密码" prop="newPassword">
+            <el-input 
+              v-model="changePasswordForm.newPassword" 
+              type="password" 
+              placeholder="请输入新密码" 
+              show-password 
+            />
+          </el-form-item>
+          <el-form-item label="确认密码" prop="confirmPassword">
+            <el-input 
+              v-model="changePasswordForm.confirmPassword" 
+              type="password" 
+              placeholder="请再次输入新密码" 
+              show-password 
+            />
+          </el-form-item>
+        </div>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleChangePasswordDialogClose">取消</el-button>
+          <el-button v-if="currentStep === 1" type="primary" @click="verifyCodeAndNext" :loading="verifyingCode">
+            下一步
+          </el-button>
+          <el-button v-if="currentStep === 2" type="primary" @click="submitNewPassword" :loading="submittingPassword">
+            确认修改
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -210,6 +268,23 @@ const cropImageUrl = ref('')
 const cropperRef = ref(null)
 const currentFile = ref(null)
 
+// 修改密码相关状态
+const changePasswordDialogVisible = ref(false)
+const changePasswordFormRef = ref()
+const currentStep = ref(1) // 1: 邮箱验证, 2: 设置新密码
+const countdown = ref(0)
+const sendingCode = ref(false)
+const verifyingCode = ref(false)
+const submittingPassword = ref(false)
+
+// 修改密码表单数据
+const changePasswordForm = reactive({
+  email: '',
+  verificationCode: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
 
 
 // 编辑表单数据
@@ -239,6 +314,36 @@ const editFormRules = {
   ]
 }
 
+// 修改密码表单验证规则
+const changePasswordRules = {
+  email: [
+    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+  ],
+  verificationCode: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { pattern: /^\d{6}$/, message: '验证码必须是6位数字', trigger: 'blur' }
+  ],
+  newPassword: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
+    { pattern: /^(?=.*[a-zA-Z])(?=.*\d).+$/, message: '密码必须包含字母和数字', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认新密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== changePasswordForm.newPassword) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+}
+
 // 首先定义所有函数
 const openEditDialog = () => {
   // 将当前用户信息填充到编辑表单
@@ -253,7 +358,19 @@ const openEditDialog = () => {
   editDialogVisible.value = true
 }
 
-const changePassword = () => ElMessage.info('修改密码功能将在未来版本中实现')
+// 修改密码功能
+const changePassword = () => {
+  // 重置表单和状态
+  currentStep.value = 1
+  countdown.value = 0
+  Object.assign(changePasswordForm, {
+    email: userProfile.email || '',
+    verificationCode: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  changePasswordDialogVisible.value = true
+}
 const notificationSettings = () => ElMessage.info('通知设置功能将在未来版本中实现')
 const securitySettings = () => ElMessage.info('安全设置功能将在未来版本中实现')
 const helpCenter = () => ElMessage.info('帮助中心功能将在未来版本中实现')
@@ -470,6 +587,105 @@ const handleCropDialogClose = () => {
     cropImageUrl.value = ''
   }
   currentFile.value = null
+}
+
+// 修改密码对话框关闭处理
+const handleChangePasswordDialogClose = () => {
+  changePasswordDialogVisible.value = false
+  currentStep.value = 1
+  changePasswordFormRef.value?.resetFields()
+}
+
+// 发送邮箱验证码
+const sendVerificationCode = async () => {
+  if (!changePasswordForm.email) {
+    ElMessage.error('请输入邮箱地址')
+    return
+  }
+
+  sendingCode.value = true
+  try {
+    const response = await Server.post('/user/send-verification-code', {
+      email: changePasswordForm.email,
+      type: 'password_reset'
+    })
+
+    if (response.code === 200) {
+      ElMessage.success('验证码已发送到您的邮箱')
+      // 开始倒计时
+      countdown.value = 60
+      const timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
+    } else {
+      ElMessage.error(response.message || '发送验证码失败')
+    }
+  } catch (error) {
+    ElMessage.error('发送验证码失败，请重试')
+  } finally {
+    sendingCode.value = false
+  }
+}
+
+// 验证验证码并进入下一步
+const verifyCodeAndNext = async () => {
+  if (!changePasswordFormRef.value) return
+
+  await changePasswordFormRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      verifyingCode.value = true
+      try {
+        const response = await Server.post('/user/verify-code', {
+          email: changePasswordForm.email,
+          code: changePasswordForm.verificationCode,
+          type: 'password_reset'
+        })
+
+        if (response.code === 200) {
+          ElMessage.success('验证码验证成功')
+          currentStep.value = 2
+        } else {
+          ElMessage.error(response.message || '验证码验证失败')
+        }
+      } catch (error) {
+        ElMessage.error('验证码验证失败，请重试')
+      } finally {
+        verifyingCode.value = false
+      }
+    }
+  })
+}
+
+// 提交新密码
+const submitNewPassword = async () => {
+  if (!changePasswordFormRef.value) return
+
+  await changePasswordFormRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      submittingPassword.value = true
+      try {
+        const response = await Server.post('/user/reset-password', {
+          email: changePasswordForm.email,
+          code: changePasswordForm.verificationCode,
+          newPassword: changePasswordForm.newPassword
+        })
+
+        if (response.code === 200) {
+          ElMessage.success('密码修改成功')
+          handleChangePasswordDialogClose()
+        } else {
+          ElMessage.error(response.message || '密码修改失败')
+        }
+      } catch (error) {
+        ElMessage.error('密码修改失败，请重试')
+      } finally {
+        submittingPassword.value = false
+      }
+    }
+  })
 }
 
 // 获取用户信息
@@ -906,5 +1122,21 @@ const fetchUserInfo = async () => {
 :deep(.vue-advanced-cropper__handle) {
   background-color: #409eff;
   border-color: #fff;
+}
+
+/* 验证码输入框样式 */
+.verification-code-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.verification-code-input .el-input {
+  flex: 1;
+}
+
+.send-code-btn {
+  min-width: 120px;
+  white-space: nowrap;
 }
 </style>

@@ -81,7 +81,7 @@ public class AuthService {
     /**
      * 用户注册
      */
-    public User register(String email, String password, String phone, String ipAddress) {
+    public Map<String, Object> register(String email, String password, String phone, String ipAddress) {
         // 检查邮箱是否已存在
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("邮箱已存在");
@@ -104,7 +104,40 @@ public class AuthService {
         // 记录注册日志
         operationLogService.logOperation(user.getId(), "REGISTER", "用户", user.getId(), "用户注册: " + email, ipAddress, "");
         
-        return user;
+        // 注册成功后自动登录
+        try {
+            // 生成JWT令牌
+            String token = jwtUtil.generateToken(user.getEmail());
+            
+            // 设置认证上下文
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user.getEmail(), null, null
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            // 更新最后登录时间
+            user.setLastLoginTime(LocalDateTime.now());
+            userRepository.save(user);
+            
+            // 记录登录日志
+            operationLogService.logOperation(user.getId(), "LOGIN", "用户", user.getId(), "用户注册后自动登录", ipAddress, "");
+            
+            // 不返回密码
+            user.setPassword(null);
+            
+            // 返回登录结果
+            Map<String, Object> result = new HashMap<>();
+            result.put("token", token);
+            result.put("user", user);
+            
+            return result;
+        } catch (Exception e) {
+            // 如果自动登录失败，仍然返回用户信息（但不包含token）
+            user.setPassword(null);
+            Map<String, Object> result = new HashMap<>();
+            result.put("user", user);
+            return result;
+        }
     }
     
     /**
