@@ -64,14 +64,14 @@
                 <i class="el-icon-mobile-phone"></i>
               </div>
               <h3>多设备同步</h3>
-              <p>电脑、手机、平板随时随地访问，文件最新。</p>
+              <p>电脑、手机浏览器随时访问，无需APP。</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="el-icon-download"></i>
               </div>
-              <h3>高速下载</h3>
-              <p>大文件也能全速下载，您的时间十分宝贵。</p>
+              <h3>全速下载</h3>
+              <p>免费用户也能全速下载，您的时间更宝贵。</p>
             </div>
           </div>
         </div>
@@ -85,17 +85,17 @@
               <h3>入门体验</h3>
               <div class="price">免费</div>
               <ul class="features-list">
-                <li>5GB 存储空间</li>
+                <li>1GB 存储空间</li>
                 <li>基础文件管理功能</li>
-                <li>标准下载速度</li>
+                <li>高速下载速度</li>
               </ul>
             </div>
             <div class="pricing-card popular">
               <div class="badge">热门选择</div>
               <h3>会员套餐</h3>
-              <div class="price">¥1.99<span>/月</span></div>
+              <div class="price">¥0.99<span>/月</span></div>
               <ul class="features-list">
-                <li>100GB 存储空间</li>
+                <li>500GB 存储空间</li>
                 <li>高级文件管理工具</li>
                 <li>高速下载通道</li>
                 <li>文件分享功能</li>
@@ -103,12 +103,12 @@
             </div>
             <div class="pricing-card">
               <h3>至尊套餐</h3>
-              <div class="price">¥39<span>/月</span></div>
+              <div class="price">¥1.99<span>/月</span></div>
               <ul class="features-list">
-                <li>1TB 存储空间</li>
+                <li>2TB 存储空间</li>
                 <li>专业文件管理工具</li>
-                <li>极速下载通道</li>
-                <li>高级分享功能</li>
+                <li>高速下载通道</li>
+                <li>文件分享功能</li>
                 <li>团队协作工具</li>
               </ul>
             </div>
@@ -189,7 +189,7 @@ export default {
     };
 
     const handleDemo = () => {
-      window.open('https://www.bilibili.com/video/BV1qgfmYmEAa/?share_source=copy_web&vd_source=f4167f5d5733b1b3cbdcbb4f2caa2211', '_blank');
+      window.open('https://gitee.com/Yangshengzhou/leaf-pan', '_blank');
     };
 
     const handleStart = () => {
