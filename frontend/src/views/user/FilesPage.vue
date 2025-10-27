@@ -695,12 +695,12 @@ const handleUpload = () => {
 
 // 处理文件选择变化
 const handleFileChange = (file, uploadFiles) => {
-    // 检查文件大小是否超过150MB限制
-    const maxSize = 150 * 1024 * 1024 // 150MB
+    // 检查文件大小是否超过5GB限制
+    const maxSize = 5 * 1024 * 1024 * 1024 // 5GB
     const oversizedFiles = uploadFiles.filter(f => f.size > maxSize)
 
     if (oversizedFiles.length > 0) {
-        ElMessage.error(`文件大小不能超过150MB: ${oversizedFiles.map(f => f.name).join(', ')}`)
+        ElMessage.error(`文件大小不能超过5GB: ${oversizedFiles.map(f => f.name).join(', ')}`)
         // 过滤掉超过大小的文件
         uploadFiles = uploadFiles.filter(f => f.size <= maxSize)
     }

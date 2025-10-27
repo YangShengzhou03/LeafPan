@@ -3,7 +3,7 @@ import Server from './Server'
 
 // 默认配置
 const defaultConfig = {
-  maxFileSize: 150, // MB
+  maxFileSize: 5120, // MB (5GB)
   appName: 'LeafPan网盘系统',
   apiVersion: 'v1'
 }

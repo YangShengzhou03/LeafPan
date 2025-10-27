@@ -22,8 +22,8 @@ spring:
   # 文件上传配置（通用）
   servlet:
     multipart:
-      max-file-size: 150MB
-      max-request-size: 150MB
+      max-file-size: 5GB
+      max-request-size: 5GB
 
 # 服务器配置（默认值，可被环境块覆盖）
 server:
@@ -54,7 +54,7 @@ app:
     secret: leafpan-secret-key-for-jwt-token-generation
     expiration: 86400000  # 24小时
   storage:
-    max-file-size: 150MB
+    max-file-size: 5GB
 
 # 日志配置（通用）
 #logging:

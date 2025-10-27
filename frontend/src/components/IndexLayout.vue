@@ -71,7 +71,7 @@
                 <i class="el-icon-download"></i>
               </div>
               <h3>全速下载</h3>
-              <p>免费用户也能全速下载，您的时间更宝贵。</p>
+              <p>免费用户也能全速下载，您的时间比会员更宝贵。</p>
             </div>
           </div>
         </div>
@@ -103,7 +103,7 @@
             </div>
             <div class="pricing-card">
               <h3>至尊套餐</h3>
-              <div class="price">¥1.99<span>/月</span></div>
+              <div class="price">¥2.99<span>/月</span></div>
               <ul class="features-list">
                 <li>2TB 存储空间</li>
                 <li>专业文件管理工具</li>
@@ -149,7 +149,8 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2025 枫叶网盘. 保留所有权利.</p>
+          <p>&copy; 2024-2025 Jasun.xyz 版权所有 | ICP证：还在申请中 | 公网安备 还在备案中</p>
+          <p>枫叶网盘 - 安全可靠的云存储服务</p>
         </div>
       </div>
     </footer>
@@ -550,6 +551,12 @@ export default {
   padding-top: 20px;
   text-align: center;
   color: #bbb;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.footer-bottom p {
+  margin: 5px 0;
 }
 
 /* Responsive Design */

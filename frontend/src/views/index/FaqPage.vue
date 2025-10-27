@@ -28,7 +28,7 @@
                 
                 <el-collapse-item name="upload" title="文件上传问题">
                   <div class="collapse-content">
-                    <p>上传文件失败怎么办？检查网络连接是否稳定，文件大小是否超过2GB限制，浏览器是否支持HTML5文件API。建议使用Chrome、Firefox等现代浏览器。</p>
+                    <p>上传文件失败怎么办？检查网络连接是否稳定，文件大小是否超过5GB限制，浏览器是否支持HTML5文件API。建议使用Chrome、Firefox等现代浏览器。</p>
                     <p>上传速度慢如何解决？上传速度受网络带宽、服务器负载和文件大小影响。可以尝试在网络空闲时段上传，或使用断点续传功能分多次上传大文件。</p>
                   </div>
                 </el-collapse-item>
