@@ -799,22 +799,154 @@ onMounted(async () => {
   .file-item {
     flex-direction: column;
     align-items: flex-start;
+    padding: 12px;
   }
 
   .file-icon {
     margin-right: 0;
     margin-bottom: 8px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .file-icon i {
+    font-size: 18px;
   }
 
   .file-actions {
     width: 100%;
     justify-content: flex-end;
     margin-top: 8px;
+    gap: 6px;
+  }
+
+  .file-actions .el-button {
+    padding: 6px 8px;
+    font-size: 12px;
   }
 
   .file-meta {
     flex-direction: column;
     gap: 4px;
+  }
+
+  /* 对话框适配 */
+  .el-dialog {
+    width: 90% !important;
+    margin: 10px auto;
+  }
+}
+
+/* 移动设备 (480px 以下) */
+@media (max-width: 480px) {
+  .shared-page {
+    padding: 12px;
+  }
+
+  .shared-tabs {
+    padding: 12px;
+  }
+
+  .tab-header {
+    gap: 8px;
+  }
+
+  .file-item {
+    padding: 10px;
+  }
+
+  .file-name {
+    font-size: 13px;
+  }
+
+  .file-meta {
+    font-size: 11px;
+  }
+
+  .tab-actions .el-button {
+    width: 100%;
+  }
+
+  /* 优化对话框中的表单元素 */
+  .el-form-item__label {
+    font-size: 12px;
+  }
+
+  .el-input,
+  .el-select,
+  .el-date-picker,
+  .el-radio,
+  .el-radio__label {
+    font-size: 12px;
+  }
+}
+
+/* 极小屏幕设备 (iPhone SE 等) */
+@media (max-width: 320px) {
+  .shared-page {
+    padding: 8px;
+  }
+
+  .shared-tabs {
+    padding: 8px;
+  }
+
+  .file-item {
+    padding: 8px;
+  }
+
+  .file-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .file-icon i {
+    font-size: 16px;
+  }
+
+  .file-name {
+    font-size: 12px;
+  }
+
+  .file-meta {
+    font-size: 10px;
+    gap: 3px;
+  }
+
+  .file-actions {
+    gap: 4px;
+  }
+
+  .file-actions .el-button {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  /* 对话框进一步适配 */
+  .el-dialog {
+    width: 95% !important;
+    margin: 5px auto;
+  }
+
+  .el-dialog__header {
+    padding: 12px 16px;
+  }
+
+  .el-dialog__title {
+    font-size: 16px;
+  }
+
+  .el-dialog__body {
+    padding: 16px;
+  }
+
+  .dialog-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dialog-footer .el-button {
+    width: 100%;
   }
 }
 </style>

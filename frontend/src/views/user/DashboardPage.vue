@@ -307,8 +307,16 @@ onMounted(async () => {
 }
 
 @media (max-width: 480px) {
+  .dashboard-page {
+    padding: 16px;
+  }
+
   .storage-card {
     padding: 20px;
+  }
+
+  .storage-chart {
+    gap: 24px;
   }
 
   .circular-progress {
@@ -333,12 +341,84 @@ onMounted(async () => {
     grid-template-columns: 1fr;
   }
 
+  .stat-card {
+    padding: 16px;
+  }
+
   .stat-content h3 {
     font-size: 24px;
   }
 
   .stat-content p {
     font-size: 13px;
+  }
+}
+
+/* 极小屏幕设备 (iPhone SE 等) */
+@media (max-width: 320px) {
+  .dashboard-page {
+    padding: 12px;
+  }
+
+  .storage-card {
+    padding: 16px;
+  }
+
+  .storage-card-header h2 {
+    font-size: 18px;
+  }
+
+  .storage-info {
+    gap: 16px;
+  }
+
+  .storage-chart {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .circular-progress {
+    width: 80px;
+    height: 80px;
+  }
+
+  .circular-progress text {
+    font-size: 16px !important;
+  }
+
+  .storage-details {
+    gap: 12px;
+  }
+
+  .storage-item {
+    min-width: 120px;
+    padding: 8px 10px;
+  }
+
+  .storage-item .label {
+    font-size: 12px;
+  }
+
+  .storage-item .value {
+    font-size: 13px;
+  }
+
+  .stats-grid {
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .stat-content h3 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .stat-content p {
+    font-size: 12px;
   }
 }
 </style>
