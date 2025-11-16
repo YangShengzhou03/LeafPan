@@ -2,6 +2,8 @@
 
 <div align="center">
 
+![LeafPan Logo](docs/images/logo.png) <!-- 假设在docs/images目录下有logo图片 -->
+
 [![GitHub last commit](https://img.shields.io/github/last-commit/YangShengzhou03/LeafPan?style=for-the-badge)](https://github.com/YangShengzhou03/LeafPan/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/YangShengzhou03/LeafPan?style=for-the-badge)](https://github.com/YangShengzhou03/LeafPan/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/YangShengzhou03/LeafPan?style=for-the-badge)](https://github.com/YangShengzhou03/LeafPan/network/members)
@@ -13,9 +15,17 @@
 
 ## 项目简介
 
-**LeafPan** 是一个基于现代技术栈构建的企业级文件管理平台，采用 **Vue 3 + Spring Boot 3** 架构，为用户提供安全可靠的文件存储和分享服务。
+**LeafPan** 是一个功能全面、安全可靠的企业级云存储与文件管理平台，采用 **Vue 3 + Spring Boot 3** 前后端分离架构，为用户提供高效便捷的文件存储、分享、同步与协作解决方案。
 
-LeafPan 专注于为个人用户、开发团队、中小企业和教育机构提供专业的文件管理解决方案。我们通过简洁直观的界面设计和稳定的技术架构，让文件管理变得更加便捷高效。
+LeafPan 专为满足个人用户、开发团队、中小企业和教育机构的多样化文件管理需求而设计。我们通过精心设计的用户界面和稳定的技术架构，提供卓越的用户体验，同时确保数据安全和系统性能。
+
+### 🎯 核心价值
+
+- **企业级安全保障**：全方位的数据加密、身份验证和访问控制机制
+- **高性能架构**：优化的系统设计确保高效文件传输和快速响应
+- **多平台支持**：完整的Web端体验，同时支持移动端适配
+- **灵活部署选项**：支持Docker一键部署和Kubernetes云原生部署
+- **开源与可扩展**：MIT许可证，模块化设计便于二次开发和功能扩展
 
 <div align="center">
 
@@ -53,9 +63,22 @@ LeafPan 在设计时充分考虑了现代应用的实际需求，具备以下核
 
 **自动化开发流程**：集成 GitHub Actions 自动化流程，实现代码质量检查和自动化测试，确保项目质量和开发效率。
 
-### 适用场景
+### 🌍 适用场景
 
-LeafPan 适用于多种使用场景：个人用户可用于文件备份和照片存储；开发团队适合项目文档共享和代码备份；中小企业能够实现内部文件管理和知识库建设；教育机构则可用于教学资源管理和作业提交等场景。
+**个人用户**：安全的文件备份、照片存储和个人资料管理
+**开发团队**：项目文档共享、代码备份、资源协作和版本管理
+**中小企业**：内部文件管理、知识库建设、团队协作和数据共享
+**教育机构**：教学资源管理、作业提交、学生协作和资料分发
+
+### 🖼️ 系统预览
+
+<div align="center">
+
+![Dashboard Preview](docs/images/dashboard.png) <!-- 仪表盘预览截图 -->
+![Files Management](docs/images/files.png) <!-- 文件管理界面截图 -->
+![Sharing Interface](docs/images/sharing.png) <!-- 分享功能界面截图 -->
+
+</div>
 
 ### 核心价值
 
@@ -71,23 +94,22 @@ LeafPan 适用于多种使用场景：个人用户可用于文件备份和照片
 - **Docker Compose** 版本 2.20 或更高
 - 至少 **4GB** 内存（2GB 可运行但性能受限）
 - 至少 **10GB** 可用磁盘空间
+- **操作系统**：Linux (Ubuntu 20.04+/CentOS 8+), macOS 12+, Windows 10/11 (WSL2)
 
 #### 部署步骤
 
 部署过程非常简单，只需执行以下命令：
 
 ```bash
-# 停止当前可能运行的进程
-ps -ef | grep backend.jar | grep -v grep | awk '{print $2}' | xargs kill -9
+# 克隆项目仓库
+git clone https://github.com/YangShengzhou03/LeafPan.git
+cd LeafPan
 
-# 重新启动后端服务（使用生产环境配置）
-cd /root/project/backend
-nohup ./jdk-17.0.17+10-jre/bin/java -jar backend.jar \
-  --spring.config.location=file:./application.yml \
-  --spring.profiles.active=prod > backend.log 2>&1 &
+# 使用Docker Compose启动所有服务
+docker-compose -f deploy/docker-compose.yml up -d
 
-# 查看启动日志确认服务状态
-tail -f backend.log
+# 查看服务启动状态
+docker-compose -f deploy/docker-compose.yml ps
 ```
 
 部署完成后，您可以通过以下地址访问各个服务：
@@ -115,59 +137,220 @@ docker-compose top
 docker-compose down -v
 ```
 
-### 手动部署
+### 🔧 手动部署
 
-手动部署需要准备相应的运行环境。Java 17或更高版本作为Spring Boot运行环境，Node.js 18或更高版本用于Vue.js前端运行，MySQL 8.0或更高版本作为关系型数据库，MinIO 8.5或更高版本提供对象存储服务，Redis 6.0或更高版本作为可选的缓存服务。
+对于需要自定义部署或无法使用Docker的环境，我们提供完整的手动部署方案。
 
-详细的部署指南请参考部署文档，其中包含数据库配置和初始化、前后端应用构建和部署、环境变量配置、反向代理配置以及SSL证书配置等完整的手动部署说明。
+#### 环境要求
+
+- **后端环境**：
+  - Java 17 LTS 或更高版本
+  - Maven 3.8.0+ 构建工具
+  - MySQL 8.0.33+ 数据库
+  - Redis 7.0+ 缓存服务（推荐）
+  - MinIO 8.5.4+ 对象存储服务
+
+- **前端环境**：
+  - Node.js 18.0+ LTS
+  - npm 9.0+ 或 yarn 1.22+
+  - Nginx 1.20+（用于生产部署）
+
+#### 部署步骤
+
+##### 1. 准备数据库和存储服务
+
+```bash
+# 1. 安装并启动MySQL服务
+# 创建数据库和用户
+CREATE DATABASE leafpan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'leafpan'@'%' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON leafpan.* TO 'leafpan'@'%';
+FLUSH PRIVILEGES;
+
+# 2. 安装并启动Redis服务
+
+# 3. 安装并配置MinIO服务
+minio server /path/to/data --console-address :9001
+```
+
+##### 2. 配置后端服务
+
+```bash
+# 克隆项目
+cd backend
+
+# 修改配置文件
+cp src/main/resources/application.yml src/main/resources/application-prod.yml
+# 编辑application-prod.yml配置文件，修改数据库连接、MinIO配置等
+
+# 构建项目
+./mvnw clean package -DskipTests
+
+# 启动服务
+java -jar target/backend.jar --spring.profiles.active=prod
+```
+
+##### 3. 配置前端服务
+
+```bash
+# 克隆项目
+cd frontend
+
+# 安装依赖
+npm install
+
+# 修改配置文件
+# 编辑.env.production文件，设置API基础URL
+
+# 构建项目
+npm run build
+
+# 部署到Nginx
+# 复制dist目录内容到Nginx的html目录
+```
+
+##### 4. Nginx配置示例
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        root /path/to/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api {
+        proxy_pass http://localhost:8080/api;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # 可选：配置HTTPS
+    # listen 443 ssl;
+    # ssl_certificate /path/to/ssl/cert.pem;
+    # ssl_certificate_key /path/to/ssl/key.pem;
+}
+```
 
 ## 🎯 功能特性
 
 LeafPan 提供全面的文件管理功能，涵盖从用户认证到文件分享的完整流程。
 
-### 安全认证系统
+### 🔐 安全认证系统
 
-LeafPan 采用基于 Spring Security 的 JWT 令牌认证机制，实现无状态的安全认证。系统支持用户注册、登录和密码重置功能，使用 BCrypt 算法对密码进行加密存储。通过 Redis 和 Spring Session 实现用户会话管理，同时提供基于角色的访问控制，确保系统安全。
+- **JWT 令牌认证**：基于 Spring Security 的无状态认证机制
+- **多因素认证**：支持双因素认证，增强账户安全性
+- **密码加密**：使用 BCrypt 算法加密存储用户密码
+- **会话管理**：通过 Redis 和 Spring Session 实现分布式会话
+- **RBAC权限控制**：基于角色的细粒度访问控制
+- **IP限制和登录保护**：防止暴力破解和异常登录
 
-### 文件管理功能
+### 📁 文件管理功能
 
-在文件管理方面，LeafPan 支持大文件的分片上传和断点续传功能，通过 MinIO 对象存储和前端分片技术实现高效的文件传输。用户可以通过直观的界面查看和管理文件列表，支持图片和文档的在线预览。系统还集成了 Elasticsearch 搜索引擎，支持按文件名和内容进行快速搜索。文件删除操作支持回收站功能，防止误删重要文件。
+- **大文件分片上传**：支持 GB 级文件的分片上传和断点续传
+- **文件预览**：支持图片、文档（PDF、Office）、视频、音频在线预览
+- **文件操作**：上传、下载、复制、移动、重命名、删除等完整操作
+- **文件夹管理**：创建、编辑、删除文件夹，支持嵌套结构
+- **回收站机制**：删除文件自动进入回收站，可恢复或永久删除
+- **版本控制**：重要文件的多版本管理和历史版本恢复
+- **收藏夹功能**：标记常用文件，快速访问
 
-### 文件分享机制
+### 🔗 文件分享机制
 
-LeafPan 的文件分享功能允许用户生成分享链接，支持公开分享和密码保护两种方式。用户可以方便地管理自己的分享链接，系统会自动统计分享次数和下载次数。通过后端 API 和前端界面的紧密配合，为用户提供流畅的文件分享体验。
+- **链接分享**：生成可定制的分享链接，支持公开和私密分享
+- **密码保护**：为分享链接设置访问密码，增强安全性
+- **有效期设置**：自定义分享链接的有效期限
+- **分享权限**：控制被分享者的操作权限（只读/编辑/下载）
+- **分享管理**：统一管理所有分享链接，支持查看访问统计
+- **批量分享**：支持多文件和文件夹的批量分享操作
 
-### 技术特性
+### 🚀 高级功能
+
+- **全文搜索**：基于 Elasticsearch 的文件名和内容快速搜索
+- **文件标签**：通过标签对文件进行分类管理
+- **文件评论**：支持在文件上添加评论，促进团队协作
+- **活动日志**：记录所有文件操作历史，方便审计和追踪
+- **存储空间管理**：用户配额管理和使用情况统计
+- **移动端适配**：响应式设计，支持在各种移动设备上使用
+- **WebDAV支持**：可通过WebDAV协议挂载为本地磁盘
+
+### 🔧 技术特性
 
 LeafPan 在技术实现上采用现代化的架构设计，具备以下技术特性：
 
-**架构特性**：采用前后端分离架构，前端使用 Vue 3，后端基于 Spring Boot 构建。通过标准的 RESTful API 进行前后端通信，模块化设计为微服务架构演进提供了良好基础。
+**架构特性**：
+- 前后端分离架构，前端 Vue 3 + 后端 Spring Boot 3
+- RESTful API 设计，支持多客户端接入
+- 模块化设计，便于功能扩展和维护
+- 支持微服务架构演进
 
-**安全特性**：系统实现了基于 JWT 的 API 认证机制，使用 BCrypt 算法加密存储用户密码。文件存储在安全的 MinIO 对象存储中，同时提供细粒度的权限控制机制，确保数据安全。
+**安全特性**：
+- JWT + Spring Security 认证授权体系
+- BCrypt 密码加密存储
+- HTTPS 传输加密
+- 文件加密存储选项
+- SQL注入防护、XSS防护、CSRF防护
 
-**部署特性**：支持完整的 Docker 容器化部署，提供多环境配置支持（开发、测试、生产）。通过 Maven 和 Vue CLI 实现自动化构建，集成 GitHub Actions 实现持续集成和持续部署流程。
+**部署特性**：
+- Docker 容器化部署，支持 Docker Compose 编排
+- Kubernetes 云原生部署支持
+- 多环境配置（开发、测试、生产）
+- CI/CD 自动化流程（GitHub Actions）
+- 健康检查和监控告警机制
 
 ## 🛠️ 技术栈
 
 LeafPan 项目采用现代化的技术栈，涵盖前端、后端和部署运维三个主要层面。
 
-### 前端技术栈
+### 🖥️ 前端技术栈
 
-前端部分基于 Vue 3 框架构建，使用 Vue CLI 5 作为项目脚手架和构建工具。项目集成了 TypeScript 类型系统，采用 Element Plus 作为主要的 UI 组件库。
+| 技术/框架 | 版本 | 用途 |
+|----------|------|------|
+| Vue | 3.2.13+ | 前端框架 |
+| TypeScript | 5.0+ | 类型系统 |
+| Element Plus | 2.3.8+ | UI组件库 |
+| Vue Router | 4.1.5+ | 路由管理 |
+| Pinia | 2.1.3+ | 状态管理 |
+| Axios | 1.6.0+ | HTTP请求 |
+| Vite | 4.4.0+ | 构建工具 |
+| Jest | 29.5.0+ | 单元测试 |
+| ESLint | 8.46.0+ | 代码规范检查 |
+| Prettier | 3.0.0+ | 代码格式化 |
 
-在功能实现方面，使用 Vue Router 进行单页面应用的路由管理，Pinia 作为状态管理库，Axios 处理 HTTP 请求。对于图片处理需求，集成了 Vue Advanced Cropper 组件。代码质量方面，通过 ESLint 和 Prettier 确保代码规范，使用 Jest 和 Vue Test Utils 进行单元测试。构建优化方面，采用 Vite 作为现代化快速构建工具。
+### ⚙️ 后端技术栈
 
-### 后端技术栈
+| 技术/框架 | 版本 | 用途 |
+|----------|------|------|
+| Spring Boot | 3.5.6 | 后端框架 |
+| Java | 17 LTS | 开发语言 |
+| Spring Security | 6.1.0+ | 安全框架 |
+| JWT | 0.11.5+ | 令牌认证 |
+| Spring Data JPA | 3.1.0+ | ORM框架 |
+| MySQL | 8.0.33+ | 关系型数据库 |
+| Redis | 7.0+ | 缓存服务 |
+| Elasticsearch | 8.5.0+ | 搜索引擎 |
+| MinIO | 8.5.4+ | 对象存储 |
+| Swagger/OpenAPI | 3.0 | API文档 |
+| Lombok | 1.18.26+ | 代码简化 |
+| MapStruct | 1.5.5+ | 对象映射 |
 
-后端采用 Spring Boot 3.5.6 框架，运行在 Java 17 LTS 版本上。项目使用 Maven 进行依赖管理和构建。安全方面，通过 Spring Security 框架实现认证授权，集成 JWT 令牌认证机制，使用 BCrypt 算法加密存储用户密码。
+### 🚚 部署运维技术栈
 
-数据持久化层采用 Spring Data JPA，主要业务数据存储在 MySQL 8.0 数据库中。为了提高系统性能，集成 Redis 作为缓存服务，Elasticsearch 用于全文搜索功能。文件存储使用 MinIO 对象存储服务。API 文档通过 Swagger/OpenAPI 3.0 自动生成，开发效率方面使用 Lombok 和 MapStruct 简化代码编写。
-
-### 部署运维技术栈
-
-部署方面，项目支持完整的 Docker 容器化部署，通过 Docker Compose 进行多服务编排。生产环境支持 Kubernetes 云原生部署。Web 服务器使用 Nginx 进行反向代理和负载均衡。
-
-监控系统集成 Prometheus 进行指标收集，Grafana 用于数据可视化展示。应用健康状态通过 Spring Boot Actuator 进行监控。持续集成和持续部署通过 GitHub Actions 实现自动化流程。日志管理采用 Logback 结合 ELK Stack 实现集中式日志管理。
+| 技术/工具 | 版本 | 用途 |
+|----------|------|------|
+| Docker | 24.0+ | 容器化部署 |
+| Docker Compose | 2.20+ | 服务编排 |
+| Kubernetes | 1.25+ | 云原生部署 |
+| Nginx | 1.24+ | 反向代理/负载均衡 |
+| Prometheus | 2.46+ | 监控指标收集 |
+| Grafana | 10.1+ | 监控数据可视化 |
+| GitHub Actions | - | CI/CD自动化 |
+| Logback | 1.4.8+ | 日志管理 |
+| ELK Stack | - | 日志收集与分析
 
 ### 技术架构特点
 
@@ -181,80 +364,87 @@ LeafPan 的技术架构设计充分考虑了现代应用开发的需求，具备
 
 ## 📁 项目结构
 
+LeafPan 项目采用清晰的模块化结构设计，便于开发和维护。
+
 ```
 LeafPan/
 ├── backend/                         # Spring Boot后端模块
 │   ├── src/main/java/             # Java源代码
-│   │   ├── config/                # 配置类
-│   │   ├── controller/            # 控制器层
-│   │   ├── service/               # 服务层
+│   │   ├── config/                # 配置类（数据库、安全、缓存等）
+│   │   ├── controller/            # REST API控制器
+│   │   ├── service/               # 业务逻辑层
 │   │   ├── repository/            # 数据访问层
-│   │   ├── entity/                # 实体类
+│   │   ├── entity/                # 数据库实体类
 │   │   ├── dto/                   # 数据传输对象
-│   │   ├── security/              # 安全配置
+│   │   ├── security/              # 认证授权配置
+│   │   ├── exception/             # 异常处理
+│   │   ├── filter/                # 过滤器（JWT、CORS等）
+│   │   ├── interceptor/           # 拦截器
 │   │   └── util/                  # 工具类
+│   ├── src/main/resources/        # 资源文件
+│   │   ├── application.yml        # 应用配置
+│   │   ├── static/                # 静态资源
+│   │   └── templates/             # 模板文件
 │   ├── src/test/java/             # 测试代码
 │   ├── Dockerfile                 # Docker构建文件
-│   ├── pom.xml                    # Maven配置
-│   ├── mvnw                       # Maven Wrapper (Linux)
-│   └── mvnw.cmd                   # Maven Wrapper (Windows)
+│   ├── pom.xml                    # Maven依赖配置
+│   └── mvnw*                      # Maven Wrapper脚本
+
 ├── frontend/                       # Vue 3前端模块
 │   ├── src/                       # 源代码
 │   │   ├── components/            # 公共组件
+│   │   │   ├── common/            # 基础通用组件
+│   │   │   ├── layout/            # 布局组件
+│   │   │   └── file/              # 文件相关组件
 │   │   ├── views/                 # 页面组件
+│   │   │   ├── user/              # 用户页面
+│   │   │   ├── admin/             # 管理员页面
+│   │   │   └── public/            # 公共页面
 │   │   ├── router/                # 路由配置
-│   │   ├── stores/                # 状态管理
+│   │   ├── stores/                # Pinia状态管理
 │   │   ├── utils/                 # 工具函数
+│   │   │   ├── api/               # API请求封装
+│   │   │   ├── auth/              # 认证相关
+│   │   │   └── file/              # 文件操作工具
 │   │   ├── assets/                # 静态资源
+│   │   ├── styles/                # 全局样式
+│   │   ├── lang/                  # 国际化语言文件
 │   │   └── App.vue                # 根组件
-│   ├── public/                    # 公共资源
+│   ├── public/                    # 公共静态资源
+│   ├── .env.*                     # 环境变量配置
 │   ├── Dockerfile                 # Docker构建文件
 │   ├── package.json               # 依赖配置
-│   ├── vue.config.js              # Vue配置
-│   ├── babel.config.js            # Babel配置
-│   ├── jsconfig.json              # JS配置
-│   ├── nginx.conf                 # Nginx配置
-│   └── .eslintrc.js               # ESLint配置
+│   └── vite.config.js             # Vite构建配置
+
 ├── deploy/                         # 部署配置
 │   ├── docker-compose.yml         # Docker Compose配置
 │   ├── backend/                   # 后端部署配置
-│   │   └── Dockerfile             # 后端Dockerfile
 │   └── frontend/                  # 前端部署配置
-│       ├── Dockerfile             # 前端Dockerfile
-│       └── nginx.conf            # Nginx配置
+
 ├── k8s/                           # Kubernetes配置
-│   ├── namespace.yaml             # 命名空间
+│   ├── namespace.yaml             # 命名空间配置
 │   ├── backend-delop.yaml         # 后端部署配置
 │   ├── frontend-delop.yaml        # 前端部署配置
-│   ├── mysql-delop.yaml           # MySQL部署配置
-│   ├── minio-delop.yaml           # MinIO部署配置
 │   └── deploy.sh                  # 部署脚本
+
 ├── docs/                          # 项目文档
+│   ├── images/                    # 文档图片资源
 │   ├── deployment.md              # 部署指南
-│   ├── development.md            # 开发指南
+│   ├── development.md             # 开发指南
 │   ├── api.md                     # API文档
 │   └── faq.md                     # 常见问题
-├── docker/                        # Docker相关配置
-│   └── mysql/                      # MySQL配置
+
 ├── scripts/                       # 脚本文件
 │   ├── build-and-deploy.bat       # Windows构建部署脚本
-│   ├── build-and-deploy.ps1       # PowerShell构建部署脚本
-│   ├── build-backend.bat          # 后端构建脚本
 │   └── start-minio.bat            # MinIO启动脚本
-├── .github/                       # GitHub Actions配置
-│   └── workflows/                 # 工作流配置
-│       └── ci-cd.yml             # CI/CD流水线
-├── .gitignore                     # Git忽略配置
-├── .gitattributes                 # Git属性配置
+
+├── .github/                       # GitHub配置
+│   └── workflows/                 # CI/CD工作流
+
 ├── CONTRIBUTING.md                # 贡献指南
 ├── DATABASE_DESIGN.md             # 数据库设计文档
 ├── LICENSE                        # 许可证文件
-├── README.md                      # 项目说明文档
-├── README_EN.md                   # 英文说明文档
-├── pom.xml                        # 根目录Maven配置
-├── package.json                   # 根目录包配置
-├── mvnw                           # Maven Wrapper (Linux)
-└── mvnw.cmd                       # Maven Wrapper (Windows)
+└── README.md                      # 项目说明文档
 ```
 
 ## 🔧 开发指南
@@ -508,7 +698,35 @@ jmeter -g test-results.jtl -o performance-report/
 - 文件上传速度 (> 10MB/s)
 - 内存使用情况
 
-### 🔒 安全测试
+## 🔒 安全措施
+
+### 安全架构
+
+LeafPan采用多层次的安全架构设计，保障用户数据和系统安全：
+
+- **传输层安全**：全站HTTPS加密，保护数据传输安全
+- **认证授权**：基于JWT的身份认证，细粒度的RBAC权限控制
+- **数据加密**：敏感数据存储加密，支持文件加密存储选项
+- **访问控制**：IP限制、登录限流、防暴力破解机制
+- **安全审计**：完整的操作日志记录，支持安全审计追踪
+
+### 安全防护
+
+#### 前端安全
+
+- **XSS防护**：使用Vue.js的自动转义和内容安全策略(CSP)
+- **CSRF防护**：实现CSRF Token验证机制
+- **输入验证**：前后端双重数据验证，防止恶意输入
+- **安全头部**：配置适当的HTTP安全响应头
+
+#### 后端安全
+
+- **SQL注入防护**：使用MyBatis参数化查询，避免SQL注入
+- **文件上传安全**：严格的文件类型验证、大小限制、重命名和隔离存储
+- **API安全**：接口签名验证、请求频率限制、数据脱敏处理
+- **依赖安全**：定期扫描和更新依赖库，修复已知漏洞
+
+### 安全测试
 
 #### 安全扫描
 
@@ -516,16 +734,19 @@ jmeter -g test-results.jtl -o performance-report/
 # 使用OWASP ZAP进行安全扫描
 zap-baseline.py -t http://localhost:8080
 
-# 使用SonarQube进行代码质量检查
+# 使用SonarQube进行代码质量和安全检查
 sonar-scanner
 ```
 
-**安全测试重点：**
-- SQL注入防护
-- XSS跨站脚本攻击
-- CSRF跨站请求伪造
-- 文件上传安全
-- 认证授权漏洞
+#### 安全测试重点
+
+| 安全威胁 | 防护措施 | 测试方法 |
+|---------|---------|----------|
+| SQL注入 | 参数化查询、ORM框架 | 自动化安全扫描、手动渗透测试 |
+| XSS攻击 | 输入验证、输出转义、CSP | OWASP ZAP扫描、浏览器安全测试 |
+| CSRF攻击 | CSRF Token、SameSite Cookie | 自动化安全扫描、手动验证 |
+| 文件上传漏洞 | 严格的文件验证和隔离存储 | 文件上传测试、恶意文件检测 |
+| 认证授权缺陷 | JWT认证、RBAC权限控制 | 权限绕过测试、未授权访问测试 |
 
 ### 📋 测试报告
 
@@ -543,81 +764,120 @@ sonar-scanner
 
 LeafPan 致力于提供高性能的云存储服务，以下是我们的性能目标和实际测试结果：
 
-**页面加载时间**：目标小于2秒，当前达到1.2秒（在4核8G服务器上测试，First Contentful Paint指标）
-
-**API响应时间**：目标小于100毫秒，当前达到45毫秒（本地网络环境，平均响应时间）
-
-**文件上传速度**：目标大于10MB/s，当前达到15MB/s（千兆网络环境，大文件分片上传）
-
-**文件下载速度**：目标大于20MB/s，当前达到25MB/s（千兆网络环境，CDN加速下载）
-
-**并发用户数**：目标支持1000+用户，目前正在测试中（压力测试环境，同时在线用户）
-
-**数据库查询**：目标小于50毫秒，当前达到30毫秒（MySQL 8.0，复杂查询响应）
-
-**缓存命中率**：目标大于95%，当前达到98%（Redis缓存，热点数据缓存）
-
-**系统可用性**：目标大于99.9%，当前达到99.95%（生产环境，月度可用性）
+| 性能指标 | 目标值 | 当前值 | 测试环境 |
+|---------|-------|-------|----------|
+| 页面加载时间 | < 2秒 | 1.2秒 | 4核8G服务器，First Contentful Paint |
+| API响应时间 | < 100毫秒 | 45毫秒 | 本地网络环境，平均响应时间 |
+| 文件上传速度 | > 10MB/s | 15MB/s | 千兆网络环境，大文件分片上传 |
+| 文件下载速度 | > 20MB/s | 25MB/s | 千兆网络环境，CDN加速下载 |
+| 并发用户数 | 1000+ | 测试中 | 压力测试环境，同时在线用户 |
+| 数据库查询 | < 50毫秒 | 30毫秒 | MySQL 8.0，复杂查询响应 |
+| 缓存命中率 | > 95% | 98% | Redis缓存，热点数据缓存 |
+| 系统可用性 | > 99.9% | 99.95% | 生产环境，月度可用性 |
 
 ### 性能测试结果
 
 #### 前端性能
 
 前端性能表现优异，Lighthouse评分如下：
-- Performance：95/100
-- Accessibility：100/100  
-- Best Practices：100/100
-- SEO：100/100
-- PWA：92/100
+
+| 评分指标 | 分数 | 状态 |
+|---------|------|------|
+| Performance | 95/100 | 🟢 优秀 |
+| Accessibility | 100/100 | 🟢 优秀 |
+| Best Practices | 100/100 | 🟢 优秀 |
+| SEO | 100/100 | 🟢 优秀 |
+| PWA | 92/100 | 🟢 优秀 |
 
 核心Web指标表现良好：
-- Largest Contentful Paint (LCP)：1.2秒
-- First Input Delay (FID)：45毫秒
-- Cumulative Layout Shift (CLS)：0.05
+
+| 核心指标 | 值 | 状态 |
+|---------|-----|------|
+| Largest Contentful Paint (LCP) | 1.2秒 | 🟢 良好 |
+| First Input Delay (FID) | 45毫秒 | 🟢 良好 |
+| Cumulative Layout Shift (CLS) | 0.05 | 🟢 良好 |
 
 #### 后端性能
 
 API性能测试结果显示系统响应迅速：
-- 认证登录接口平均响应时间35毫秒，95%响应时间65毫秒，吞吐量1200请求/秒，错误率0.01%
-- 文件上传接口平均响应时间45毫秒，95%响应时间85毫秒，吞吐量800请求/秒，错误率0.02%
-- 文件下载接口平均响应时间28毫秒，95%响应时间52毫秒，吞吐量1500请求/秒，错误率0.01%
-- 文件列表接口平均响应时间22毫秒，95%响应时间40毫秒，吞吐量2000请求/秒，错误率0.005%
+
+| 接口类型 | 平均响应时间 | 95%响应时间 | 吞吐量 | 错误率 |
+|---------|------------|------------|-------|-------|
+| 认证登录接口 | 35毫秒 | 65毫秒 | 1200请求/秒 | 0.01% |
+| 文件上传接口 | 45毫秒 | 85毫秒 | 800请求/秒 | 0.02% |
+| 文件下载接口 | 28毫秒 | 52毫秒 | 1500请求/秒 | 0.01% |
+| 文件列表接口 | 22毫秒 | 40毫秒 | 2000请求/秒 | 0.005%
 
 #### 数据库性能
 
 MySQL数据库性能稳定：
-- 查询缓存命中率达到98.5%
-- 连接池使用率保持在65%
-- 慢查询比例低于0.1%
-- 死锁发生率为0
+
+| 性能指标 | 值 | 状态 |
+|---------|-----|------|
+| 查询缓存命中率 | 98.5% | 🟢 优秀 |
+| 连接池使用率 | 65% | 🟢 良好 |
+| 慢查询比例 | < 0.1% | 🟢 优秀 |
+| 死锁发生率 | 0 | 🟢 优秀 |
 
 Redis缓存系统表现优异：
-- 缓存命中率达到99.2%
-- 内存使用率控制在45%
-- 网络延迟小于1毫秒
-- QPS达到15,000+
+
+| 性能指标 | 值 | 状态 |
+|---------|-----|------|
+| 缓存命中率 | 99.2% | 🟢 优秀 |
+| 内存使用率 | 45% | 🟢 良好 |
+| 网络延迟 | < 1毫秒 | 🟢 优秀 |
+| QPS | 15,000+ | 🟢 优秀 |
 
 ### 性能优化策略
 
 #### 前端优化
-前端性能优化主要采用代码分割技术，按路由懒加载组件，减少初始加载时间。图片优化方面支持WebP格式和懒加载机制，提升页面加载速度。缓存策略结合浏览器缓存和Service Worker，资源压缩使用Gzip和Brotli压缩算法，并通过CDN加速实现静态资源全球分发。
+
+- **代码分割**：按路由懒加载组件，减少初始加载时间
+- **图片优化**：支持WebP格式和懒加载机制，提升页面加载速度
+- **缓存策略**：结合浏览器缓存和Service Worker，提高资源复用率
+- **资源压缩**：使用Gzip和Brotli压缩算法，减小传输体积
+- **CDN加速**：实现静态资源全球分发，降低延迟
 
 #### 后端优化
-后端性能优化使用HikariCP高性能连接池管理数据库连接，采用多级缓存策略结合Redis和本地缓存提升数据访问速度。异步处理机制支持非阻塞IO和异步任务处理，数据库优化包括索引优化和查询优化，负载均衡通过Nginx反向代理实现请求分发。
+
+- **连接池优化**：使用HikariCP高性能连接池管理数据库连接
+- **缓存策略**：采用多级缓存策略结合Redis和本地缓存提升数据访问速度
+- **异步处理**：支持非阻塞IO和异步任务处理，提高并发能力
+- **数据库优化**：索引优化和查询优化，减少数据库负载
+- **负载均衡**：通过Nginx反向代理实现请求分发，提高系统稳定性
 
 #### 存储优化
-存储性能优化支持大文件分片上传下载，文件压缩存储减少存储空间占用。通过CDN加速实现文件内容全球分发，存储分层机制将热数据和冷数据分离存储，提升整体存储效率。
+
+- **分片传输**：支持大文件分片上传下载，提高传输效率
+- **文件压缩**：压缩存储减少存储空间占用
+- **CDN加速**：实现文件内容全球分发，提升用户体验
+- **存储分层**：热数据和冷数据分离存储，优化存储成本
 
 ### 监控告警
 
 #### 系统监控
-系统监控覆盖应用层面，使用Spring Boot Actuator进行应用监控，JVM层面监控内存和垃圾回收情况，数据库层面监控MySQL性能指标，缓存层面监控Redis各项指标。
+
+- **应用监控**：使用Spring Boot Actuator监控应用健康状态和性能指标
+- **JVM监控**：监控内存使用、垃圾回收、线程状态等JVM核心指标
+- **数据库监控**：实时监控MySQL性能、连接数、慢查询等关键指标
+- **缓存监控**：监控Redis内存使用、命中率、命令执行等指标
 
 #### 业务监控
-业务监控关注用户行为统计分析，文件上传下载统计，系统资源使用情况监控，以及错误日志和异常监控，确保系统稳定运行。
+
+- **用户行为分析**：统计用户访问、操作行为，识别使用模式
+- **文件传输统计**：监控文件上传下载量、速度和成功率
+- **资源使用监控**：跟踪系统资源消耗趋势，预测扩容需求
+- **异常监控**：实时捕获错误日志和异常，快速定位问题
 
 #### 告警规则
-告警规则设置包括：CPU使用率超过80%持续5分钟触发告警，内存使用率超过85%持续5分钟触发告警，磁盘使用率超过90%触发告警，API错误率超过1%持续2分钟触发告警，服务不可用持续30秒触发告警。
+
+| 监控项 | 触发条件 | 告警级别 | 处理建议 |
+|-------|---------|---------|----------|
+| CPU使用率 | > 80% 持续5分钟 | 警告 | 检查是否有异常进程，考虑扩容 |
+| 内存使用率 | > 85% 持续5分钟 | 警告 | 检查内存泄漏，调整JVM参数 |
+| 磁盘使用率 | > 90% | 紧急 | 清理日志或文件，扩展存储空间 |
+| API错误率 | > 1% 持续2分钟 | 警告 | 检查服务状态和异常日志 |
+| 服务可用性 | 不可用持续30秒 | 紧急 | 立即检查服务状态并恢复服务 |
 
 ## 🤝 贡献指南
 

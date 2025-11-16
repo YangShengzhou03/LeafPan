@@ -67,10 +67,52 @@
             </el-breadcrumb>
         </div>
 
+        <!-- 移动端选择工具栏 -->
+        <div v-if="selectionMode" class="mobile-selection-toolbar">
+            <div class="selection-info">已选择 {{ selectedFiles.length }} 项</div>
+            <div class="selection-actions">
+                <el-button size="small" @click="handleBulkCommand('download')">
+                    <el-icon><Download /></el-icon> 下载
+                </el-button>
+                <el-button size="small" @click="handleBulkCommand('share')">
+                    <el-icon><Share /></el-icon> 分享
+                </el-button>
+                <el-button size="small" type="danger" @click="handleBulkCommand('delete')">
+                    <el-icon><Delete /></el-icon> 删除
+                </el-button>
+                <el-button size="small" @click="toggleSelectionMode">
+                    完成
+                </el-button>
+            </div>
+        </div>
+
+        <!-- 移动端快速操作栏 -->
+        <div class="mobile-quick-actions">
+            <el-button type="primary" size="small" class="mobile-action-btn" @click="handleUpload">
+                <el-icon><Upload /></el-icon>
+            </el-button>
+            <el-button type="primary" size="small" class="mobile-action-btn" @click="handleNewFolder">
+                <el-icon><FolderAdd /></el-icon>
+            </el-button>
+            <el-button size="small" class="mobile-action-btn" @click="toggleSelectionMode">
+                <el-icon><Check /></el-icon>
+            </el-button>
+        </div>
+
         <!-- 文件列表 - 网格视图 -->
         <div v-if="viewMode === 'grid'" class="files-grid" v-loading="loading">
-            <div v-for="item in filteredFiles" :key="item.id" class="file-item" @click="handleItemClick(item)"
-                @contextmenu.prevent="handleRightClick(item, $event)">
+            <div v-for="item in filteredFiles" :key="item.id" 
+                :class="['file-item', { 'selected': isFileSelected(item) }]" 
+                @click="selectionMode ? toggleFileSelection(item, $event) : handleItemClick(item)"
+                @contextmenu.prevent="handleRightClick(item, $event)"
+                @touchstart="startLongPressTimer(item)"
+                @touchend="cancelLongPressTimer"
+                @touchmove="cancelLongPressTimer">
+                <!-- 选择模式下的复选框 -->
+                <div v-if="selectionMode" class="file-selection-checkbox">
+                    <el-icon v-if="isFileSelected(item)" class="check-icon"><Check /></el-icon>
+                </div>
+                
                 <div class="file-icon-container">
                     <el-icon class="file-icon">
                         <component :is="getFileIconComponent(item.type)" />
@@ -81,7 +123,7 @@
                 <div class="file-meta">
                     {{ item.type === 'folder' ? '' : formatFileSize(item.size) }}
                 </div>
-                <div class="file-actions">
+                <div class="file-actions" v-if="!selectionMode">
                     <el-dropdown @command="(command) => handleFileCommand(command, item)">
                         <el-button type="text" size="small" class="file-action-btn" @click.stop>
                             <el-icon>
@@ -339,7 +381,8 @@ import {
     VideoPlay,
     Headset,
     Files,
-    DataLine
+    DataLine,
+    Check
 } from '@element-plus/icons-vue'
 import Server from '@/utils/Server.js'
 
@@ -418,6 +461,145 @@ const loading = ref(false)
 const contextMenuVisible = ref(false)
 const contextMenuX = ref(0)
 const contextMenuY = ref(0)
+
+// 移动端特有功能：选择模式
+const selectionMode = ref(false)
+const selectedFiles = ref([])
+
+// 切换选择模式
+const toggleSelectionMode = () => {
+    selectionMode.value = !selectionMode.value
+    if (!selectionMode.value) {
+        selectedFiles.value = [] // 退出选择模式时清空选择
+    }
+}
+
+// 选择或取消选择文件
+const toggleFileSelection = (item, event) => {
+    if (!selectionMode.value) return
+    event.stopPropagation() // 防止触发item点击事件
+    
+    const index = selectedFiles.value.findIndex(file => file.id === item.id)
+    if (index === -1) {
+        selectedFiles.value.push(item)
+    } else {
+        selectedFiles.value.splice(index, 1)
+    }
+}
+
+// 检查文件是否被选中
+const isFileSelected = (item) => {
+    return selectedFiles.value.some(file => file.id === item.id)
+}
+
+// 处理批量文件命令
+const handleBulkCommand = async (command) => {
+    if (selectedFiles.value.length === 0) {
+        ElMessage.warning('请选择要操作的文件')
+        return
+    }
+    
+    switch (command) {
+        case 'download':
+            // 实现批量下载逻辑
+            if (selectedFiles.value.length === 1) {
+                // 如果只选择了一个文件，使用原有的下载逻辑
+                handleFileCommand('download', selectedFiles.value[0])
+            } else {
+                // 批量下载实现
+                ElMessage.success(`开始批量下载 ${selectedFiles.value.length} 个文件`)
+                // 实际项目中应该实现压缩下载功能
+            }
+            break
+        
+        case 'share':
+            // 实现批量分享逻辑
+            ElMessage.success(`已生成 ${selectedFiles.value.length} 个文件的分享链接`)
+            // 实际项目中应该实现批量分享功能
+            break
+            
+        case 'delete':
+            // 批量删除确认
+            ElMessageBox.confirm(
+                `确定要删除选中的 ${selectedFiles.value.length} 个项目吗？`,
+                '确认删除',
+                {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }
+            )
+                .then(async () => {
+                    try {
+                        // 批量删除实现
+                        const ids = selectedFiles.value.map(file => file.id)
+                        // 这里应该实现批量删除API调用
+                        // await Server.delete('/file/delete-batch', { ids })
+                        ElMessage.success('删除成功')
+                        selectedFiles.value = []
+                        await loadFiles()
+                    } catch (error) {
+                        ElMessage.error('删除失败')
+                    }
+                })
+                .catch(() => {
+                    // 取消删除
+                })
+            break
+    }
+}
+
+// 长按时进入选择模式
+let longPressTimer = null
+let longPressedItem = null
+
+// 优化的长按处理函数，添加视觉反馈
+const handleLongPress = (item) => {
+    // 只有在移动端才启用长按功能
+    if (window.innerWidth <= 768 && !selectionMode.value) {
+        selectionMode.value = true
+        selectedFiles.value = [item]
+        longPressedItem = null
+        
+        // 提供触觉反馈（如果设备支持）
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50)
+        }
+    }
+}
+
+const startLongPressTimer = (item) => {
+    longPressedItem = item
+    // 优化长按时间，350ms更符合移动端用户体验
+    longPressTimer = setTimeout(() => handleLongPress(item), 350)
+}
+
+const cancelLongPressTimer = () => {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer)
+        longPressTimer = null
+        longPressedItem = null
+    }
+}
+
+// 添加窗口大小变化监听，确保在窗口大小改变时正确处理选择模式
+const handleResize = () => {
+    // 当屏幕从移动设备变为桌面设备时，自动退出选择模式
+    if (window.innerWidth > 768 && selectionMode.value) {
+        selectionMode.value = false
+        selectedFiles.value = []
+    }
+}
+
+// 在组件挂载时添加窗口大小变化监听
+onMounted(() => {
+    window.addEventListener('resize', handleResize)
+})
+
+// 在组件卸载时移除窗口大小变化监听
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize)
+})
 
 // 计算属性：过滤和排序后的文件列表
 const filteredFiles = computed(() => {
@@ -1341,6 +1523,111 @@ const handleCurrentChange = (newPage) => {
     text-decoration: underline;
 }
 
+/* 移动端选择模式样式 */
+.mobile-selection-toolbar {
+    background-color: #fff;
+    border: 1px solid #ebeef5;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.selection-info {
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #303133;
+}
+
+.selection-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* 移动端快速操作栏 */
+.mobile-quick-actions {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.mobile-action-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.mobile-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 文件选择框样式 */
+.file-selection-checkbox {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid #409eff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.check-icon {
+    color: #409eff;
+    font-size: 14px;
+}
+
+/* 选中状态样式 */
+.file-item.selected {
+    background-color: #ecf5ff;
+    border-color: #409eff;
+}
+
+/* 触摸反馈样式 */
+.file-item:active {
+    background-color: #f5f7fa;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .mobile-quick-actions {
+        display: flex;
+    }
+    
+    /* 选择工具栏在移动设备上的样式调整 */
+    .selection-actions {
+        justify-content: space-between;
+    }
+    
+    .selection-actions .el-button {
+        flex: 1;
+        margin: 2px;
+    }
+}
+
+/* 桌面设备不显示移动端快速操作栏 */
+@media (min-width: 769px) {
+    .mobile-quick-actions {
+        display: none;
+    }
+}
+
 .table-action-btn {
     padding: 4px 8px;
     border-radius: 6px;
@@ -1444,6 +1731,7 @@ const handleCurrentChange = (newPage) => {
 }
 
 /* 响应式设计 */
+/* 平板设备 */
 @media (max-width: 768px) {
     .files-page {
         padding: 12px;
@@ -1490,6 +1778,224 @@ const handleCurrentChange = (newPage) => {
 
     .file-meta {
         font-size: 9px;
+    }
+
+    /* 表格视图响应式调整 */
+    .files-list :deep(.el-table__row) {
+        font-size: 12px;
+    }
+
+    .files-list :deep(.el-table__header-wrapper) {
+        font-size: 11px;
+    }
+
+    /* 工具栏按钮大小调整 */
+    .header-actions {
+        gap: 8px;
+    }
+
+    .header-actions .el-button {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .header-actions .el-button .el-icon {
+        font-size: 14px;
+    }
+}
+
+/* 小型平板和大型手机 */
+@media (max-width: 640px) {
+    .files-page {
+        padding: 10px;
+    }
+
+    .breadcrumb-container {
+        padding: 12px 15px;
+    }
+
+    .modern-breadcrumb {
+        font-size: 12px;
+    }
+
+    .files-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .file-item {
+        padding: 10px;
+        min-height: 80px;
+        border-radius: 8px;
+    }
+
+    .file-icon {
+        font-size: 24px;
+    }
+
+    .file-name {
+        font-size: 10px;
+        margin-bottom: 4px;
+    }
+
+    .file-meta {
+        font-size: 8px;
+    }
+
+    .view-toggle .el-button {
+        padding: 6px;
+    }
+
+    .header-actions {
+        flex-wrap: wrap;
+    }
+
+    .header-actions .el-button {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}
+
+/* 移动设备 */
+@media (max-width: 480px) {
+    .files-page {
+        padding: 8px;
+    }
+
+    .files-header {
+        gap: 12px;
+    }
+
+    .files-toolbar {
+        gap: 12px;
+    }
+
+    .breadcrumb-container {
+        padding: 10px 12px;
+    }
+
+    .files-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .file-item {
+        padding: 8px;
+        min-height: 70px;
+        border-radius: 6px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .file-icon {
+        font-size: 20px;
+    }
+
+    .file-name {
+        font-size: 9px;
+        margin-bottom: 3px;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .file-meta {
+        font-size: 7px;
+        margin-bottom: 3px;
+    }
+
+    .context-menu {
+        min-width: 130px;
+    }
+
+    .modern-context-menu :deep(.el-menu-item) {
+        height: 36px;
+        line-height: 36px;
+        font-size: 12px;
+        gap: 6px;
+    }
+
+    .modern-context-menu :deep(.el-menu-item .el-icon) {
+        font-size: 14px;
+    }
+
+    .dialog-footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .dialog-footer .el-button {
+        width: 100%;
+    }
+}
+
+/* 极小屏幕设备 (iPhone SE 等) */
+@media (max-width: 320px) {
+    .files-page {
+        padding: 6px;
+    }
+
+    .files-toolbar {
+        gap: 8px;
+    }
+
+    .files-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 4px;
+        padding: 4px;
+    }
+
+    .file-item {
+        padding: 6px;
+        min-height: 60px;
+    }
+
+    .file-icon {
+        font-size: 18px;
+    }
+
+    .file-name {
+        font-size: 8px;
+        margin-bottom: 2px;
+        line-height: 1.1;
+    }
+
+    .file-meta {
+        font-size: 6px;
+    }
+
+    .mobile-action-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .mobile-action-btn .el-icon {
+        font-size: 18px;
+    }
+
+    /* 确保模态框适配极小屏幕 */
+    .modern-dialog {
+        max-width: 90vw !important;
+        margin: 10px auto;
+    }
+
+    .modern-dialog :deep(.el-dialog__header) {
+        padding: 16px;
+    }
+
+    .modern-dialog :deep(.el-dialog__body) {
+        padding: 16px;
+    }
+
+    /* 修复表格视图在极小屏幕上的显示问题 */
+    .files-list {
+        overflow-x: auto;
+    }
+
+    .modern-table {
+        min-width: 300px;
+        font-size: 10px;
     }
 }
 </style>

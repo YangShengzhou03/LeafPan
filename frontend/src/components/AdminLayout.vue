@@ -251,9 +251,10 @@ onMounted(async () => {
 }
 
 /* 响应式设计 */
+/* 平板设备 */
 @media (max-width: 768px) {
   .admin-sidebar {
-    width: 200px;
+    width: 60px;
   }
 
   .admin-header {
@@ -264,8 +265,85 @@ onMounted(async () => {
     font-size: 16px;
   }
 
+  .header-right .user-info .username {
+    display: none;
+  }
+
+  .admin-menu :deep(.el-menu-item span) {
+    display: none;
+  }
+
+  .admin-menu :deep(.el-menu-item) {
+    justify-content: center;
+  }
+
+  .admin-menu :deep(.el-menu-item .el-icon) {
+    margin-right: 0;
+    font-size: 20px;
+  }
+
   .admin-main {
     padding: 16px;
+  }
+}
+
+/* 小型平板和大型手机 */
+@media (max-width: 640px) {
+  .admin-header {
+    height: 50px;
+    padding: 0 12px;
+  }
+
+  .header-left .logo {
+    font-size: 14px;
+  }
+
+  .admin-sidebar {
+    width: 50px;
+  }
+
+  .admin-menu :deep(.el-menu-item) {
+    height: 40px;
+    line-height: 40px;
+  }
+
+  .admin-menu :deep(.el-menu-item .el-icon) {
+    font-size: 18px;
+  }
+
+  .admin-main {
+    padding: 12px;
+  }
+}
+
+/* 移动设备 */
+@media (max-width: 480px) {
+  .admin-header {
+    padding: 0 10px;
+  }
+
+  .header-left .logo {
+    font-size: 12px;
+  }
+
+  .admin-sidebar {
+    width: 45px;
+  }
+
+  .admin-menu :deep(.el-menu-item .el-icon) {
+    font-size: 16px;
+  }
+
+  .admin-main {
+    padding: 10px;
+  }
+
+  .admin-main :deep(.el-card__header) {
+    padding: 12px 16px;
+  }
+
+  .admin-main :deep(.card-header) {
+    font-size: 14px;
   }
 }
 </style>

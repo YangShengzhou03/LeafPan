@@ -22,21 +22,43 @@
             <div class="file-info">
               <div class="file-name">{{ file.name }}</div>
               <div class="file-meta">
-                <span class="meta-item">共享给: {{ file.sharedTo.join(', ') }}</span>
-                <span class="meta-item">共享时间: {{ formatDate(file.sharedAt) }}</span>
-                <span class="meta-item">权限: {{ file.permission === 'read' ? '只读' : '读写' }}</span>
-              </div>
+              <span class="meta-item" v-if="file.shareType === 'user'">共享给: {{ file.sharedTo?.join(', ') || '未知' }}</span>
+              <span class="meta-item" v-else-if="file.shareType === 'link'">
+                <el-tag size="small" type="primary">外链分享</el-tag>
+                <span v-if="file.hasPassword" class="password-indicator">🔒</span>
+              </span>
+              <span class="meta-item">共享时间: {{ formatDate(file.sharedAt || file.createdAt) }}</span>
+              <span class="meta-item">权限: {{ file.permission === 'read' ? '只读' : '读写' }}</span>
+              <span class="meta-item" v-if="file.viewCount !== undefined">访问: {{ file.viewCount }}次</span>
+              <span class="meta-item" v-if="file.downloadCount !== undefined">下载: {{ file.downloadCount }}次</span>
+            </div>
             </div>
             <div class="file-actions">
-              <el-button type="text" @click="editShare(file)">编辑</el-button>
-              <el-button type="text" @click="stopShare(file)">停止共享</el-button>
-            </div>
+        <el-button 
+          type="text" 
+          @click="editShare(file)"
+          v-if="file.shareType === 'user'"
+        >编辑</el-button>
+        <el-button 
+          type="text" 
+          @click="copyShareLink(file)"
+          v-else-if="file.shareType === 'link'"
+        >复制链接</el-button>
+        <el-button type="text" @click="stopShare(file)">停止共享</el-button>
+      </div>
           </div>
         </div>
 
         <!-- 空状态 -->
         <div class="empty-state" v-else>
-          <el-empty description="暂无共享文件"></el-empty>
+          <el-empty description="暂无共享文件">
+            <template #description>
+              <div class="empty-description">
+                <p>您还没有共享任何文件</p>
+                <p class="empty-tip">点击"新建共享"开始共享文件或生成外链</p>
+              </div>
+            </template>
+          </el-empty>
         </div>
       </el-tab-pane>
 
@@ -80,12 +102,19 @@
     <!-- 新建/编辑共享对话框 -->
     <el-dialog :title="shareDialogTitle" v-model="shareDialogVisible" width="500px" :close-on-click-modal="false">
       <el-form :model="shareForm" label-width="100px" :rules="shareRules" ref="shareFormRef">
+        <el-form-item label="共享方式" prop="shareType">
+          <el-radio-group v-model="shareForm.shareType" @change="onShareTypeChange">
+            <el-radio label="user">用户共享</el-radio>
+            <el-radio label="link">外链分享</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="选择文件" prop="fileId">
           <el-select v-model="shareForm.fileId" placeholder="请选择要共享的文件" style="width: 100%">
             <el-option v-for="file in availableFiles" :key="file.id" :label="file.name" :value="file.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="共享给" prop="sharedTo">
+        <!-- 用户共享选项 -->
+        <el-form-item label="共享给" prop="sharedTo" v-if="shareForm.shareType === 'user'">
           <el-select v-model="shareForm.sharedTo" placeholder="请选择用户" multiple filterable style="width: 100%">
             <el-option v-for="user in availableUsers" :key="user.id" :label="user.username" :value="user.username" />
           </el-select>
@@ -99,11 +128,74 @@
         <el-form-item label="过期时间" prop="expiresAt">
           <el-date-picker v-model="shareForm.expiresAt" type="date" placeholder="选择过期时间" style="width: 100%" />
         </el-form-item>
+        <!-- 外链分享选项 -->
+        <el-form-item label="是否加密" prop="hasPassword" v-if="shareForm.shareType === 'link'">
+          <el-switch v-model="shareForm.hasPassword" @change="onPasswordChange" />
+        </el-form-item>
+        <el-form-item label="访问密码" prop="password" v-if="shareForm.shareType === 'link' && shareForm.hasPassword">
+          <el-input v-model="shareForm.password" placeholder="设置访问密码" show-password />
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="shareDialogVisible = false">取消</el-button>
           <el-button type="primary" @click="submitShare" :loading="submitting">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 外链分享成功对话框 -->
+    <el-dialog 
+      title="外链分享成功" 
+      v-model="shareLinkDialogVisible" 
+      width="450px" 
+      :close-on-click-modal="false"
+    >
+      <div class="share-link-success">
+        <div class="share-info-item">
+          <div class="info-label">分享链接</div>
+          <el-input 
+            v-model="shareLinkInfo.url" 
+            readonly 
+            style="margin-top: 8px;"
+          >
+            <template #append>
+              <el-button @click="copyToClipboard(shareLinkInfo.url)" type="primary" text>
+                复制
+              </el-button>
+            </template>
+          </el-input>
+        </div>
+        
+        <div class="share-info-item" v-if="shareLinkInfo.password">
+          <div class="info-label">访问密码</div>
+          <el-input 
+            v-model="shareLinkInfo.password" 
+            readonly 
+            type="password"
+            style="margin-top: 8px;"
+          >
+            <template #append>
+              <el-button @click="copyToClipboard(shareLinkInfo.password)" type="primary" text>
+                复制
+              </el-button>
+            </template>
+          </el-input>
+        </div>
+        
+        <div class="share-tips">
+          <el-alert 
+            title="温馨提示" 
+            type="info" 
+            :closable="false"
+            description="请妥善保管您的分享链接和密码，避免泄露个人信息。"
+          />
+        </div>
+      </div>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="shareLinkDialogVisible = false">完成</el-button>
         </span>
       </template>
     </el-dialog>
@@ -140,9 +232,12 @@ const isEditing = ref(false)
 const shareForm = ref({
   id: null,
   fileId: '',
+  shareType: 'user', // 'user' 或 'link'
   sharedTo: [],
   permission: 'read',
-  expiresAt: null
+  expiresAt: null,
+  hasPassword: false,
+  password: ''
 })
 
 // 表单验证规则
@@ -151,10 +246,21 @@ const shareRules = {
     { required: true, message: '请选择要共享的文件', trigger: 'change' }
   ],
   sharedTo: [
-    { required: true, message: '请选择共享用户', trigger: 'change' }
+    { 
+      required: () => shareForm.value.shareType === 'user', 
+      message: '请选择共享用户', 
+      trigger: 'change' 
+    }
   ],
   permission: [
     { required: true, message: '请选择权限', trigger: 'change' }
+  ],
+  password: [
+    { 
+      required: () => shareForm.value.shareType === 'link' && shareForm.value.hasPassword, 
+      message: '请设置访问密码', 
+      trigger: 'blur' 
+    }
   ]
 }
 
@@ -235,9 +341,12 @@ const createShare = () => {
   shareForm.value = {
     id: null,
     fileId: '',
+    shareType: 'user',
     sharedTo: [],
     permission: 'read',
-    expiresAt: null
+    expiresAt: null,
+    hasPassword: false,
+    password: ''
   }
   shareDialogVisible.value = true
 }
@@ -249,17 +358,34 @@ const editShare = (file) => {
   shareForm.value = {
     id: file.id,
     fileId: file.fileId,
-    sharedTo: file.sharedTo,
+    shareType: file.shareType || 'user',
+    sharedTo: file.sharedTo || [],
     permission: file.permission,
-    expiresAt: file.expiresAt
+    expiresAt: file.expiresAt,
+    hasPassword: file.hasPassword || false,
+    password: '' // 编辑时不显示密码
   }
   shareDialogVisible.value = true
+}
+
+// 复制分享链接
+const copyShareLink = (file) => {
+  const baseUrl = window.location.origin
+  const shareUrl = `${baseUrl}/s/${file.shareCode}`
+  
+  // 显示链接信息对话框
+  shareLinkInfo.value = {
+    url: shareUrl,
+    code: file.shareCode,
+    password: file.password || '' // 实际密码不会返回，这里只是占位
+  }
+  shareLinkDialogVisible.value = true
 }
 
 // 停止共享
 const stopShare = (file) => {
   ElMessageBox.confirm(
-    `确定要停止共享 "${file.name}" 吗？`,
+    `确定要停止共享 "${file.name}" 吗？停止后将无法通过链接访问。`,
     '确认停止共享',
     {
       confirmButtonText: '确定',
@@ -330,6 +456,41 @@ const removeShare = (file) => {
   })
 }
 
+// 外链分享成功对话框
+const shareLinkDialogVisible = ref(false)
+const shareLinkInfo = ref({
+  url: '',
+  code: '',
+  password: ''
+})
+
+// 共享类型切换处理
+const onShareTypeChange = () => {
+  // 切换共享类型时重置相关字段
+  if (shareForm.value.shareType === 'user') {
+    shareForm.value.hasPassword = false
+    shareForm.value.password = ''
+  } else {
+    shareForm.value.sharedTo = []
+  }
+}
+
+// 密码设置切换处理
+const onPasswordChange = () => {
+  if (!shareForm.value.hasPassword) {
+    shareForm.value.password = ''
+  }
+}
+
+// 复制到剪贴板
+const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text).then(() => {
+    ElMessage.success('已复制到剪贴板')
+  }).catch(() => {
+    ElMessage.error('复制失败，请手动复制')
+  })
+}
+
 // 提交共享表单
 const submitShare = async () => {
   if (!shareFormRef.value) return
@@ -345,12 +506,27 @@ const submitShare = async () => {
       await fetchSharedByMe()
     } else {
       // 创建新共享
-      await Server.post('/share/create', shareForm.value)
-      ElMessage.success('共享已创建')
+      const response = await Server.post('/share/create', shareForm.value)
+      
+      // 如果是外链分享，显示分享链接对话框
+      if (shareForm.value.shareType === 'link') {
+        const baseUrl = window.location.origin
+        shareLinkInfo.value = {
+          url: `${baseUrl}/s/${response.data.shareCode}`,
+          code: response.data.shareCode,
+          password: shareForm.value.password
+        }
+        shareLinkDialogVisible.value = true
+      } else {
+        ElMessage.success('共享已创建')
+      }
       await fetchSharedByMe()
     }
 
-    shareDialogVisible.value = false
+    // 只有在用户共享时才关闭对话框
+    if (shareForm.value.shareType === 'user') {
+      shareDialogVisible.value = false
+    }
   } catch (error) {
     if (error !== false) { // 不是表单验证错误
       ElMessage.error(isEditing.value ? '更新共享失败' : '创建共享失败')
@@ -527,6 +703,40 @@ onMounted(async () => {
 .empty-state p {
   margin: 0 0 20px 0;
   font-size: 16px;
+}
+
+.empty-description {
+  text-align: center;
+}
+
+.empty-tip {
+  font-size: 14px !important;
+  color: #9ca3af;
+  margin-top: 8px !important;
+}
+
+/* 外链分享对话框样式 */
+.share-link-success {
+  padding: 10px 0;
+}
+
+.share-info-item {
+  margin-bottom: 20px;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.share-tips {
+  margin-top: 20px;
+}
+
+.password-indicator {
+  margin-left: 4px;
+  font-size: 14px;
 }
 
 /* 文件图标样式 */

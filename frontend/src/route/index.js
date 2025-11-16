@@ -13,6 +13,7 @@ import ContactUsPage from '@/views/index/ContactUsPage.vue';
 import FAQPage from '@/views/index/FaqPage.vue';
 import AuthorInfoPage from '@/views/index/AuthorInfoPage.vue';
 import PrivacyPolicyPage from '@/views/index/PrivacyPolicyPage.vue';
+import ShareAccessPage from '@/views/index/ShareAccessPage.vue';
 import store from '@/utils/store.js';
 import * as utils from '@/utils/utils.js';
 
@@ -173,25 +174,19 @@ const routes = [
   },
 
   // 法律信息页面
-  {
-    path: '/author-info',
-    name: 'AuthorInfoPage',
-    component: AuthorInfoPage,
-    meta: {
-      title: '作者介绍 - 枫叶网盘',
-      requiresAuth: false
-    }
+  { path: '/author-info', name: 'AuthorInfoPage', component: AuthorInfoPage, meta: { title: '作者介绍 - 枫叶网盘', requiresAuth: false } },
+  { path: '/privacy-policy', name: 'PrivacyPolicyPage', component: PrivacyPolicyPage, meta: { title: '隐私保护 - 枫叶网盘', requiresAuth: false } },
+  
+  // 公开分享访问页面
+  { 
+    path: '/s/:shareCode', 
+    name: 'ShareAccessPage', 
+    component: ShareAccessPage, 
+    meta: { 
+      title: '文件分享 - 枫叶网盘', 
+      requiresAuth: false 
+    } 
   },
-  {
-    path: '/privacy-policy',
-    name: 'PrivacyPolicyPage',
-    component: PrivacyPolicyPage,
-    meta: {
-      title: '隐私保护 - 枫叶网盘',
-      requiresAuth: false
-    }
-  },
-
 
   // 错误路径重定向（仅保留这一条）
   { path: '/:pathMatch(.*)*', redirect: '/' }

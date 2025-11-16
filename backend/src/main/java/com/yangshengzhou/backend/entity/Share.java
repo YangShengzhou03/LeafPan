@@ -1,7 +1,7 @@
 package com.yangshengzhou.backend.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "shares")
@@ -59,6 +59,16 @@ public class Share {
     @PrePersist
     protected void onCreate() {
         createdTime = LocalDateTime.now();
+    }
+    
+    /**
+     * 检查分享是否已过期
+     */
+    public boolean isExpired() {
+        if (expireTime == null) {
+            return false; // 没有设置过期时间，永不过期
+        }
+        return LocalDateTime.now().isAfter(expireTime);
     }
     
     // Getter和Setter方法

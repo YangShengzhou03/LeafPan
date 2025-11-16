@@ -559,6 +559,7 @@ onUnmounted(() => {
 }
 
 /* 响应式设计 */
+/* 平板设备 */
 @media (max-width: 768px) {
     .user-header {
         padding: 12px 15px;
@@ -576,12 +577,36 @@ onUnmounted(() => {
         display: none;
     }
     
-    .logout-btn span {
+    .user-content-nav {
+        width: 70px;
+    }
+    
+    .user-content-nav .nav-item span {
         display: none;
     }
     
-    .user-content-nav {
-        width: 220px;
+    .user-content-nav .nav-item {
+        justify-content: center;
+        padding: 14px 0;
+        margin-right: 0;
+        border-radius: 0;
+    }
+    
+    .user-content-nav .nav-item i {
+        margin-right: 0;
+        font-size: 20px;
+    }
+    
+    .user-content-nav .nav-item.active::before {
+        width: 100%;
+        height: 4px;
+        top: 0;
+        left: 0;
+        border-radius: 0;
+    }
+    
+    .user-content-nav .nav-footer {
+        display: none;
     }
     
     .user-content-container {
@@ -590,8 +615,69 @@ onUnmounted(() => {
     
     /* 添加移动端卡片效果 */
     .user-content-container > div {
-        padding: 12px;
+        padding: 16px;
         border-radius: 8px;
+    }
+}
+
+/* 小型平板和大型手机 */
+@media (max-width: 640px) {
+    .user-header {
+        padding: 8px 12px;
+    }
+    
+    .logo-container h1 {
+        font-size: 18px;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        margin-right: 8px;
+    }
+    
+    .user-content-nav {
+        width: 60px;
+    }
+    
+    .user-content-nav .nav-item i {
+        font-size: 18px;
+    }
+    
+    .user-content-container {
+        padding: 8px;
+    }
+    
+    .user-content-container > div {
+        padding: 12px;
+    }
+}
+
+/* 移动设备 */
+@media (max-width: 480px) {
+    .user-header {
+        padding: 8px 10px;
+    }
+    
+    .logo-container h1 {
+        font-size: 16px;
+    }
+    
+    .user-content-nav {
+        width: 55px;
+    }
+    
+    .user-content-nav .nav-item {
+        padding: 12px 0;
+    }
+    
+    .user-content-container {
+        padding: 6px;
+    }
+    
+    .user-content-container > div {
+        padding: 10px;
+        border-radius: 6px;
     }
 }
 </style>

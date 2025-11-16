@@ -17,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 public class ShareService {
@@ -181,14 +180,44 @@ public class ShareService {
     }
     
     /**
-     * 根据分享码获取分享
+     * 根据分享码获取分享 - 公开方法，无需登录
      */
-    public Optional<Share> getShareByCode(String shareCode) {
-        return shareRepository.findByShareCodeAndIsActiveTrue(shareCode);
+    public Share getShareByCode(String shareCode) {
+        Optional<Share> share = shareRepository.findByShareCodeAndIsActiveTrue(shareCode);
+        return share.orElse(null);
     }
     
     /**
-     * 增加分享的查看次数
+     * 验证分享密码
+     */
+    public boolean verifySharePassword(String shareCode, String password) {
+        Share share = getShareByCode(shareCode);
+        if (share == null || share.isExpired()) {
+            return false;
+        }
+        // 公开分享无需密码验证
+        if (share.getShareType() == 0) {
+            return true;
+        }
+        // 私密分享或密码分享需要验证
+        return share.getPassword() != null && share.getPassword().equals(password);
+    }
+    
+    /**
+     * 增加分享的查看次数 - 根据ID
+     */
+    @Transactional
+    public void incrementViewCount(Long shareId) {
+        Optional<Share> shareOpt = shareRepository.findById(shareId);
+        if (shareOpt.isPresent()) {
+            Share share = shareOpt.get();
+            share.setViewCount(share.getViewCount() + 1);
+            shareRepository.save(share);
+        }
+    }
+    
+    /**
+     * 增加分享的查看次数 - 根据分享码
      */
     @Transactional
     public void incrementViewCount(String shareCode) {
@@ -201,7 +230,20 @@ public class ShareService {
     }
     
     /**
-     * 增加分享的下载次数
+     * 增加分享的下载次数 - 根据ID
+     */
+    @Transactional
+    public void incrementDownloadCount(Long shareId) {
+        Optional<Share> shareOpt = shareRepository.findById(shareId);
+        if (shareOpt.isPresent()) {
+            Share share = shareOpt.get();
+            share.setDownloadCount(share.getDownloadCount() + 1);
+            shareRepository.save(share);
+        }
+    }
+    
+    /**
+     * 增加分享的下载次数 - 根据分享码
      */
     @Transactional
     public void incrementDownloadCount(String shareCode) {

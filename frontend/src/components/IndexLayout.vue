@@ -6,6 +6,13 @@
         <div class="logo-area">
           <h1>枫叶网盘</h1>
         </div>
+        
+        <nav class="nav-menu">
+          <a href="#features">功能特色</a>
+          <a href="#pricing">价格方案</a>
+          <a href="/faq">常见问题</a>
+        </nav>
+        
         <div class="auth-buttons" v-if="!isAuthenticated">
           <ElButton type="default" class="register-btn" @click="handleRegister">注册</ElButton>
           <ElButton type="primary" class="login-btn" @click="handleLogin">登录</ElButton>
@@ -15,7 +22,31 @@
             您好，
             <span class="username-link" @click="goToUserLayout">{{ currentUser?.nickname || currentUser?.email || '枫叶用户' }}</span>
           </span>
-
+        </div>
+        
+        <!-- 移动端汉堡菜单按钮 -->
+        <button class="mobile-menu-btn" @click="toggleMobileMenu">
+          <span class="menu-icon"></span>
+          <span class="menu-icon"></span>
+          <span class="menu-icon"></span>
+        </button>
+      </div>
+      
+      <!-- 移动端下拉菜单 -->
+      <div class="mobile-menu" v-if="mobileMenuOpen">
+        <nav class="mobile-nav-menu">
+          <a href="#features" @click="toggleMobileMenu">功能特色</a>
+          <a href="#pricing" @click="toggleMobileMenu">价格方案</a>
+          <a href="/faq" @click="toggleMobileMenu">常见问题</a>
+        </nav>
+        <div class="mobile-auth-buttons">
+          <div v-if="!isAuthenticated">
+            <ElButton type="default" class="register-btn" @click="handleRegister">注册</ElButton>
+            <ElButton type="primary" class="login-btn" @click="handleLogin">登录</ElButton>
+          </div>
+          <div v-else>
+            <span class="welcome-text">您好，{{ currentUser?.nickname || currentUser?.email || '枫叶用户' }}</span>
+          </div>
         </div>
       </div>
     </header>
@@ -159,13 +190,20 @@
 
 <script>
 import { ElButton, ElMessage } from 'element-plus';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/utils/store.js';
 
 export default {
   name: 'IndexLayout',
   setup() {
+    // 移动端菜单控制
+    const mobileMenuOpen = ref(false);
+    
+    const toggleMobileMenu = () => {
+      mobileMenuOpen.value = !mobileMenuOpen.value;
+    };
+    
     // 使用computed属性确保响应式
     const isAuthenticated = computed(() => store.state.isAuthenticated);
     const currentUser = computed(() => store.state.user);
@@ -215,7 +253,9 @@ export default {
       handleRegister,
       handleLogout,
       handleDemo,
-      handleStart
+      handleStart,
+      mobileMenuOpen,
+      toggleMobileMenu
     };
   }
 }
@@ -250,6 +290,128 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
+  position: relative;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-menu a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-menu a:hover {
+  color: #409EFF;
+}
+
+/* 移动端汉堡菜单样式 */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 200;
+}
+
+.menu-icon {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background-color: #333;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-btn.active .menu-icon:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.mobile-menu-btn.active .menu-icon:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-btn.active .menu-icon:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* 移动端下拉菜单 */
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  z-index: 150;
+}
+
+.mobile-nav-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 20px;
+  gap: 12px;
+}
+
+.mobile-nav-menu a {
+  color: #333;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.mobile-nav-menu a:hover {
+  background-color: #f5f5f5;
+}
+
+.mobile-auth-buttons {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 20px;
+  gap: 12px;
+  border-top: 1px solid #eee;
+}
+
+.mobile-auth-buttons .el-button {
+  width: 100%;
+}
+
+/* 触摸反馈效果 */
+.el-button, .file-item, .feature-card, .pricing-card, .start-btn, .demo-btn, .nav-menu a {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.el-button:active, .start-btn:active, .demo-btn:active {
+  transform: scale(0.98);
+}
+
+.file-item:active, .feature-card:active, .pricing-card:active {
+  transform: translateY(0px);
+}
+
+/* 响应式设计调整 */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+  
+  .mobile-menu {
+    display: block;
+  }
+  
+  .nav-menu {
+    display: none;
+  }
 }
 
 .logo-area h1 {
@@ -560,31 +722,206 @@ export default {
 }
 
 /* Responsive Design */
+/* 平板设备 */
 @media (max-width: 768px) {
   .header .container {
     flex-direction: column;
     gap: 15px;
+    padding: 15px 15px;
   }
 
   .nav-menu {
     display: none;
   }
 
+  .hero-section {
+    padding: 60px 0;
+  }
+
   .hero-section .container {
     flex-direction: column;
     text-align: center;
+    gap: 30px;
   }
 
   .hero-content h1 {
     font-size: 36px;
   }
 
+  .hero-content p {
+    font-size: 16px;
+  }
+
   .cta-buttons {
     justify-content: center;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .start-btn, .demo-btn {
+    width: 200px;
+  }
+
+  .features-section {
+    padding: 60px 0;
+  }
+
+  .features-section h2 {
+    font-size: 28px;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  .pricing-section {
+    padding: 60px 0;
+  }
+
+  .pricing-section h2 {
+    font-size: 28px;
   }
 
   .pricing-cards {
     grid-template-columns: 1fr;
+  }
+
+  .footer-content {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+/* 小型平板和大型手机 */
+@media (max-width: 640px) {
+  .hero-section {
+    padding: 40px 0;
+  }
+
+  .hero-content h1 {
+    font-size: 28px;
+  }
+
+  .hero-content p {
+    font-size: 14px;
+  }
+
+  .features-section {
+    padding: 40px 0;
+  }
+
+  .features-section h2 {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-card {
+    padding: 20px 15px;
+  }
+
+  .pricing-section {
+    padding: 40px 0;
+  }
+
+  .pricing-section h2 {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+
+  .pricing-card {
+    padding: 20px;
+  }
+
+  .footer {
+    padding: 40px 0 15px;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .footer-bottom p {
+    font-size: 12px;
+  }
+}
+
+/* 移动设备 */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
+  }
+
+  .header .container {
+    padding: 10px 15px;
+  }
+
+  .logo-area h1 {
+    font-size: 20px;
+  }
+
+  .auth-buttons {
+    gap: 8px;
+  }
+
+  .hero-section {
+    padding: 30px 0;
+  }
+
+  .hero-section .container {
+    gap: 20px;
+  }
+
+  .hero-content h1 {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .hero-content p {
+    margin-bottom: 20px;
+  }
+
+  .start-btn, .demo-btn {
+    width: 180px;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .features-section {
+    padding: 30px 0;
+  }
+
+  .feature-icon {
+    font-size: 36px;
+  }
+
+  .feature-card h3 {
+    font-size: 18px;
+  }
+
+  .pricing-section {
+    padding: 30px 0;
+  }
+
+  .price {
+    font-size: 28px;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .footer-section {
+    text-align: center;
+  }
+
+  .footer-bottom {
+    padding-top: 15px;
   }
 }
 </style>
