@@ -1,0 +1,101 @@
+# ====================== 默认配置（公共配置，所有环境共享） ======================
+spring:
+  application:
+    name: 轻羽云盘后端  # 应用名称，所有环境通用
+
+  # JPA配置（通用）
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  # Jackson配置（通用）
+  jackson:
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+  # 文件上传配置（通用）
+  servlet:
+    multipart:
+      max-file-size: 5GB
+      max-request-size: 5GB
+
+# 服务器配置（默认值，可被环境块覆盖）
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+# MinIO配置（默认值，可被环境块覆盖）
+minio:
+  port: 9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: data  # 默认桶名
+  data-bucket: data
+  avatar-bucket: avatar
+
+# 邮件配置（通用）
+email:
+  sender: 3555844679@qq.com
+  password: xtibpzrdwnppchhi
+  smtp:
+    server: smtp.qq.com
+    port: 465
+
+# 应用自定义配置（通用）
+app:
+  jwt:
+    secret: 轻羽云盘-secret-key-for-jwt-token-generation
+    expiration: 86400000  # 24小时
+  storage:
+    local-path: /tmp/轻羽云盘  # 本地存储路径（开发环境）
+    max-file-size: 5GB
+
+# 日志配置（通用）
+#logging:
+#  level:
+#    com.yangshengzhou.backend: DEBUG
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# ====================== 开发环境配置（spring.profiles.active=dev） ======================
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/轻羽云盘?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+minio:  # 开发环境MinIO（本地）
+  endpoint: http://localhost:9000  # 本地MinIO地址
+
+---
+# ====================== 生产环境配置（spring.profiles.active=prod） ======================
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+<<<<<<< HEAD
+    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+=======
+    url: jdbc:mysql://localhost:3306/轻羽云盘?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+>>>>>>> 91bafef (Initial commit: 轻羽云盘 - 一个功能全面、安全可靠的云存储系统)
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+minio:  # 生产环境MinIO（服务器本地，去掉docker的minio-service）
+  endpoint: http://120.55.50.51:9000  # 服务器公网MinIO地址（关键！）
+  access-key: minioadmin  # 与服务器MinIO的实际access-key一致
+  secret-key: minioadmin  # 与服务器MinIO的实际secret-key一致

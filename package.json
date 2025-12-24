@@ -1,0 +1,17 @@
+{
+  "name": "轻羽云盘",
+  "version": "1.0.0",
+  "description": "轻羽云盘 - 一个功能全面、安全可靠的云存储系统",
+  "scripts": {
+    "dev": "concurrently \"cd backend && mvn spring-boot:run\" \"cd frontend && npm run serve\"",
+    "build": "cd backend && mvn clean package && cd ../frontend && npm run build",
+    "install-deps": "cd backend && mvn dependency:resolve && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}

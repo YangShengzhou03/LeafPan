@@ -1,0 +1,28 @@
+version: '3'
+
+# 定义共享网络（前后端容器在同一网络，可通过服务名通信）
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  # 前端服务
+  frontend:
+    # 构建前端镜像（基于 frontend 目录的 Dockerfile）
+    build: ./frontend
+    container_name: vue-frontend
+    ports:
+      - "80:80"  # 宿主机80端口映射到前端容器80端口
+    networks:
+      - app-network  # 加入共享网络
+    restart: always
+
+  # 后端服务
+  backend:
+    # 构建后端镜像（基于 backend 目录的 Dockerfile）
+    build: ./backend
+    container_name: java-backend
+    # 后端端口不暴露给宿主机（通过前端Nginx代理访问）
+    networks:
+      - app-network  # 加入共享网络，与前端通信
+    restart: always
