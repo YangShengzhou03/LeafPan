@@ -1,0 +1,104 @@
+# ====================== Default Configuration (Common to all environments) ======================
+spring:
+  application:
+    name: LeafPan Backend  # Application name, common to all environments
+
+  # Datasource Configuration (Default - can be overridden by profiles)
+  datasource:
+    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA Configuration (Common)
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Jackson Configuration (Common)
+  jackson:
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+  # File Upload Configuration (Common)
+  servlet:
+    multipart:
+      max-file-size: 5GB
+      max-request-size: 5GB
+
+# Server Configuration (Default values, can be overridden by environment blocks)
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+# MinIO Configuration (Default values, can be overridden by environment blocks)
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: data  # Default bucket name
+  data-bucket: data
+  avatar-bucket: avatar
+  secure: false
+
+# Email Configuration (Common)
+email:
+  sender: 3555844679@qq.com
+  password: xtibpzrdwnppchhi
+  smtp:
+    server: smtp.qq.com
+    port: 465
+
+# Application Custom Configuration (Common)
+app:
+  jwt:
+    secret: leafpan-secret-key-for-jwt-token-generation
+    expiration: 86400000  # 24 hours
+  storage:
+    local-path: /tmp/leafpan  # Local storage path (development environment)
+    max-file-size: 5GB
+
+# Logging Configuration (Common)
+#logging:
+#  level:
+#    com.yangshengzhou.backend: DEBUG
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# ====================== Development Environment Configuration (spring.profiles.active=dev) ======================
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+minio:  # Development Environment MinIO (Local)
+  endpoint: http://localhost:9000  # Local MinIO address
+
+---
+# ====================== Production Environment Configuration (spring.profiles.active=prod) ======================
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://localhost:3306/leafpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+minio:  # Production Environment MinIO (Server local, remove docker minio-service)
+  endpoint: http://120.55.50.51:9000  # Server public MinIO address (Important!)
+  access-key: minioadmin  # Consistent with server MinIO actual access-key
+  secret-key: minioadmin  # Consistent with server MinIO actual secret-key
